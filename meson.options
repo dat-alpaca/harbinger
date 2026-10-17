@@ -1,0 +1,3 @@
+option('build_engine', type : 'boolean', value : true)
+option('build_testbed', type : 'boolean', value : true)
+option('windowing_system', type : 'combo', choices : ['glfw', 'native'], value : 'native')

@@ -1,0 +1,6 @@
+.vscode
+.cache
+deploy/
+res/
+subprojects/*
+!subprojects/*.wrap

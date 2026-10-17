@@ -1,0 +1,8 @@
+[wrap-git]
+directory = sol2
+url = https://github.com/ThePhD/sol2
+revision = main
+depth = 1
+
+[provide]
+sol2 = sol2_dep

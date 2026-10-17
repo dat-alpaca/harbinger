@@ -1,0 +1,8 @@
+[wrap-git]
+directory = libsquish
+url = https://github.com/oblivioncth/libsquish
+revision = master
+depth = 1
+
+[provide]
+libsquish = libsquish_dep

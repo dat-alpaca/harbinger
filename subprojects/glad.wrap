@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/dat-alpaca/glad-meson
+revision = master
+depth = 1
+
+[provide]
+dependency_names = glad_dep

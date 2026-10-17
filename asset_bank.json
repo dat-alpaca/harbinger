@@ -1,0 +1,30 @@
+{
+    "res/textures/cat.jpg": {
+        "type": "texture",
+        "options": {
+            "compression": "dxt5",
+            "dataFormat": "dxt5_rgba",
+            "dataType": "unsigned_byte",
+            "gpuOptions": {
+                "width": 289,
+                "height": 295,
+                "layerWidth": 289,
+                "layerHeight": 295,
+                "depth": 1,
+                "dimension": "texture_2d",
+                "arraySize": 1,
+                "internalFormat": "dxt5_rgba",
+                "levels": 1,
+                "isRenderTarget": false
+            },
+            "samplerOptions": {
+                "wrapS": "repeat",
+                "wrapT": "repeat",
+                "wrapR": "repeat",
+                "magFilter": "nearest",
+                "minFilter": "nearest",
+                "enableMipFiltering": true
+            }
+        }
+    }
+}

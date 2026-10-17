@@ -1,0 +1,142 @@
+#pragma once
+#include "core/assets/asset.hpp"
+#include "core/containers/containers.hpp"
+#include "core/logging/logger.hpp"
+#include "core/memory/memory_tag.hpp"
+#include "entt/entity/fwd.hpp"
+#include "nlohmann/json.hpp"
+#include "core/scene/scene.hpp"
+#include "core/scene/entity.hpp"
+#include "core/scene/components.hpp"
+#include "core/utils/json_serializable.hpp"
+
+namespace har
+{
+    struct scene_asset_data
+    {   
+        struct entry
+        {
+            std::filesystem::path filepath;
+            asset_type type = asset_type::invalid;
+        };
+
+        har_vector<memory_tag::scene, entry> entries;
+    };
+
+    inline nlohmann::json serialize_scene(const scene_t& scene)
+    {
+        using namespace nlohmann;
+
+        auto& registry = scene.get_registry();
+
+        json root = json::object();
+        json entityList = json::array();
+
+
+        registry.each([&](entt::entity entity)
+        {
+            json entityObject;
+            entityObject["id"] = static_cast<u32>(entity);
+
+            if (registry.all_of<name_component>(entity))
+            {
+                auto& nameComponent = registry.get<name_component>(entity);
+                entityObject["name"] = nameComponent.name;
+            }
+
+            if (registry.all_of<transform_component>(entity))
+            {
+                auto& transform = registry.get<transform_component>(entity).transform;
+                entityObject["transform"] = transform;
+            }
+
+            entityList.push_back(entityObject);
+        });
+
+        root["entities"] = entityList;
+        return root;
+    }
+}
+
+namespace
+{
+    inline void deserialize_assets(const nlohmann::json& sceneObject, har::scene_asset_data& data)
+    {
+        using namespace har;
+
+        if (!sceneObject.contains("assets") || !sceneObject["assets"].is_array())
+        {
+            HAR_LOG_CRITICAL("Invalid scene object: invalid asset registry");
+            return;
+        }
+
+        for (const auto& assetObject : sceneObject["assets"])
+        {
+            if (!assetObject.contains("filepath") || !assetObject.contains("type") )
+            {
+                HAR_LOG_WARN("Invalid asset entry. Assets must have a 'filepath' and 'type' field.");
+                continue;
+            }
+
+            har_string typeText = assetObject["type"].get<har_string>();
+            asset_type type = get_asset_type_from_name(typeText.c_str());
+            
+            if (type == asset_type::invalid)
+            {
+                HAR_LOG_WARN("[Scene] Invalid scene asset entry: {}", assetObject["filepath"].get<std::string>());
+                continue;
+            }
+
+            data.entries.push_back({ .filepath = assetObject["filepath"], .type = type });
+        }
+    }
+
+    inline void deserialize_entities(const nlohmann::json& sceneObject, har::scene_t& scene)
+    {
+        using namespace har;
+
+        // TODO: finish
+
+        if (!sceneObject.contains("entities") || !sceneObject["entities"].is_array())
+        {
+            HAR_LOG_CRITICAL("Invalid scene object. Invalid entities registry");
+            return;
+        }
+
+        for (const auto& entityObject : sceneObject["entities"])
+        {
+            entity_t entity = scene.create_entity(static_cast<entt::entity>(entityObject["id"]));
+
+            if (entityObject.contains("name"))
+                entity.emplace<name_component>(entityObject["name"].get<har_string>());
+
+            if (entityObject.contains("transform"))
+                entity.emplace<transform_component>(entityObject["transform"].get<transform_t>());
+
+
+            // TODO: Material instance deferral 
+            if (entityObject.contains("material_instance"))
+            {
+            }
+
+            // TODO: Script deferral 
+            if (entityObject.contains("script"))
+            {
+            }
+        }
+    }
+}
+
+namespace har
+{
+    inline void deserialize_scene(const nlohmann::json& sceneObject, scene_t& scene, scene_asset_data& data)
+    {
+        using namespace nlohmann;
+
+        auto& registry = scene.get_registry();
+        registry.clear();
+
+        deserialize_entities(sceneObject, scene);
+        deserialize_assets(sceneObject, data);
+    }
+}
