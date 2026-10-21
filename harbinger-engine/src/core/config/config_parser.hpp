@@ -15,6 +15,9 @@ namespace har
         if (MATCH("asset_bank", "filepath"))
             config->assetBankFilepath = strdup(value);
 
+        else if (MATCH("memory", "maxScriptCount"))
+            config->maxScriptCount = std::atoi(value);
+
         // Window:
         else if (MATCH("window", "title"))
             config->windowTitle = strdup(value);

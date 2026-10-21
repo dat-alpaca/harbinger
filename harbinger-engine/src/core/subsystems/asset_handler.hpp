@@ -19,6 +19,7 @@ namespace har
     {
         u32 maxTextureCount;
         u32 maxPipelineStateCount;
+        u32 maxScriptCount;
     };
 
     class harbinger_engine;
@@ -29,7 +30,9 @@ namespace har
         constexpr static inline u64 get_required_static_memory(const asset_memory_options& options)
         {
             return 
-                asset_cache<texture_asset>::get_required_static_memory(options.maxTextureCount);
+                asset_cache<texture_asset>::get_required_static_memory(options.maxTextureCount) +
+                asset_cache<pso_asset>::get_required_static_memory(options.maxPipelineStateCount) +
+                asset_cache<script_asset>::get_required_static_memory(options.maxScriptCount);
         }
 
     public:

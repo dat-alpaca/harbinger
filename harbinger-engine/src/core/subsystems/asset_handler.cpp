@@ -21,6 +21,7 @@ namespace har
         auto* allocator = engine->get_main_static_allocator();
         mTextureCache.initialize(allocator, options.maxTextureCount);
         mPipelineStatesCache.initialize(allocator, options.maxPipelineStateCount);
+        mScriptCache.initialize(allocator, options.maxScriptCount);
     }
 
     void asset_handler::on_event(event& event)
@@ -192,6 +193,9 @@ namespace har
             return existingHandle;
 
         asset_handle handle = mScriptCache.register_empty_asset();
+        if (handle == invalid_small_handle)
+            HAR_LOG_CRITICAL("No space");
+
         auto result = load_script_task(filepath, &rEngine->scriptEngine);
         if (!result.has_value())
         {

@@ -17,7 +17,7 @@ namespace har
 
         // TODO: allow compiling and/or loading binary.
         auto scriptFile = scripts->open_file(filepath);
-        if (!scriptFile)
+        if (!scriptFile.valid())
             return std::unexpected { asset_load_error::failed_to_load };
 
         script_asset script { .self = scriptFile.call() };

@@ -22,6 +22,8 @@ namespace har
         i32 windowMinHeight = 480;
         i32 windowVsyncFrames = 0;
 
+        u32 maxScriptCount = 1;
+
         u32 maxSceneCount = 1;
 
         u32 tileRendererMaxTileCount = 0;

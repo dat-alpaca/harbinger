@@ -82,7 +82,8 @@ namespace har
             asset_memory_options options =
             {
                 .maxTextureCount = config.rhiArguments.maxTextureCount,
-                .maxPipelineStateCount = config.rhiArguments.maxPipelineCount
+                .maxPipelineStateCount = config.rhiArguments.maxPipelineCount,
+                .maxScriptCount = config.maxScriptCount,
             };
             
             assetHandler.initialize(this, options);
