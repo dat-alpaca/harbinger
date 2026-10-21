@@ -27,22 +27,20 @@
 static void* lua_allocator(void* user, void* address, size_t oldSize, size_t newSize)
 {
     using namespace har;
-
-    harbinger_engine* engine = reinterpret_cast<harbinger_engine*>(user);
-    auto* allocator = engine->get_main_dynamic_allocator();
+    using namespace internal;
 
     if (newSize == 0)
     {
         if (address)
-            allocator->deallocate(memory_tag::script_system, address);
+            MainDynamicAllocator.deallocate(memory_tag::script_system, address);
         
         return nullptr;
     }
 
     if (!address)
-        return allocator->allocate(har::memory_tag::script_system, newSize);
+        return MainDynamicAllocator.allocate(har::memory_tag::script_system, newSize);
 
-    return allocator->reallocate(har::memory_tag::script_system, address, newSize);
+    return MainDynamicAllocator.reallocate(har::memory_tag::script_system, address, newSize);
 }
 
 constexpr static sol::load_mode get_load_mode(har::file_type type)

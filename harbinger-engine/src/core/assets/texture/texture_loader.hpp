@@ -35,18 +35,12 @@ namespace har
         if (!data)
             return std::unexpected { asset_load_error::failed_to_load };
 
-        byte* newData = static_cast<byte*>(MainDynamicAllocator.allocate(memory_tag::assets, width * height * channels, alignof(u8)));
-        mempcpy(newData, data, width * height * channels * sizeof(byte));
-
-        stbi_image_free(data);
-        return texture_asset(newData, width, height, channels);
+        return texture_asset(data, width, height, channels);
     }
     
     inline void unload_texture_task(byte* data)
     {
         assert(data);
-        using namespace har::internal;
-        
-        MainDynamicAllocator.deallocate(memory_tag::assets, data);
+        stbi_image_free(data);
     }
 }

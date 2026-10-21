@@ -101,9 +101,17 @@ foreach arg : args
     add_project_arguments(arg, language: 'cpp')
 endforeach
 
+# STB:
+c_args = []
+c_args += 'STBI_NO_TGA=1' 
+c_args += 'STBI_NO_GIF=1'
+c_args += 'STBI_NO_PIC=1'
+c_args += 'STBI_NO_PNM=1'
+
 harbinger_engine = static_library(
     'harbinger-engine',
     sources: sources,
+    c_args: c_args,
     cpp_args: args,
     dependencies: harbinger_engine_deps,
     include_directories: harbinger_engine_include

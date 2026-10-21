@@ -26,7 +26,7 @@ namespace har::rhi
         glCreateVertexArrays(1, &mVAO);
 
         // Resources:
-        auto* staticAllocator = rEngine->get_main_static_allocator();
+        auto* staticAllocator = &internal::MainStaticAllocator;
         {
             byte* backingBuffer = staticAllocator->push
             (

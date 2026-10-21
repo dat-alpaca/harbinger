@@ -14,20 +14,17 @@ using namespace har;
 // Memory:
 static void* glfw_allocate(har::u64 size, void* user)
 {
-    har::harbinger_engine* engine = reinterpret_cast<har::harbinger_engine*>(user);
-    return engine->get_main_dynamic_allocator()->allocate(har::memory_tag::windowing, size);
+    return internal::MainDynamicAllocator.allocate(har::memory_tag::windowing, size);
 }
 
 static void glfw_deallocate(void* block, void* user)
 {
-    har::harbinger_engine* engine = reinterpret_cast<har::harbinger_engine*>(user);
-    return engine->get_main_dynamic_allocator()->deallocate(har::memory_tag::windowing, block);
+    return internal::MainDynamicAllocator.deallocate(har::memory_tag::windowing, block);
 }
 
 static void* glfw_reallocate(void* block, har::u64 size, void* user)
 {
-    har::harbinger_engine* engine = reinterpret_cast<har::harbinger_engine*>(user);
-    return engine->get_main_dynamic_allocator()->reallocate(har::memory_tag::windowing, block, size);
+    return internal::MainDynamicAllocator.reallocate(har::memory_tag::windowing, block, size);
 }
 
 // Callbacks:

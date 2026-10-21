@@ -25,12 +25,6 @@ namespace har
     class harbinger_engine
     {
     public:
-        static constexpr u64 get_required_static_memory()
-        {
-            return 0;
-        } 
-
-    public:
         harbinger_engine(const char* configFilepath = "config.ini");
         ~harbinger_engine();
 
@@ -40,11 +34,6 @@ namespace har
 
     public:
         bool is_running() const;
-
-    public:
-        static inline dynamic_allocator* get_main_dynamic_allocator() { return &internal::MainDynamicAllocator; }
-        static inline transient_allocator* get_main_transient_allocator() { return &internal::MainTransientAllocator; }
-        static inline static_allocator* get_main_static_allocator() { return &internal::MainStaticAllocator; }
 
     public:
         config_t config;

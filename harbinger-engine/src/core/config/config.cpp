@@ -24,9 +24,8 @@ namespace har
             .maxPipelineStateCount = rhiArguments.maxPipelineCount
         });
         u32 scriptEngineMemory = script_engine::get_required_static_memory();
-        u32 engineMemory = harbinger_engine::get_required_static_memory();
 
-        return rhiMemory + eventQueueMemory + sceneHolderMemory + assetHandler + scriptEngineMemory + engineMemory;// + rendererMemory;
+        return rhiMemory + eventQueueMemory + sceneHolderMemory + assetHandler + scriptEngineMemory;// + rendererMemory;
     }
 
     u32 config_t::get_required_dynamic_memory()

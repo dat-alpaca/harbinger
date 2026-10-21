@@ -16,12 +16,12 @@ namespace har
 {
     void asset_handler::initialize(NON_OWNING harbinger_engine* engine, const asset_memory_options& options)
     {
+        using namespace internal;
         rEngine = engine;
-
-        auto* allocator = engine->get_main_static_allocator();
-        mTextureCache.initialize(allocator, options.maxTextureCount);
-        mPipelineStatesCache.initialize(allocator, options.maxPipelineStateCount);
-        mScriptCache.initialize(allocator, options.maxScriptCount);
+        
+        mTextureCache.initialize(&MainStaticAllocator, options.maxTextureCount);
+        mPipelineStatesCache.initialize(&MainStaticAllocator, options.maxPipelineStateCount);
+        mScriptCache.initialize(&MainStaticAllocator, options.maxScriptCount);
     }
 
     void asset_handler::on_event(event& event)
