@@ -1,7 +1,7 @@
 #pragma once
-#include "core/defines.hpp"
-#include <cassert>
 #include <cstring>
+#include "core/defines.hpp"
+#include "core/assert/assert.hpp"
 
 namespace har
 {   
@@ -15,10 +15,10 @@ namespace har
 
         nano_string(const char* string)
         {
-            assert(string);
+            HAR_ASS(string);
             u64 stringSize = std::strlen(string);
             
-            assert(stringSize <= gNanoStringDataSize);
+            HAR_ASS(stringSize <= gNanoStringDataSize);
             length = stringSize;
         
             std::memcpy(data, string, stringSize);            
@@ -40,7 +40,7 @@ namespace har
 
         inline char operator[](u8 index) const
         {
-            assert(index < gNanoStringDataSize);
+            HAR_ASS(index < gNanoStringDataSize);
             return data[index];
         }
 

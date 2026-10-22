@@ -1,5 +1,5 @@
 #include "entity.hpp"
-#include <cassert>
+#include "core/assert/assert.hpp"
 
 namespace har
 {
@@ -7,6 +7,6 @@ namespace har
         : rScene(scene)
         , mEntity(entity)
     {
-        assert(rScene);
+        HAR_ASS(rScene);
     }
 }

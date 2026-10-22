@@ -1,5 +1,4 @@
 #pragma once
-#include <assert.h>
 #include <mutex>
 #include <utility>
 
@@ -25,7 +24,7 @@ namespace har::thread_safe
         void push_back(const T& value)
         {
             std::lock_guard<std::mutex> lock(mMutex);
-            assert(mBuffer.size() < mCapacity);
+            HAR_ASS(mBuffer.size() < mCapacity);
 
             mBuffer.push_back(value);
         }
@@ -33,7 +32,7 @@ namespace har::thread_safe
         void push_back(T&& value)
         {
             std::lock_guard<std::mutex> lock(mMutex);
-            assert(mBuffer.size() < mCapacity);
+            HAR_ASS(mBuffer.size() < mCapacity);
 
             mBuffer.push_back(std::move(value));
         }
@@ -42,7 +41,7 @@ namespace har::thread_safe
         void emplace_back(Args&&... args)
         {
             std::lock_guard<std::mutex> lock(mMutex);
-            assert(mBuffer.size() < mCapacity);
+            HAR_ASS(mBuffer.size() < mCapacity);
 
             mBuffer.emplace_back(std::forward<Args>(args)...);
         }

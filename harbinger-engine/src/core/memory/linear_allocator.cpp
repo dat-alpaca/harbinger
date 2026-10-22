@@ -1,6 +1,6 @@
 #include "linear_allocator.hpp"
+#include "core/assert/assert.hpp"
 #include "core/utils/memory_utils.hpp"
-#include <cassert>
 
 namespace har
 {
@@ -18,13 +18,13 @@ namespace har
 
     byte* linear_allocator::push(u32 size, u8 alignment)
     {
-        assert(is_power_of_two(alignment));
-        assert(mUnderlyingBuffer);
+        HAR_ASS(is_power_of_two(alignment));
+        HAR_ASS(mUnderlyingBuffer);
 
         u32 alignedOffset = align_address(mSize, alignment);
         u32 newSize = alignedOffset + size;
         
-        assert(newSize <= mCapacity);
+        HAR_ASS(newSize <= mCapacity);
 
         mSize = newSize;
 

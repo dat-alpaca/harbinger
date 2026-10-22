@@ -1,6 +1,7 @@
 #pragma once
 #include <string.h>
 #include <filesystem>
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
 #include "core/assets/asset.hpp"
 #include "core/containers/containers.hpp"
@@ -56,7 +57,8 @@ namespace har
 
         void remove_asset(const std::filesystem::path& filepath)
         {
-            assert (is_asset_available(filepath));
+            // TODO: handle error
+            HAR_ASS(is_asset_available(filepath));
 
             mResources.remove(get_asset_handle(filepath));
             mFilepathMap.erase(filepath.string());

@@ -1,10 +1,11 @@
 #pragma once
+#include "core/config/config.hpp"
 #include "core/defines.hpp"
 
+#include "platform/window.hpp"
 #include "rhi/common/objects.hpp"
 #include "rhi/opengl/containers.hpp"
 #include "rhi/common/rhi_arguments.hpp"
-#include <filesystem>
 
 namespace har { class harbinger_engine; }
 namespace har::rhi
@@ -14,11 +15,7 @@ namespace har::rhi
     class rhi_gl
     {
     public:
-        rhi_gl(NON_OWNING harbinger_engine* engine);
-        ~rhi_gl();
-
-    public:
-        void initialize(const rhi_arguments& arguments);
+        void initialize(NON_OWNING config_t* config, NON_OWNING window_t* window, const rhi_arguments& arguments);
 
     public:
         bool begin_frame();
@@ -54,9 +51,6 @@ namespace har::rhi
     public:
         command_buffer_gl create_command_buffer();
 
-    private:
-        NON_OWNING harbinger_engine* rEngine = nullptr;
-
     public:
         INTERNAL shader_container& shaders()                        { return mShaders; }
         INTERNAL buffer_container& buffers()                        { return mBuffers; }
@@ -80,6 +74,8 @@ namespace har::rhi
         pipeline_container mPipelines                   = { };
 
     private:
+        NON_OWNING window_t* rWindow = nullptr;
+        NON_OWNING config_t* rConfig = nullptr;
         gl_handle mVAO = invalid_handle;
     };
 }

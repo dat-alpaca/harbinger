@@ -1,17 +1,16 @@
 #include "windowing.hpp"
-#include "core/engine/engine.hpp"
 #include "platform/middleware.hpp"
 
 namespace har
 {
-    void windowing_system::initialize(NON_OWNING harbinger_engine* engine, const platform::window_api_settings& api, const platform::window_settings& settings)
+    void windowing_system::initialize(NON_OWNING event_queue* eventQueue, const platform::window_api_settings& api, const platform::window_settings& settings)
     {
-        platform::initialize_windowing(engine);
+        platform::initialize_windowing();
 
         {
             platform::pre_initialize(api);
             
-            window = platform::window_initialize(settings, engine->eventQueue.get());
+            window = platform::window_initialize(settings, eventQueue);
             platform::window_set_user_pointer(&window);
             
             platform::post_initialize(window);

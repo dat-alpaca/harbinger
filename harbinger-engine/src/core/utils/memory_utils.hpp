@@ -1,6 +1,6 @@
 #pragma once
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
-#include <cassert>
 #include <cstddef>
 #include <span>
 #include <type_traits>
@@ -17,7 +17,7 @@ namespace har
         if (address == 0)
             return address;
 
-        assert(is_power_of_two(alignment));
+        HAR_ASS(is_power_of_two(alignment));
         return (address + alignment - 1) & ~(alignment - 1);
     }
 

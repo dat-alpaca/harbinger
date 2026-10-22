@@ -1,4 +1,9 @@
 #pragma once
+#include "core/assets/asset_bank.hpp"
+#include "core/config/config.hpp"
+#include "core/event/event_queue.hpp"
+#include "core/subsystems/asset_handler.hpp"
+#include "rhi/glsl_compiler.hpp"
 #include "rhi/rhi.hpp"
 #include "core/defines.hpp"
 #include "core/event/event.hpp"
@@ -10,10 +15,19 @@ namespace har
 {
     class harbinger_engine;
 
+    struct gpu_uploader_context
+    {
+        NON_OWNING asset_handler* assetHandler = nullptr;
+        NON_OWNING event_queue*   eventQueue   = nullptr;
+        NON_OWNING asset_bank*    assetBank    = nullptr;
+        NON_OWNING config_t*      config       = nullptr;
+        NON_OWNING rhi_t*         rhi          = nullptr;
+    };
+
     class gpu_uploader
     {
     public:
-        void initialize(NON_OWNING harbinger_engine* engine);
+        void initialize(gpu_uploader_context&& context);
 
     public:
         void on_event(event& event);
@@ -25,7 +39,8 @@ namespace har
         shader_handle create_shader(shader_type type, const std::filesystem::path& shaderFilepath);
 
     private:
-        NON_OWNING harbinger_engine* rEngine = nullptr;
         command_buffer_t mTransferBuffer;
+        gpu_uploader_context rContext;
+        glsl_compiler mCompiler;
     };
 }

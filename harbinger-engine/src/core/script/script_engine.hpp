@@ -3,12 +3,20 @@
 #include <filesystem>
 #include <sol/sol.hpp>
 #include "core/defines.hpp"
+#include "core/scene/scene_holder.hpp"
+#include "core/subsystems/asset_handler.hpp"
 #include "sol/forward.hpp"
 #include "sol/load_result.hpp"
 
 namespace har
 {
     class harbinger_engine;
+
+    struct script_engine_context
+    {
+        NON_OWNING scene_holder* sceneHolder;
+        NON_OWNING asset_handler* assetHandler;
+    };
 
     struct script_engine
     {
@@ -20,7 +28,7 @@ namespace har
         }
 
     public:
-        void initialize(NON_OWNING harbinger_engine* engine);
+        void initialize(script_engine_context&& context);
 
     public:
         sol::load_result open_file(const std::filesystem::path& filepath, file_type type = file_type::any); 
@@ -32,7 +40,7 @@ namespace har
         void initialize_event();
 
     private:
-        NON_OWNING harbinger_engine* rEngine;
+        NON_OWNING script_engine_context rContext;
         lua_State* mState = nullptr;
         sol::state_view* mView;
     };

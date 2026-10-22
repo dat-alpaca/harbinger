@@ -13,7 +13,7 @@ namespace har { class harbinger_engine; }
 
 namespace har::platform
 {
-    void initialize_windowing(NON_OWNING harbinger_engine* engine);
+    void initialize_windowing();
 
     window_t window_initialize(const window_settings& settings, NON_OWNING event_queue* queue);
 

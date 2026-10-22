@@ -1,4 +1,5 @@
 #include "asset_bank.hpp"
+#include "core/assert/assert.hpp"
 #include "core/logging/logger.hpp"
 #include "core/utils/file.hpp"
 
@@ -42,7 +43,8 @@ namespace har
     
     texture_asset_bank_options* asset_bank::get_texture_options(const std::filesystem::path& filepath)
     {
-        assert(mTextureBank.contains(filepath));
+        // TODO: handle error
+        HAR_ASS(mTextureBank.contains(filepath));
         return static_cast<texture_asset_bank_options*>(mTextureBank[filepath.string()].get());
     }
 }

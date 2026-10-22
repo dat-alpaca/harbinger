@@ -54,7 +54,7 @@ static void initialize(harbinger_engine& engine)
 
 static void initialize_assets(harbinger_engine& engine)
 {
-    engine.scriptEngine.invoke_startup_script("res/startup.lua");
+    engine.context.scriptEngine.invoke_startup_script("res/startup.lua");
 }
 
 /*

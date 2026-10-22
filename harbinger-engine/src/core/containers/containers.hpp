@@ -1,4 +1,5 @@
 #pragma once
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
 #include "core/memory/dynamic_allocator.hpp"
 #include "core/memory/linear_allocator.hpp"
@@ -9,7 +10,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <cassert>
 #include <type_traits>
 
 namespace har
@@ -45,7 +45,7 @@ namespace har
     public:
         constexpr T* allocate(u64 count)
         {
-            assert(rDynamicAllocator);
+            HAR_ASS(rDynamicAllocator);
             return reinterpret_cast<T*>(rDynamicAllocator->allocate(tag, count * sizeof(T), 1));
         }
 
@@ -120,7 +120,7 @@ namespace har
     public:
         constexpr T* allocate(u64 count)
         {
-            assert(rTransientAllocator);
+            HAR_ASS(rTransientAllocator);
             return reinterpret_cast<T*>(rTransientAllocator->push(count * sizeof(T), 1));
         }
 
@@ -184,7 +184,7 @@ namespace har
     public:
         constexpr T* allocate(u64 count)
         {
-            assert(rStaticAllocator);
+            HAR_ASS(rStaticAllocator);
             return reinterpret_cast<T*>(rStaticAllocator->push(count * sizeof(T), 1));
         }
 

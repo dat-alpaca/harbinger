@@ -1,7 +1,8 @@
 #pragma once
 #include <algorithm>
-#include <assert.h>
 #include <memory>
+
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
 
 namespace har
@@ -24,8 +25,8 @@ namespace har
     public:
         constexpr void initialize(byte* backingBuffer, u32 elementCount)
         {
-            assert(backingBuffer);
-            assert(elementCount);
+            HAR_ASS(backingBuffer);
+            HAR_ASS(elementCount);
 
             mBuffer = reinterpret_cast<node*>(backingBuffer);
             mCapacity = elementCount;
@@ -68,7 +69,7 @@ namespace har
 
         constexpr void remove(handle_t index)
         {
-            assert(index < mCapacity);
+            HAR_ASS(index < mCapacity);
 
             mBuffer[index].nextFree = mFree;
             mFree = index;
@@ -78,13 +79,13 @@ namespace har
     public:
         constexpr T& operator[](handle_t index)
         {
-            assert(index < mSize && index >= 0);
+            HAR_ASS(index < mSize && index >= 0);
             return mBuffer[index].value;
         }
 
         constexpr const T& operator[](handle_t index) const
         {
-            assert(index < mSize && index >= 0);
+            HAR_ASS(index < mSize && index >= 0);
             return mBuffer[index].value;
         }
 

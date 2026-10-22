@@ -1,23 +1,22 @@
 #include "dynamic_allocator.hpp"
+#include "core/assert/assert.hpp"
 #include "core/memory/memory_stats.hpp"
 #include "core/memory/memory_tag.hpp"
-
-#include <cassert>
 
 namespace har
 {    
     void dynamic_allocator::initialize(void* externalPool, u64 size)
     {
         mUsable = tlsf_pool_init(&mTLSF, externalPool, size);
-        assert(mUsable);
+        HAR_ASS(mUsable);
     }
 
     void* dynamic_allocator::allocate(memory_tag tag, u64 size, u8 alignment)
     {
-        assert(size);
+        HAR_ASS(size);
 
         void* address = tlsf_aalloc(&mTLSF, alignment, size);
-        assert(address);
+        HAR_ASS(address);
 
         gMemoryStats.add(tlsf_usable_size(address), tag);
         return address;
@@ -56,15 +55,16 @@ namespace har::safe
     void dynamic_allocator::initialize(void* externalPool, u64 size)
     {
         mUsable = tlsf_thread_init(&mTLSF, externalPool, size);
-        assert(mUsable);
+        HAR_ASS(mUsable);
     }
 
     void* dynamic_allocator::allocate(memory_tag tag, u64 size, u8 alignment)
     {
-        assert(size);
+        // TODO: Handle out of memory issues?
+        HAR_ASS(size);
 
         void* address = tlsf_thread_aalloc(&mTLSF, alignment, size);
-        assert(address);
+        HAR_ASS(address);
 
         gMemoryStats.add(tlsf_usable_size(address), tag);
         return address;

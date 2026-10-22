@@ -1,15 +1,14 @@
-#include <cassert>
 #include <glad.h>
 #include <span>
 
 #include "core/defines.hpp"
-#include "core/engine/engine.hpp"
 #include "core/logging/logger.hpp"
 
+#include "rhi_gl.hpp"
 #include "rhi/opengl/descriptor_gl.hpp"
 #include "rhi/opengl/shader_compat.hpp"
 #include "rhi/opengl/texture_gl.hpp"
-#include "rhi_gl.hpp"
+
 #include "rhi/common/format.hpp"
 #include "rhi/opengl/handle.hpp"
 #include "rhi/common/objects.hpp"
@@ -66,7 +65,7 @@ namespace har::rhi
                 break;
         }
 
-        har_string contents = gl::convert_spv_to_gl_glsl(rEngine->config, spirvData);
+        har_string contents = gl::convert_spv_to_gl_glsl(*rConfig, spirvData);
         gl_handle shaderID = glCreateShader(shaderType);
         {
             const char* const cstring = static_cast<const char*>(contents.data());
@@ -433,8 +432,8 @@ namespace har::rhi
         
         // Vertex input copying:
         {
-            u32 maxAttributeCount = rEngine->config.rhiArguments.maxVertexAttributesPerPipeline;
-            assert(descriptor.vertexInput.attributes.size() <= maxAttributeCount);
+            u32 maxAttributeCount = rConfig->rhiArguments.maxVertexAttributesPerPipeline;
+            HAR_ASS(descriptor.vertexInput.attributes.size() <= maxAttributeCount);
 
             auto& pipelineAttributes = pipeline.vertexInput.attributes;
             pipeline.vertexInput.stride = descriptor.vertexInput.stride;

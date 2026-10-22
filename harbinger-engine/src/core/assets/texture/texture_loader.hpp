@@ -1,10 +1,10 @@
 #pragma once
-#include <cassert>
 #include <string.h>
 #include <expected>
 #include <filesystem>
 #include <stb_image.h>
 
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
 #include "core/memory/allocators.hpp"
 #include "core/memory/memory_tag.hpp"
@@ -40,7 +40,7 @@ namespace har
     
     inline void unload_texture_task(byte* data)
     {
-        assert(data);
+        HAR_ASS(data);
         stbi_image_free(data);
     }
 }

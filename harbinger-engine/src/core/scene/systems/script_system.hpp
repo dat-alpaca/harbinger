@@ -1,13 +1,13 @@
 #pragma once
-#include "core/assets/script/script_loader.hpp"
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
 #include "core/event/event.hpp"
-#include "core/scene/components.hpp"
 #include "core/scene/scene.hpp"
+#include "core/scene/components.hpp"
 #include "core/event/event_type.hpp"
-#include "core/event/concrete/scene_events.hpp"
 #include "core/subsystems/asset_handler.hpp"
-#include <cassert>
+#include "core/assets/script/script_loader.hpp"
+#include "core/event/concrete/scene_events.hpp"
 
 namespace har
 {
@@ -16,7 +16,7 @@ namespace har
     public:
         void initialize(NON_OWNING asset_handler* handler)
         {
-            assert(handler);
+            HAR_ASS(handler);
             rAssetHandler = handler;
         }
 

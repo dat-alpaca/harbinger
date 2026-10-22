@@ -1,6 +1,6 @@
 #include "scene_holder.hpp"
+#include "core/assert/assert.hpp"
 #include "core/event/concrete/scene_events.hpp"
-#include "core/logging/logger.hpp"
 
 namespace har
 {
@@ -25,7 +25,7 @@ namespace har
 
     void scene_holder::set_current_scene(scene_handle handle)
     {
-        assert(is_valid_scene_handle(handle));
+        HAR_ASS(is_valid_scene_handle(handle));
 
         scene_t* previousScene = mCurrentScene;
         mCurrentScene = mScenes[handle].get();

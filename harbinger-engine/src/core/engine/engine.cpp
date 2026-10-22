@@ -9,15 +9,16 @@
 #include "core/memory/dynamic_allocator.hpp"
 #include "core/memory/memory_partitions.hpp"
 
+#include "core/scene/scene_holder.hpp"
 #include "platform/window.hpp"
 
 namespace har
 {
     harbinger_engine::harbinger_engine(const char* configFilepath)
-        : rhi(this)
     {
         // Config:
-        config = parse_config(configFilepath);
+        context.config = parse_config(configFilepath);
+        auto& config = context.config;
 
         u32 staticMemoryAmount = config.get_required_static_memory();
         u32 dynamicMemoryAmount = config.get_required_dynamic_memory();
@@ -25,12 +26,13 @@ namespace har
         u32 safeMemoryAmount = config.get_required_safe_memory();
 
         // Memory:
-        memoryPartitions = memory_partitions_initialize({
+        context.memoryPartitions = memory_partitions_initialize({
             .staticMemorySizeBytes = staticMemoryAmount,
             .dynamicMemorySizeBytes = dynamicMemoryAmount, // + MiB(10),
             .transientMemorySizeBytes = transientMemoryAmount,
             .safeMemorySizeBytes = safeMemoryAmount
         });
+        auto& memoryPartitions = context.memoryPartitions;
 
         internal::MainStaticAllocator.initialize(memoryPartitions.staticMemory, memoryPartitions.staticMemorySize);
         internal::MainTransientAllocator.initialize(memoryPartitions.transientMemory, memoryPartitions.transientMemorySize);
@@ -40,19 +42,23 @@ namespace har
         initialize_logger(&internal::MainDynamicAllocator);
 
         // Worker pools:
-        workerPool.initialize(config.workerThreadCount);
+        context.workerPool.initialize(config.workerThreadCount);
 
         // Event queue:
-        eventQueue = make_unique<event_queue>(config.eventQueueCapacity, config.eventQueuePeepers);
+        context.eventQueue = make_unique<event_queue>(config.eventQueueCapacity, config.eventQueuePeepers);
+        auto& eventQueue = context.eventQueue;
 
         // Scene Holder:
-        sceneHolder.initialize(eventQueue.get(), config.maxSceneCount);
+        context.sceneHolder.initialize(eventQueue.get(), config.maxSceneCount);
 
         // Script:
-        scriptEngine.initialize(this);
+        context.scriptEngine.initialize({
+            .sceneHolder = &context.sceneHolder,
+            .assetHandler = &context.assetHandler,
+        });
 
         // Windowing:
-        windowing.initialize(this, 
+        context.windowing.initialize(context.eventQueue.get(),
         {
             .major = config.apiMajor,
             .minor = config.apiMinor
@@ -65,18 +71,15 @@ namespace har
         });
 
         // RHI:
-        rhi.initialize(config.rhiArguments);
+        context.rhi.initialize(&context.config, &context.windowing.window, config.rhiArguments);
 
         // Renderer:
         // renderer.initialize(&rhi, config.maxDrawInfoPerFrame, config.maxMaterialInstances, config.maxMeshes);
 
-        // GLSL Compiler:
-        glslCompiler.initialize();
-
         /* Subsystems */
         // Asset Bank & Handler:
-        assetBank.initialize(config.rhiArguments.maxTextureCount);
-        assetBank.load_bank(config.assetBankFilepath.c_str());
+        context.assetBank.initialize(config.rhiArguments.maxTextureCount);
+        context.assetBank.load_bank(config.assetBankFilepath.c_str());
 
         {
             asset_memory_options options =
@@ -86,22 +89,34 @@ namespace har
                 .maxScriptCount = config.maxScriptCount,
             };
             
-            assetHandler.initialize(this, options);
+            context.assetHandler.initialize({
+                .eventQueue = context.eventQueue.get(),
+                .workerPool = &context.workerPool,
+                .assetBank = &context.assetBank,
+                .scriptEngine = &context.scriptEngine,
+                .sceneHolder = &context.sceneHolder,
+            }, options);
         
-            eventQueue->register_peeper({.callback = [&](event& event) { assetHandler.on_event(event); }});
+            eventQueue->register_peeper({.callback = [&](event& event) { context.assetHandler.on_event(event); }});
         }
 
         // GPU Uploader:
-        gpuUploader.initialize(this);
+        context.gpuUploader.initialize({
+            .assetHandler = &context.assetHandler,
+            .eventQueue = context.eventQueue.get(),
+            .assetBank = &context.assetBank,
+            .config = &context.config, 
+            .rhi = &context.rhi,
+        });
         {
-            eventQueue->register_peeper({.callback = [&](event& event) { gpuUploader.on_event(event); }});
+            eventQueue->register_peeper({.callback = [&](event& event) { context.gpuUploader.on_event(event); }});
         }
 
 
         /* Systems */
-        scriptSystem.initialize(&assetHandler);
+        context.scriptSystem.initialize(&context.assetHandler);
         {
-            eventQueue->register_peeper({.callback = [&](event& event) { scriptSystem.on_event(event); }});
+            eventQueue->register_peeper({.callback = [&](event& event) { context.scriptSystem.on_event(event); }});
         }
 
         /* Stats */
@@ -113,7 +128,7 @@ namespace har
 
     harbinger_engine::~harbinger_engine()
     {
-        // glslCompiler.shutdown();
+        /* Blank */
     }
 
     void harbinger_engine::start_frame()
@@ -121,17 +136,17 @@ namespace har
         internal::MainTransientAllocator.clear();
 
         // Events:
-        platform::window_poll_events(windowing.window);
-        eventQueue->process_events();
+        platform::window_poll_events(context.windowing.window);
+        context.eventQueue->process_events();
     }
 
     void harbinger_engine::on_update()
     {
-        scriptSystem.on_update();
+        context.scriptSystem.on_update();
     }
 
     bool harbinger_engine::is_running() const
     {
-        return platform::window_is_open(windowing.window);
+        return platform::window_is_open(context.windowing.window);
     }
 }

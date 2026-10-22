@@ -1,4 +1,5 @@
 #pragma once
+#include "core/assert/assert.hpp"
 #include "dynamic_allocator.hpp"
 #include "linear_allocator.hpp"
 
@@ -25,7 +26,7 @@ namespace har
         {
             data = internal::MainStaticAllocator.push(sizeof(T), alignof(u8));
             std::construct_at(data, other);
-            assert(data);
+            HAR_ASS(data);
         }
         
         ~static_ptr()

@@ -1,8 +1,7 @@
-#include <cassert>
 #include <glad.h>
 
 #include "core/defines.hpp"
-#include "core/engine/engine.hpp"
+#include "core/assert/assert.hpp"
 #include "platform/middleware.hpp"
 
 #include "rhi_gl.hpp"
@@ -10,18 +9,14 @@
 
 namespace har::rhi
 {
-    rhi_gl::rhi_gl(NON_OWNING harbinger_engine* engine)
+    void rhi_gl::initialize(NON_OWNING config_t* config, NON_OWNING window_t* window, const rhi_arguments& arguments)
     {
-        assert(engine);
-        rEngine = engine;
-    }
-    rhi_gl::~rhi_gl()
-    {
-        /* Blank */
-    }
+        HAR_ASS(window);
+        HAR_ASS(config);
 
-    void rhi_gl::initialize(const rhi_arguments& arguments)
-    {
+        rConfig = config;
+        rWindow = window;
+
         // VAO:
         glCreateVertexArrays(1, &mVAO);
 
@@ -113,16 +108,21 @@ namespace har::rhi
 
     void rhi_gl::submit([[maybe_unused]] small_handle_t workQueue)
     {
+        UNUSED workQueue;
+
         /* Blank */
     }
 
     void rhi_gl::present([[maybe_unused]] small_handle_t presentQueue)
     {
-        platform::present(rEngine->windowing.window);
+        UNUSED presentQueue;
+        platform::present(*rWindow);
     }
 
     void rhi_gl::execute([[maybe_unused]] command_buffer_gl& commandBuffer)
     {
+        UNUSED commandBuffer;
+
         /* Blank */
     }
 

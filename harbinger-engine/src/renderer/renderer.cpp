@@ -1,9 +1,8 @@
 #include "renderer.hpp"
 #include "core/defines.hpp"
-#include "core/memory/allocators.hpp"
 #include "renderer/sort_key.hpp"
+#include "core/assert/assert.hpp"
 #include "rhi/common/objects.hpp"
-#include <cassert>
 
 namespace har
 {
@@ -126,7 +125,7 @@ namespace har
     
     void har_renderer::rebind(const sort_key& key)
     {
-        assert(key.meshHandle != invalid_small_handle);
+        HAR_ASS(key.meshHandle != invalid_small_handle);
 
         if (mCurrentPipeline != key.pipeline)
         {

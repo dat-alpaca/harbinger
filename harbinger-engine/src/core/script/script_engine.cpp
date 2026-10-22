@@ -1,12 +1,20 @@
 #include "script_engine.hpp"
 
-#include <assert.h>
 #include <memory>
 #include <stdlib.h>
 
+#include <lualib.h>
+#include <sol/forward.hpp>
+#include <sol/load_result.hpp>
+#include <sol/object.hpp>
+#include <sol/overload.hpp>
+#include <sol/raii.hpp>
+#include <sol/state_view.hpp>
+#include <sol/types.hpp>
+
+#include "core/assert/assert.hpp"
 #include "core/assets/texture/texture_loader.hpp"
 #include "core/defines.hpp"
-#include "core/engine/engine.hpp"
 #include "core/event/concrete/asset_events.hpp"
 #include "core/event/concrete/scene_events.hpp"
 #include "core/event/concrete/window_events.hpp"
@@ -15,14 +23,6 @@
 #include "core/memory/allocators.hpp"
 #include "core/memory/memory_tag.hpp"
 #include "core/scene/scene.hpp"
-#include "lualib.h"
-#include "sol/forward.hpp"
-#include "sol/load_result.hpp"
-#include "sol/object.hpp"
-#include "sol/overload.hpp"
-#include "sol/raii.hpp"
-#include "sol/state_view.hpp"
-#include "sol/types.hpp"
 
 static void* lua_allocator(void* user, void* address, size_t oldSize, size_t newSize)
 {
@@ -60,12 +60,13 @@ constexpr static sol::load_mode get_load_mode(har::file_type type)
 
 namespace har
 {
-    void script_engine::initialize(NON_OWNING harbinger_engine* engine)
+    void script_engine::initialize(script_engine_context&& context)
     {
-        rEngine = engine;
+        rContext = std::move(context);
+        HAR_ASS(rContext.sceneHolder && rContext.assetHandler);
 
-        mState = lua_newstate(lua_allocator, engine);
-        assert(mState);
+        mState = lua_newstate(lua_allocator, &rContext);
+        HAR_ASS(mState);
 
         mView = reinterpret_cast<sol::state_view*>(internal::MainStaticAllocator.push(sizeof(sol::state_view), alignof(u8)));
         std::construct_at(mView, mState);
@@ -110,7 +111,7 @@ namespace har
         sol::table scenesTable = mView->create_table();
         {
             scenesTable["set_current_scene"] = [&](scene_handle handle) {
-                rEngine->sceneHolder.set_current_scene(handle);
+                rContext.sceneHolder->set_current_scene(handle);
             };
         
             engineTable["scenes"] = scenesTable;
@@ -139,22 +140,22 @@ namespace har
                     .freeHostMemory = options["free_host_memory"].get_or(false)
                 };
 
-                return rEngine->assetHandler.load_texture(filepath, textureOptions, assetOptions);
+                return rContext.assetHandler->load_texture(filepath, textureOptions, assetOptions);
             };
 
             assetsTable["unload_texture"] = sol::overload(
                 [&](scene_handle handle) {
-                    rEngine->assetHandler.unload_texture(handle);
+                    rContext.assetHandler->unload_texture(handle);
                 },
 
                 [&](std::string filepath) {
-                    rEngine->assetHandler.unload_texture(filepath);
+                    rContext.assetHandler->unload_texture(filepath);
                 }
             );
 
             // Scene:
             assetsTable["load_scene"] = [&](const std::string& filepath) -> scene_handle {
-                return rEngine->assetHandler.load_scene(filepath);
+                return rContext.assetHandler->load_scene(filepath);
             };
 
             engineTable["assets"] = assetsTable;

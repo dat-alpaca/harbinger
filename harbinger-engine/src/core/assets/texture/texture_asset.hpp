@@ -1,6 +1,6 @@
 #pragma once
+#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
-#include <cassert>
 
 namespace har
 {
@@ -21,10 +21,10 @@ namespace har
             , height(height)
             , channels(channels)
         {
-            assert(data);
-            assert(width    < 16384);
-            assert(height   < 16384);
-            assert(channels < 16);
+            HAR_ASS(data);
+            HAR_ASS(width    < 16384);
+            HAR_ASS(height   < 16384);
+            HAR_ASS(channels < 16);
         }
 
         texture_asset() = default;

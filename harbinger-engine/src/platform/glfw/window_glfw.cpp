@@ -1,13 +1,13 @@
 #include "window_glfw.hpp"
 #include "GLFW/glfw3.h"
-#include "core/event/concrete/window_events.hpp"
+
 #include "platform/window.hpp"
 
 #include "core/defines.hpp"
 #include "core/engine/engine.hpp"
+#include "core/assert/assert.hpp"
 #include "core/memory/memory_tag.hpp"
-
-#include <cassert>
+#include "core/event/concrete/window_events.hpp"
 
 using namespace har;
 
@@ -46,33 +46,33 @@ static void glfw_on_window_close(GLFWwindow* window)
 
 namespace har::platform
 {
-    void initialize_windowing(NON_OWNING harbinger_engine* engine)
+    void initialize_windowing()
     {
         GLFWallocator allocator =
         {
             .allocate = glfw_allocate,
             .reallocate = glfw_reallocate,
             .deallocate = glfw_deallocate,
-            .user = reinterpret_cast<void*>(engine)
+            .user = nullptr
         };
 
         glfwInitAllocator(&allocator);
 
-        assert(glfwInit());
+        HAR_ASS(glfwInit());
     }
 
     window_glfw window_initialize(const window_settings& settings, NON_OWNING event_queue* queue)
     {
-        assert(queue);
-        assert(settings.title);
-        assert(settings.minWidth);
-        assert(settings.minHeight);
+        HAR_ASS(queue);
+        HAR_ASS(settings.title);
+        HAR_ASS(settings.minWidth);
+        HAR_ASS(settings.minHeight);
 
         window_glfw window { .queue = queue };
         {
             window.window = glfwCreateWindow(settings.minWidth, settings.minHeight, settings.title, nullptr, nullptr);
             window_set_vsync(window, settings.vsyncFrames);
-            assert(window.window);
+            HAR_ASS(window.window);
         }
 
         // Callbacks:

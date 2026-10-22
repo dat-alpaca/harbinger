@@ -1,24 +1,5 @@
 #pragma once
-#include "core/assets/asset_bank.hpp"
-#include "core/config/config.hpp"
-#include "core/defines.hpp"
-#include "core/event/event_queue.hpp"
-#include "core/memory/allocators.hpp"
-#include "core/memory/dynamic_allocator.hpp"
-#include "core/memory/linear_allocator.hpp"
-#include "core/memory/memory_partitions.hpp"
-
-#include "core/scene/scene_holder.hpp"
-#include "core/script/script_engine.hpp"
-#include "core/scene/systems/script_system.hpp"
-#include "core/subsystems/asset_handler.hpp"
-#include "core/subsystems/gpu_uploader.hpp"
-#include "core/windowing/windowing.hpp"
-
-#include "core/worker/worker_pool.hpp"
-#include "renderer/renderer.hpp"
-#include "rhi/glsl_compiler.hpp"
-#include "rhi/rhi.hpp"
+#include "core/engine/context.hpp"
 
 namespace har
 {
@@ -36,29 +17,6 @@ namespace har
         bool is_running() const;
 
     public:
-        config_t config;
-
-        scene_holder sceneHolder;
-
-        memory_partitions memoryPartitions;
-        har_unique<event_queue> eventQueue;
-
-        worker_pool workerPool;
-        windowing_system windowing;
-        script_engine scriptEngine;
-
-        asset_bank assetBank;
-        glsl_compiler glslCompiler;
-
-    public:
-        asset_handler assetHandler;
-        gpu_uploader gpuUploader;
-
-    public:
-        har_renderer renderer;
-        rhi_t rhi;
-    
-    private:
-        script_system scriptSystem;
+        context_t context;
     };
 }

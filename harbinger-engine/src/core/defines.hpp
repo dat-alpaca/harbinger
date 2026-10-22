@@ -1,5 +1,4 @@
 #pragma once
-#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -26,10 +25,10 @@
 #define TO_MiB(x) (x / (1024 * 1024))
 
 #define HAR_DEFINE_ENUM(EnumType) \
-inline EnumType operator|(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<u64>(lhs) | static_cast<u64>(rhs)); }; \
-inline EnumType operator&(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<u64>(lhs) & static_cast<u64>(rhs)); }; \
-inline bool operator==(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) == rhs; }; \
-inline bool operator!=(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) != rhs; };
+    inline EnumType operator|(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<u64>(lhs) | static_cast<u64>(rhs)); }; \
+    inline EnumType operator&(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<u64>(lhs) & static_cast<u64>(rhs)); }; \
+    inline bool operator==(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) == rhs; }; \
+    inline bool operator!=(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) != rhs; };
 
 namespace har
 {

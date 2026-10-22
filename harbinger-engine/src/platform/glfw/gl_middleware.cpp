@@ -1,5 +1,5 @@
 #include "platform/middleware.hpp"
-#include <cassert>
+#include "core/assert/assert.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <glad.h>
@@ -17,10 +17,10 @@ namespace har::platform
 
     void post_initialize(window_t& window)
     {
-        assert(window.window);
+        HAR_ASS(window.window);
         glfwMakeContextCurrent(window.window);
 
-        assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
+        HAR_ASS(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
     }
 
     void present(window_t& window)

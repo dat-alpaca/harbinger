@@ -1,5 +1,9 @@
 #pragma once
+#include "core/assets/asset_bank.hpp"
+#include "core/event/event_queue.hpp"
 #include "core/scene/scene.hpp"
+#include "core/scene/scene_holder.hpp"
+#include "core/worker/worker_pool.hpp"
 #include "rhi/common/objects.hpp"
 
 #include "core/defines.hpp"
@@ -22,7 +26,16 @@ namespace har
         u32 maxScriptCount;
     };
 
-    class harbinger_engine;
+    struct script_engine;
+
+    struct asset_handler_context
+    {
+        NON_OWNING event_queue*   eventQueue   = nullptr;
+        NON_OWNING worker_pool*   workerPool   = nullptr;
+        NON_OWNING asset_bank*    assetBank    = nullptr;
+        NON_OWNING script_engine* scriptEngine = nullptr;
+        NON_OWNING scene_holder*  sceneHolder  = nullptr;
+    };
 
     class asset_handler
     {
@@ -36,7 +49,7 @@ namespace har
         }
 
     public:
-        void initialize(NON_OWNING harbinger_engine* engine, const asset_memory_options& options);
+        void initialize(asset_handler_context&& context, const asset_memory_options& options);
 
     public:
         void on_event(event& event);
@@ -58,7 +71,6 @@ namespace har
     public:
         constexpr auto& get_texture_map()       { return mTextureMap; }
         constexpr auto& get_pipeline_map()      { return mPipelineStateMap; }
-
         constexpr auto& get_textures()          { return mTextureCache; }
         constexpr auto& get_pipeline_states()   { return mPipelineStatesCache; }
         constexpr auto& get_scripts()           { return mScriptCache; }
@@ -73,6 +85,6 @@ namespace har
         asset_cache<script_asset> mScriptCache;
 
     private:
-        NON_OWNING harbinger_engine* rEngine;
+        asset_handler_context rContext;
     };
 }

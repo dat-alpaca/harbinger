@@ -1,6 +1,4 @@
 #pragma once
-#include <cassert>
-
 #include "core/defines.hpp"
 #include "core/event/event.hpp"
 #include "core/event/event_type.hpp"

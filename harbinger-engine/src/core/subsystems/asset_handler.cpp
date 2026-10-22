@@ -1,24 +1,26 @@
 #include "asset_handler.hpp"
-#include "core/assets/asset.hpp"
-#include "core/assets/scene/scene_loader.hpp"
-#include "core/assets/texture/texture_loader.hpp"
+
 #include "core/defines.hpp"
-#include "core/engine/engine.hpp"
-#include "core/assets/pso/pso_loader.hpp"
-#include "core/assets/script/script_loader.hpp"
-#include "core/assets/texture/texture_compress.hpp"
-#include "core/event/concrete/asset_events.hpp"
-#include "core/event/concrete/scene_events.hpp"
-#include "core/event/event_type.hpp"
+#include "core/assets/asset.hpp"
+#include "core/assert/assert.hpp"
 #include "core/logging/logger.hpp"
+#include "core/event/event_type.hpp"
+#include "core/assets/pso/pso_loader.hpp"
+#include "core/assets/scene/scene_loader.hpp"
+#include "core/event/concrete/asset_events.hpp"
+#include "core/assets/script/script_loader.hpp"
+#include "core/assets/texture/texture_loader.hpp"
+#include "core/assets/texture/texture_compress.hpp"
 
 namespace har
 {
-    void asset_handler::initialize(NON_OWNING harbinger_engine* engine, const asset_memory_options& options)
+    void asset_handler::initialize(asset_handler_context&& context, const asset_memory_options& options)
     {
         using namespace internal;
-        rEngine = engine;
-        
+    
+        rContext = std::move(context);
+        HAR_ASS(rContext.eventQueue && rContext.workerPool && rContext.assetBank && rContext.scriptEngine && rContext.sceneHolder);
+
         mTextureCache.initialize(&MainStaticAllocator, options.maxTextureCount);
         mPipelineStatesCache.initialize(&MainStaticAllocator, options.maxPipelineStateCount);
         mScriptCache.initialize(&MainStaticAllocator, options.maxScriptCount);
@@ -26,7 +28,7 @@ namespace har
 
     void asset_handler::on_event(event& event)
     {
-        auto* eventQueue = rEngine->eventQueue.get();
+        auto* eventQueue = rContext.eventQueue;
 
         switch (event.type)
         {
@@ -85,10 +87,10 @@ namespace har
         }
 
         asset_handle handle = mTextureCache.register_empty_asset();
-        rEngine->workerPool.insert_job([&, handle, filepath, loadOptions, uploadOptions]()
+        rContext.workerPool->insert_job([&, handle, filepath, loadOptions, uploadOptions]()
         {
-            auto& assetBank = rEngine->assetBank; 
-            auto* eventQueue = rEngine->eventQueue.get(); 
+            auto& assetBank = rContext.assetBank; 
+            auto* eventQueue = rContext.eventQueue; 
             
             auto textureResult = load_texture_task(filepath, loadOptions);
             if (!textureResult.has_value())
@@ -103,7 +105,7 @@ namespace har
             auto textureAsset = textureResult.value();
 
             // Compression:
-            auto* bankOptions = assetBank.get_texture_options(filepath);
+            auto* bankOptions = assetBank->get_texture_options(filepath);
             if (bankOptions->compression != texture_compression::none)
             {
                 textureAsset.compressionLevel = bankOptions->compression; 
@@ -158,9 +160,9 @@ namespace har
             return existingHandle;
 
         asset_handle handle = mPipelineStatesCache.register_empty_asset();
-        rEngine->workerPool.insert_job([&, handle, filepath]()
+        rContext.workerPool->insert_job([&, handle, filepath]()
         {
-            auto* eventQueue = rEngine->eventQueue.get();
+            auto* eventQueue = rContext.eventQueue;
 
             auto result = load_pso_task(filepath);
             if (!result.has_value())
@@ -196,7 +198,7 @@ namespace har
         if (handle == invalid_small_handle)
             HAR_LOG_CRITICAL("No space");
 
-        auto result = load_script_task(filepath, &rEngine->scriptEngine);
+        auto result = load_script_task(filepath, rContext.scriptEngine);
         if (!result.has_value())
         {
             HAR_LOG_ERROR
@@ -221,12 +223,12 @@ namespace har
     {
         // TODO: better cache with filepath
 
-        auto& scenes = rEngine->sceneHolder;
-        scene_handle sceneHandle = scenes.create_scene(scene_options::none);
+        auto& scenes = rContext.sceneHolder;
+        scene_handle sceneHandle = scenes->create_scene(scene_options::none);
 
-        rEngine->workerPool.insert_job([&, sceneHandle, filepath]()
+        rContext.workerPool->insert_job([&, sceneHandle, filepath]()
         {
-            auto sceneData = load_scene_task(filepath, *scenes.get_scene(sceneHandle));
+            auto sceneData = load_scene_task(filepath, *scenes->get_scene(sceneHandle));
             for (const auto& entry : sceneData.entries)
             {
                 switch (entry.type)
@@ -261,7 +263,7 @@ namespace har
             
             mSceneMap[filepath.string()] = sceneHandle;
 
-            send_scene_loaded_event(*rEngine->eventQueue, { .handle = sceneHandle });
+            send_scene_loaded_event(*rContext.eventQueue, { .handle = sceneHandle });
         });
 
         return sceneHandle;

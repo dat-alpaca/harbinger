@@ -1,4 +1,3 @@
-#include <cassert>
 #include <glad.h>
 #include "command_buffer_gl.hpp"
 #include "core/defines.hpp"
