@@ -7,7 +7,7 @@
 namespace har
 {
     // TODO: config    
-    void har_renderer::initialize(NON_OWNING rhi_t* rhi, u64 maxDrawInfoPerFrame, u16 maxMaterialInstances, u16 maxMeshes)
+    void harbinger_renderer::initialize(NON_OWNING rhi_t* rhi, u64 maxDrawInfoPerFrame, u16 maxMaterialInstances, u16 maxMeshes)
     {
         rRHI = rhi;
 
@@ -50,7 +50,7 @@ namespace har
         mMainSet = rRHI->create_descriptor_set(mSetLayout);
     }
 
-    void har_renderer::render()
+    void harbinger_renderer::render()
     {
         prepare_draw_calls();
 
@@ -59,7 +59,7 @@ namespace har
         finish_rendering();
     }
 
-    void har_renderer::prepare_draw_calls()
+    void harbinger_renderer::prepare_draw_calls()
     {
         if (mDrawInfo.empty())
             return;
@@ -88,7 +88,7 @@ namespace har
         rRHI->write_storage_buffer_to_set(mMainSet, mObjectDataSSBO, 0);
     }
 
-    void har_renderer::issue_render_commands()
+    void harbinger_renderer::issue_render_commands()
     {
         if (mDrawGroups.empty())
             return;
@@ -116,14 +116,14 @@ namespace har
         rRHI->execute(mCommandBuffer);
     }
 
-    void har_renderer::finish_rendering()
+    void harbinger_renderer::finish_rendering()
     {
         mDrawInfo.clear();
         mDrawGroups.clear();
         mCurrentOffset = 0;
     }
     
-    void har_renderer::rebind(const sort_key& key)
+    void harbinger_renderer::rebind(const sort_key& key)
     {
         HAR_ASS(key.meshHandle != invalid_small_handle);
 

@@ -1,11 +1,11 @@
 #pragma once
-#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
 #include "core/event/event.hpp"
 #include "core/scene/scene.hpp"
+#include "core/assert/assert.hpp"
 #include "core/scene/components.hpp"
 #include "core/event/event_type.hpp"
-#include "core/subsystems/asset_handler.hpp"
+#include "core/bridges/asset_handler.hpp"
 #include "core/assets/script/script_loader.hpp"
 #include "core/event/concrete/scene_events.hpp"
 

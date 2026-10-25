@@ -7,7 +7,6 @@
 #include "rhi/opengl/containers.hpp"
 #include "rhi/common/rhi_arguments.hpp"
 
-namespace har { class harbinger_engine; }
 namespace har::rhi
 {
     class command_buffer_gl;

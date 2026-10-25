@@ -3,9 +3,8 @@
 #include "core/event/event.hpp"
 #include "core/event/event_queue.hpp"
 #include "core/scene/scene_holder.hpp"
-#include "core/script/script_engine.hpp"
-#include "core/subsystems/asset_handler.hpp"
-#include "core/engine/engine.hpp"
+#include "core/script/script_subsystem.hpp"
+#include "core/bridges/asset_handler.hpp"
 #include "platform/middleware.hpp"
 #include "rhi/common/rhi_arguments.hpp"
 
@@ -17,15 +16,16 @@ namespace har
         u32 eventQueueMemory = sizeof(event_peeper) * eventQueuePeepers;
         u32 rhiMemory = get_rhi_required_static_memory(rhiArguments);
         //u32 rendererMemory = har_renderer::get_required_static_memory(maxMaterialInstances, maxMeshes);
-        u32 sceneHolderMemory = scene_holder::get_required_static_memory(maxSceneCount);
         u32 assetHandler = asset_handler::get_required_static_memory
         ({ 
             .maxTextureCount = rhiArguments.maxTextureCount,
             .maxPipelineStateCount = rhiArguments.maxPipelineCount
         });
-        u32 scriptEngineMemory = script_engine::get_required_static_memory();
+        u32 scriptEngineMemory = script_subsystem::get_required_static_memory();
 
-        return rhiMemory + eventQueueMemory + sceneHolderMemory + assetHandler + scriptEngineMemory;// + rendererMemory;
+        return 
+            sceneHolderDesc.get_required_static_memory() + 
+            rhiMemory + eventQueueMemory +  + assetHandler + scriptEngineMemory;// + rendererMemory;
     }
 
     u32 config_t::get_required_dynamic_memory()

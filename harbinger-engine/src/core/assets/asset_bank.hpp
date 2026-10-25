@@ -3,7 +3,6 @@
 #include "nlohmann/json.hpp"
 #include "rhi/common/objects.hpp"
 #include "core/containers/containers.hpp"
-#include "core/utils/json_serializable.hpp"
 
 namespace har
 {

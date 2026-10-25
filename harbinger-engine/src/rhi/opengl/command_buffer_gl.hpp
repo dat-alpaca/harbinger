@@ -8,7 +8,6 @@
 #include "rhi/common/rect.hpp"
 #include "rhi/opengl/rhi_gl.hpp"
 
-namespace har { class harbinger_engine; }
 namespace har::rhi
 {
     class command_buffer_gl

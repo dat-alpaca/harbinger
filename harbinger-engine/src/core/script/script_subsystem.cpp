@@ -1,4 +1,4 @@
-#include "script_engine.hpp"
+#include "script_subsystem.hpp"
 
 #include <memory>
 #include <stdlib.h>
@@ -60,7 +60,7 @@ constexpr static sol::load_mode get_load_mode(har::file_type type)
 
 namespace har
 {
-    void script_engine::initialize(script_engine_context&& context)
+    void script_subsystem::initialize(script_subsystem_context&& context)
     {
         rContext = std::move(context);
         HAR_ASS(rContext.sceneHolder && rContext.assetHandler);
@@ -77,17 +77,17 @@ namespace har
         initialize_event();
     }
 
-    sol::load_result script_engine::open_file(const std::filesystem::path& filepath, file_type type)
+    sol::load_result script_subsystem::open_file(const std::filesystem::path& filepath, file_type type)
     {
         return mView->load_file(filepath, get_load_mode(type));
     }
 
-    void script_engine::open_script(const std::filesystem::path& filepath, file_type type)
+    void script_subsystem::open_script(const std::filesystem::path& filepath, file_type type)
     {
         mView->script_file(filepath, get_load_mode(type));
     }
 
-    void script_engine::invoke_startup_script(const std::filesystem::path& filepath, file_type type)
+    void script_subsystem::invoke_startup_script(const std::filesystem::path& filepath, file_type type)
     {
         open_script(filepath, type);
 
@@ -103,7 +103,7 @@ namespace har
         mView->script("collectgarbage('collect')");
     }
     
-    void script_engine::initialize_engine()
+    void script_subsystem::initialize_engine()
     {
         sol::table engineTable = mView->create_table();
         
@@ -164,7 +164,7 @@ namespace har
         (*mView)["_engine"] = engineTable;
     }
 
-    void script_engine::initialize_event()
+    void script_subsystem::initialize_event()
     {
         // Event data:
         

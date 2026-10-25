@@ -26,14 +26,14 @@ namespace har
         u32 maxScriptCount;
     };
 
-    struct script_engine;
+    struct script_subsystem;
 
     struct asset_handler_context
     {
         NON_OWNING event_queue*   eventQueue   = nullptr;
         NON_OWNING worker_pool*   workerPool   = nullptr;
         NON_OWNING asset_bank*    assetBank    = nullptr;
-        NON_OWNING script_engine* scriptEngine = nullptr;
+        NON_OWNING script_subsystem* scriptEngine = nullptr;
         NON_OWNING scene_holder*  sceneHolder  = nullptr;
     };
 

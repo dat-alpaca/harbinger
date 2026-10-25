@@ -13,7 +13,7 @@ namespace har
 
     inline void send_window_close_event(event_queue& queue)
     {
-        queue.push(event { event_type::window_resize });
+        queue.push(event { event_type::window_close });
     }
 
     inline void send_window_resize_event(event_queue& queue, window_resize_event&& data) 

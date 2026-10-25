@@ -15,6 +15,18 @@ namespace har
     };
     HAR_DEFINE_ENUM(scene_options);
 
+    struct scene_holder_desc
+    {
+    public:
+        constexpr u64 get_required_static_memory() const
+        {
+            return sizeof(har_unique<scene_t>) * maxSceneCount;
+        }   
+
+    public:
+        u32 maxSceneCount = 0;
+    };
+
     class scene_holder
     {
     public:
@@ -24,7 +36,7 @@ namespace har
         }
 
     public:
-        void initialize(NON_OWNING event_queue* eventQueue = nullptr, u32 maxSceneCount = 0);
+        void initialize(NON_OWNING event_queue* eventQueue, const scene_holder_desc& description);
         void shutdown();
 
     public:

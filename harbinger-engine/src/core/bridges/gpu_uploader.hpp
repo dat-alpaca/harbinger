@@ -1,20 +1,20 @@
 #pragma once
+#include <filesystem>
+
+#include "core/bridges/asset_handler.hpp"
 #include "core/assets/asset_bank.hpp"
 #include "core/config/config.hpp"
 #include "core/event/event_queue.hpp"
-#include "core/subsystems/asset_handler.hpp"
 #include "rhi/glsl_compiler.hpp"
 #include "rhi/rhi.hpp"
+
 #include "core/defines.hpp"
 #include "core/event/event.hpp"
 #include "core/assets/asset.hpp"
 #include "rhi/common/objects.hpp"
-#include <filesystem>
 
 namespace har
 {
-    class harbinger_engine;
-
     struct gpu_uploader_context
     {
         NON_OWNING asset_handler* assetHandler = nullptr;

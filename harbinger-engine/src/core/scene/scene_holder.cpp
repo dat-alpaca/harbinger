@@ -4,10 +4,10 @@
 
 namespace har
 {
-    void scene_holder::initialize(NON_OWNING event_queue* eventQueue, u32 maxSceneCount)
+    void scene_holder::initialize(NON_OWNING event_queue* eventQueue, const scene_holder_desc& description)
     {
         rEventQueue = eventQueue;
-        mScenes.reserve(maxSceneCount);
+        mScenes.reserve(description.maxSceneCount);
     }
 
     scene_handle scene_holder::create_scene(scene_options options)

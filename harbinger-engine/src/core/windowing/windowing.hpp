@@ -7,8 +7,7 @@
 
 namespace har
 {
-    // TODO: rename
-    class windowing_system
+    class windowing_subsystem
     {
     public:
         void initialize(NON_OWNING event_queue* eventQueue, const platform::window_api_settings& api, const platform::window_settings& settings);

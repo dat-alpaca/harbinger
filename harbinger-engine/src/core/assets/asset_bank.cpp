@@ -2,6 +2,7 @@
 #include "core/assert/assert.hpp"
 #include "core/logging/logger.hpp"
 #include "core/utils/file.hpp"
+#include "core/utils/json_serializable.hpp"
 
 namespace har
 {

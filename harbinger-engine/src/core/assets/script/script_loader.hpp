@@ -4,13 +4,13 @@
 #include <filesystem>
 
 #include "core/assets/asset.hpp"
-#include "core/assets/script/script_asset.hpp"
 #include "core/logging/logger.hpp"
-#include "core/script/script_engine.hpp"
+#include "core/script/script_subsystem.hpp"
+#include "core/assets/script/script_asset.hpp"
 
 namespace har
 {
-    inline std::expected<script_asset, asset_load_error> load_script_task(const std::filesystem::path& filepath, NON_OWNING script_engine* scripts)
+    inline std::expected<script_asset, asset_load_error> load_script_task(const std::filesystem::path& filepath, NON_OWNING script_subsystem* scripts)
     {
         if (!std::filesystem::exists(filepath))
             return std::unexpected { asset_load_error::invalid_filepath };

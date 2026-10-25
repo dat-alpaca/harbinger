@@ -9,8 +9,6 @@
     #error Platform not supported
 #endif
 
-namespace har { class harbinger_engine; }
-
 namespace har::platform
 {
     void initialize_windowing();

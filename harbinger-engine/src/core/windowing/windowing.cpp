@@ -3,7 +3,7 @@
 
 namespace har
 {
-    void windowing_system::initialize(NON_OWNING event_queue* eventQueue, const platform::window_api_settings& api, const platform::window_settings& settings)
+    void windowing_subsystem::initialize(NON_OWNING event_queue* eventQueue, const platform::window_api_settings& api, const platform::window_settings& settings)
     {
         platform::initialize_windowing();
 

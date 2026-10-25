@@ -1,6 +1,7 @@
 #pragma once
-#include "core/containers/nano_string.hpp"
 #include "core/defines.hpp"
+#include "core/containers/nano_string.hpp"
+#include "core/scene/scene_holder.hpp"
 #include "rhi/common/rhi_arguments.hpp"
 
 namespace har
@@ -24,8 +25,6 @@ namespace har
 
         u32 maxScriptCount = 1;
 
-        u32 maxSceneCount = 1;
-
         u32 tileRendererMaxTileCount = 0;
 
         u8 eventQueueCapacity = 8;
@@ -35,5 +34,8 @@ namespace har
         u8 apiMinor = 6;
 
         u8 workerThreadCount = 4;
+
+    public:
+        scene_holder_desc sceneHolderDesc;
     };
 }

@@ -6,6 +6,7 @@
 #include <condition_variable>
 
 #include "core/defines.hpp"
+#include "core/event/event.hpp"
 #include "core/memory/memory_tag.hpp"
 #include "core/containers/containers.hpp"
 
@@ -22,71 +23,23 @@ namespace har
         }
 
     public:
-        explicit worker_pool() { }
-
-        ~worker_pool()
-        {
-            {
-                std::unique_lock<std::mutex> lock(mQueueMutex);
-                mIsAvailable = false;
-            }
-
-            mConditionVar.notify_all();
-
-            for (auto& thread : mThreads)
-                thread.join();
-        }
+        void initialize(u32 threadCount = std::thread::hardware_concurrency());
+        void on_event(event& event);
+        void shutdown();
 
     public:
-        void initialize(u32 threadCount = std::thread::hardware_concurrency())
-        {
-            mThreadAmount = std::min(threadCount, std::thread::hardware_concurrency());
-            
-            mThreads.reserve(mThreadAmount);
-            for (u32 i = 0; i < mThreadAmount; ++i)
-                mThreads.emplace_back(std::thread(&worker_pool::worker_loop, this));
-        }
-
-    public:
-        void insert_job(const worker_function& job)
-        {
-            {
-                std::unique_lock<std::mutex> lock(mQueueMutex);
-                mJobs.push(job);
-            }
-
-            mConditionVar.notify_one();
-        }
+        void insert_job(const worker_function& job);
 
     private:
-        void worker_loop()
-        {
-            while (true)
-            {
-                worker_function job;
-                {
-                    std::unique_lock<std::mutex> lock(mQueueMutex);
-                    mConditionVar.wait(lock, [this] {
-                        return !mJobs.empty() || !mIsAvailable;
-                    });
-
-                    if (!mIsAvailable)
-                        break;
-
-                    job = mJobs.front();
-                    mJobs.pop();
-                }
-
-                job();
-            }
-        }
+        void worker_loop();
 
     private:
         har_vector<memory_tag::worker_system, std::thread> mThreads;
         std::condition_variable mConditionVar;
         std::queue<worker_function> mJobs;
         std::mutex mQueueMutex;
-        bool mIsAvailable = true;
         u32 mThreadAmount = 0;
+
+        bool mIsAvailable : 1 = true;
     };
 }

@@ -76,7 +76,7 @@ namespace har
         
         // Scene Holder:
         else if (MATCH("scene_holder", "maxSceneCount"))
-            config->maxSceneCount = std::atoi(value);       
+            config->sceneHolderDesc.maxSceneCount = std::atoi(value);       
 
         else
             return false;

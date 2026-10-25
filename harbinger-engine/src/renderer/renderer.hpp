@@ -17,7 +17,7 @@ namespace har
     // TODO: make an asset cache subsystem (with loader functions that calls the worker pool)
     // TODO: use the asset cache to retrieve mesh, texture, materials (shaders), etc.
 
-    class har_renderer
+    class harbinger_renderer
     {
         struct draw_info
         {
@@ -94,6 +94,6 @@ namespace har
         render_target_handle mRenderTarget        = invalid_small_handle;
 
     private:
-        static inline u64 MaxObjectDataSize = 10'000 * sizeof(har_renderer::object_data);
+        static inline u64 MaxObjectDataSize = 10'000 * sizeof(harbinger_renderer::object_data);
     };
 }

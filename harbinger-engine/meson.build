@@ -64,19 +64,21 @@ sources = files(
     'src/core/memory/linear_allocator.cpp',
     'src/core/memory/dynamic_allocator.cpp',
 
-    'src/core/script/script_engine.cpp',
+    'src/core/script/script_subsystem.cpp',
     'src/core/windowing/windowing.cpp',
 
     'src/renderer/tilemap/tilemap_renderer.cpp',
     'src/renderer/renderer.cpp',
 
-    'src/core/subsystems/asset_handler.cpp',
-    'src/core/subsystems/gpu_uploader.cpp',
+    'src/core/bridges/asset_handler.cpp',
+    'src/core/bridges/gpu_uploader.cpp',
 
     'src/core/scene/scene.cpp',
     'src/core/scene/entity.cpp',
 
     'src/core/scene/scene_holder.cpp',
+
+    'src/core/worker/worker_pool.cpp',
 
     'src/core/utils/json_serializable.cpp',
 )

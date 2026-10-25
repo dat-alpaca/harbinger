@@ -14,16 +14,16 @@
 
 namespace har
 {
-    harbinger_engine::harbinger_engine(const char* configFilepath)
+    void harbinger_engine::initialize(const char* configFilepath)
     {
         // Config:
         context.config = parse_config(configFilepath);
         auto& config = context.config;
 
-        u32 staticMemoryAmount = config.get_required_static_memory();
-        u32 dynamicMemoryAmount = config.get_required_dynamic_memory();
-        u32 transientMemoryAmount = config.get_required_transient_memory();
-        u32 safeMemoryAmount = config.get_required_safe_memory();
+        u32 staticMemoryAmount      = config.get_required_static_memory();
+        u32 dynamicMemoryAmount     = config.get_required_dynamic_memory();
+        u32 transientMemoryAmount   = config.get_required_transient_memory();
+        u32 safeMemoryAmount        = config.get_required_safe_memory();
 
         // Memory:
         context.memoryPartitions = memory_partitions_initialize({
@@ -41,18 +41,18 @@ namespace har
         // Logging:
         initialize_logger(&internal::MainDynamicAllocator);
 
-        // Worker pools:
-        context.workerPool.initialize(config.workerThreadCount);
-
         // Event queue:
         context.eventQueue = make_unique<event_queue>(config.eventQueueCapacity, config.eventQueuePeepers);
         auto& eventQueue = context.eventQueue;
 
+        // Worker pools:
+        context.workerPool.initialize(config.workerThreadCount);
+
         // Scene Holder:
-        context.sceneHolder.initialize(eventQueue.get(), config.maxSceneCount);
+        context.sceneHolder.initialize(eventQueue.get(), config.sceneHolderDesc);
 
         // Script:
-        context.scriptEngine.initialize({
+        context.scriptSubsystem.initialize({
             .sceneHolder = &context.sceneHolder,
             .assetHandler = &context.assetHandler,
         });
@@ -93,7 +93,7 @@ namespace har
                 .eventQueue = context.eventQueue.get(),
                 .workerPool = &context.workerPool,
                 .assetBank = &context.assetBank,
-                .scriptEngine = &context.scriptEngine,
+                .scriptEngine = &context.scriptSubsystem,
                 .sceneHolder = &context.sceneHolder,
             }, options);
         
@@ -112,7 +112,6 @@ namespace har
             eventQueue->register_peeper({.callback = [&](event& event) { context.gpuUploader.on_event(event); }});
         }
 
-
         /* Systems */
         context.scriptSystem.initialize(&context.assetHandler);
         {
@@ -126,9 +125,9 @@ namespace har
         HAR_LOG_INFO("Safe memory: {}B", safeMemoryAmount);
     }
 
-    harbinger_engine::~harbinger_engine()
+    void harbinger_engine::shutdown()
     {
-        /* Blank */
+        context.workerPool.shutdown();
     }
 
     void harbinger_engine::start_frame()
@@ -143,6 +142,11 @@ namespace har
     void harbinger_engine::on_update()
     {
         context.scriptSystem.on_update();
+    }
+
+    void harbinger_engine::invoke_startup_script(const std::filesystem::path& filepath)
+    {
+        context.scriptSubsystem.invoke_startup_script(filepath);
     }
 
     bool harbinger_engine::is_running() const
