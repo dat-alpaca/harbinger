@@ -2,9 +2,9 @@
 
 namespace har
 {
-    void worker_pool::initialize(u32 threadCount)
+    void worker_pool::initialize(const worker_pool_desc& desc)
     {
-        mThreadAmount = std::min(threadCount, std::thread::hardware_concurrency());
+        mThreadAmount = std::min(desc.threadCount, std::thread::hardware_concurrency());
         
         mThreads.reserve(mThreadAmount);
         for (u32 i = 0; i < mThreadAmount; ++i)

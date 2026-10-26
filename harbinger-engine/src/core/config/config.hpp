@@ -2,7 +2,11 @@
 #include "core/assets/asset_hub.hpp"
 #include "core/defines.hpp"
 #include "core/containers/nano_string.hpp"
+#include "core/event/event_queue.hpp"
 #include "core/scene/scene_holder.hpp"
+#include "core/script/script_subsystem.hpp"
+#include "core/worker/worker_pool.hpp"
+#include "platform/window_settings.hpp"
 #include "rhi/common/rhi_arguments.hpp"
 
 namespace har
@@ -16,30 +20,17 @@ namespace har
         u32 get_required_safe_memory();
 
     public:        
-        rhi_arguments rhiArguments;
         nano_string assetBankFilepath;
-
-        nano_string windowTitle = "Engine";
-        i32 windowMinWidth  = 640;
-        i32 windowMinHeight = 480;
-        i32 windowVsyncFrames = 0;
-
         u32 maxScriptCount = 1;
-
-        u32 tileRendererMaxTileCount = 0;
-
-        u8 eventQueueCapacity = 8;
-        u8 eventQueuePeepers = 16;
-
         u8 apiMajor = 4;
         u8 apiMinor = 6;
 
-        u8 workerThreadCount = 4;
-
-    public:
-        asset_hub_desc assetHubDesc;
-
-    public:
+        platform::window_settings windowSettings;
         scene_holder_desc sceneHolderDesc;
+        worker_pool_desc workerPoolDesc;
+        event_queue_desc eventQueueDesc;
+        rhi_arguments rhiArguments;
+        asset_hub_desc assetHubDesc;
+        script_subsystem_desc scriptSubsystemDesc;
     };
 }

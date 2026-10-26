@@ -13,13 +13,31 @@ namespace har
         event_callback callback;
     };
 
+    struct event_queue_desc
+    {
+    public:
+        constexpr inline u64 get_required_static_memory()
+        {
+            return sizeof(event_peeper) * peeperCount;
+        }
+        
+        constexpr inline u64 get_required_transient_memory()
+        {
+            return sizeof(event) * queueCapacity;
+        }
+
+    public:
+        u8 queueCapacity = 8;
+        u8 peeperCount = 16;
+    };
+
     class event_queue
     {
     public:
-        event_queue(u8 queueCapacity, u8 maxPeepers)
-            : mEventRing(queueCapacity)
+        event_queue(const event_queue_desc& desc)
+            : mEventRing(desc.queueCapacity)
         {
-            mPeepers.reserve(maxPeepers);
+            mPeepers.reserve(desc.peeperCount);
         }
 
     public:

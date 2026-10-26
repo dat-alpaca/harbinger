@@ -45,11 +45,11 @@ namespace har
         initialize_logger(&internal::MainDynamicAllocator);
 
         // Event queue:
-        context.eventQueue = make_unique<event_queue>(config.eventQueueCapacity, config.eventQueuePeepers);
+        context.eventQueue = make_unique<event_queue>(config.eventQueueDesc);
         auto& eventQueue = context.eventQueue;
 
         // Worker pools:
-        context.workerPool.initialize(config.workerThreadCount);
+        context.workerPool.initialize(config.workerPoolDesc);
 
         // Scene Holder:
         context.sceneHolder.initialize(eventQueue.get(), config.sceneHolderDesc);
@@ -69,13 +69,7 @@ namespace har
             {
                 .major = config.apiMajor,
                 .minor = config.apiMinor
-            },
-            {
-                .title = config.windowTitle.c_str(),
-                .minWidth = config.windowMinWidth,
-                .minHeight = config.windowMinHeight,
-                .vsyncFrames = config.windowVsyncFrames
-            });
+            }, config.windowSettings);
         }
 
         // RHI:
@@ -91,9 +85,8 @@ namespace har
                 .workerPool = &context.workerPool,
                 .eventQueue = context.eventQueue.get(),
                 .sceneHolder = &context.sceneHolder,
-            }, config.assetHubDesc);
+            }, config.assetHubDesc, config.assetBankFilepath.c_str());
         }
-        
 
         // GPU Uploader:
         {

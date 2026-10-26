@@ -39,7 +39,7 @@ namespace har
     class asset_hub
     {
     public:
-        void initialize(asset_hub_context&& context, const asset_hub_desc& desc);
+        void initialize(asset_hub_context&& context, const asset_hub_desc& desc, const std::filesystem::path& assetBankFilepath);
 
     public:
         asset_handle load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback = {}, bool inPlace = false);

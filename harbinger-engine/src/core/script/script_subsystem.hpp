@@ -15,15 +15,21 @@ namespace har
         NON_OWNING asset_hub* assetHub;
     };
 
-    struct script_subsystem
+    struct script_subsystem_desc
     {
-    public:
-        static constexpr inline u32 get_required_dynamic_memory() { return KiB(544); }
-        static constexpr inline u32 get_required_static_memory()
+        constexpr inline u32 get_required_dynamic_memory()
+        { 
+            return KiB(544); 
+        }
+
+        constexpr inline u32 get_required_static_memory()
         { 
             return sizeof(sol::state_view);
         }
+    };
 
+    struct script_subsystem
+    {
     public:
         void initialize(script_subsystem_context&& context);
 

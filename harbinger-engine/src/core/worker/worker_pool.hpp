@@ -6,7 +6,6 @@
 #include <condition_variable>
 
 #include "core/defines.hpp"
-#include "core/event/event.hpp"
 #include "core/memory/memory_tag.hpp"
 #include "core/containers/containers.hpp"
 
@@ -14,17 +13,22 @@ namespace har
 {
     using worker_function = std::function<void()>;
 
-    class worker_pool
+    struct worker_pool_desc
     {
     public:
-        static inline u64 required_dynamic_memory_worker_pool(u32 threadCount)
+        inline u64 required_dynamic_memory_worker_pool()
         {
             return sizeof(std::thread) * threadCount;
         }
 
     public:
-        void initialize(u32 threadCount = std::thread::hardware_concurrency());
-        void on_event(event& event);
+        u32 threadCount = std::thread::hardware_concurrency();
+    };
+
+    class worker_pool
+    {
+    public:
+        void initialize(const worker_pool_desc& desc);
         void shutdown();
 
     public:

@@ -28,7 +28,7 @@ namespace har
 {
     using namespace har::internal;
 
-    void asset_hub::initialize(asset_hub_context&& context, const asset_hub_desc& desc)
+    void asset_hub::initialize(asset_hub_context&& context, const asset_hub_desc& desc, const std::filesystem::path& assetBankFilepath)
     {
         HAR_ASS(context.workerPool);
         HAR_ASS(context.eventQueue);
@@ -46,7 +46,7 @@ namespace har
             mAssets.initialize(backingBuffer, desc.maxAssets);
         }
 
-        deserialize_asset_bank("asset_bank.json", mAssetBank);
+        deserialize_asset_bank(assetBankFilepath, mAssetBank);
 
         // Texture:
         register_asset_loader(asset_type::texture, [](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* bankOption) 
