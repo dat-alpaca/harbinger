@@ -1,26 +1,13 @@
 #pragma once
-#include <filesystem>
 #include "core/engine/context.hpp"
 
 namespace har
 {
-    class harbinger_engine
-    {
-    public:
-        void initialize(const char* configFilepath = "config.ini");
-        void shutdown();
+    void harbinger_engine_initialize(context_t& context, const char* configFilepath = "config.ini");
+    void harbinger_engine_shutdown(context_t& context);
 
-    public:
-        void start_frame();
-        void on_update();
-
-    public:
-        void invoke_startup_script(const std::filesystem::path& filepath);
-
-    public:
-        bool is_running() const;
-
-    public:
-        context_t context;
-    };
+    void harbinger_engine_start_frame(context_t& context);
+    void harbinger_engine_on_update(context_t& context);
+    
+    bool harbinger_engine_is_running(context_t& context);
 }

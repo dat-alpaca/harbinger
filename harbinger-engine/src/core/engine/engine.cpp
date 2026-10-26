@@ -14,7 +14,7 @@
 
 namespace har
 {
-    void harbinger_engine::initialize(const char* configFilepath)
+    void harbinger_engine_initialize(context_t& context, const char* configFilepath)
     {
         // Config:
         context.config = parse_config(configFilepath);
@@ -30,7 +30,7 @@ namespace har
             context.memoryPartitions = memory_partitions_initialize(
             {
                 .staticMemorySizeBytes = staticMemoryAmount,
-                .dynamicMemorySizeBytes = dynamicMemoryAmount, // + MiB(10),
+                .dynamicMemorySizeBytes = dynamicMemoryAmount,
                 .transientMemorySizeBytes = transientMemoryAmount,
                 .safeMemorySizeBytes = safeMemoryAmount
             });
@@ -75,9 +75,6 @@ namespace har
         // RHI:
         context.rhi.initialize(&context.config, &context.windowing.window, config.rhiArguments);
 
-        // Renderer:
-        // renderer.initialize(&rhi, config.maxDrawInfoPerFrame, config.maxMaterialInstances, config.maxMeshes);
-
         // Asset Bank:
         {
             context.assetHub.initialize(
@@ -113,12 +110,12 @@ namespace har
         HAR_LOG_INFO("Safe memory: {}B", safeMemoryAmount);
     }
 
-    void harbinger_engine::shutdown()
+    void harbinger_engine_shutdown(context_t& context)
     {
         context.workerPool.shutdown();
     }
 
-    void harbinger_engine::start_frame()
+    void harbinger_engine_start_frame(context_t& context)
     {
         internal::MainTransientAllocator.clear();
 
@@ -127,17 +124,12 @@ namespace har
         context.eventQueue->process_events();
     }
 
-    void harbinger_engine::on_update()
+    void harbinger_engine_on_update(context_t& context)
     {
         context.scriptSystem.on_update();
     }
 
-    void harbinger_engine::invoke_startup_script(const std::filesystem::path& filepath)
-    {
-        context.scriptSubsystem.invoke_startup_script(filepath);
-    }
-
-    bool harbinger_engine::is_running() const
+    bool harbinger_engine_is_running(context_t& context)
     {
         return platform::window_is_open(context.windowing.window);
     }

@@ -1,16 +1,19 @@
+#include "core/engine/engine.hpp"
 #include <harbinger.hpp>
 
 int main(int argc, char** argv)
 {
     using namespace har;
 
-    harbinger_engine engine;
-    engine.initialize("config.ini");
-    engine.invoke_startup_script("res/startup.lua");
+    context_t context;
+    {
+        harbinger_engine_initialize(context, "config.ini");
+        context.scriptSubsystem.invoke_startup_script("res/startup.lua");
+    }
 
     u64 total = 0;
     stopwatch stopwatch;
-    while(engine.is_running())
+    while(harbinger_engine_is_running(context))
     {
         u64 durationMicro = stopwatch.elapsed();
         total += durationMicro;
@@ -36,10 +39,10 @@ int main(int argc, char** argv)
             total = 0;
         }
 
-        engine.start_frame();
-        engine.on_update();
+        harbinger_engine_start_frame(context);
+        harbinger_engine_on_update(context);
     }
 
-    engine.shutdown();
+    harbinger_engine_shutdown(context);
     return 0;
 }
