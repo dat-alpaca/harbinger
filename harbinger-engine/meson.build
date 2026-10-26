@@ -67,7 +67,6 @@ sources = files(
     'src/core/script/script_subsystem.cpp',
     'src/core/windowing/windowing.cpp',
 
-    'src/renderer/tilemap/tilemap_renderer.cpp',
     'src/renderer/renderer.cpp',
 
     'src/core/bridges/gpu_uploader.cpp',
