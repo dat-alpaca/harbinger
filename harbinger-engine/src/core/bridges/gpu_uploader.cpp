@@ -87,19 +87,20 @@ namespace har
         auto& config = *rContext.config;
         auto* rhi = rContext.rhi;
 
-        auto vertexText = read_file_contents(shaderFilepath);
-        auto vertexResult = mCompiler.compile_shader(type, vertexText, config);
+        auto text = read_file_contents(shaderFilepath);
+        auto result = mCompiler.compile_shader(type, text, config);
 
-        if (!vertexResult.has_value())
+        if (!result.has_value())
         {
-            HAR_LOG_ERROR("[GPU Uploader] Failed to load and compile vertex shader: {} | Code: {}", 
+            HAR_LOG_ERROR("[GPU Uploader] Failed to load and compile {} shader: {} | Code: {}", 
+                get_shader_type_name(type),
                 shaderFilepath.string(), 
-                get_compiler_error_string(vertexResult.error())
+                get_compiler_error_string(result.error())
             );
             return invalid_small_handle;
         }
 
-        return rhi->create_shader(type, vertexResult.value());
+        return rhi->create_shader(type, result.value());
     }
 
     void gpu_uploader::register_gpu_upload_function(asset_type type, gpu_upload_function&& function)

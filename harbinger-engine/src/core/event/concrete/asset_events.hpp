@@ -26,4 +26,9 @@ namespace har
     {
         queue.push(event { event_type::asset_uploaded, std::move(data) });
     }
+
+    inline void send_scene_assets_loaded_event(event_queue& queue)
+    {
+        queue.push(event { event_type::scene_assets_loaded });
+    }
 }

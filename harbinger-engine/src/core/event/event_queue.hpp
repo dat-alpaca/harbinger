@@ -53,7 +53,7 @@ namespace har
             {
                 // TODO: It currently behaves like a stack. Perhaps a queue would fit better.
                 event nextEvent;
-                if (!mEventRing.pop_back(nextEvent))
+                if (!mEventRing.pop_front(nextEvent))
                     break;
 
                 if (nextEvent.type == event_type::invalid || nextEvent.handled)

@@ -14,6 +14,8 @@
 
 #include "core/assert/assert.hpp"
 #include "core/assets/asset.hpp"
+#include "core/assets/asset_type.hpp"
+#include "core/assets/scene/scene_loader.hpp"
 #include "core/bridges/gpu_uploader.hpp"
 #include "core/defines.hpp"
 #include "core/event/concrete/asset_events.hpp"
@@ -65,7 +67,7 @@ namespace har
     void script_subsystem::initialize(script_subsystem_context&& context)
     {
         rContext = std::move(context);
-        HAR_ASS(rContext.sceneHolder && rContext.assetHub && rContext.gpuUploader);
+        HAR_ASS(rContext.sceneHolder && rContext.assetHub && rContext.gpuUploader && rContext.eventQueue);
 
         mState = lua_newstate(lua_allocator, &rContext);
         HAR_ASS(mState);
@@ -162,8 +164,29 @@ namespace har
             };
             assetsTable["load_scene_assets"] = [&](scene_handle handle) -> void
             {
+                // TODO: ask whether to upload to gpu immediately (also at .lua.d)
+                //if (options["upload_immediate"].get_or(true))
+                //    rContext.gpuUploader->upload_asset_from_hub(asset_type::texture, handle);
+
                 auto& filepath = rContext.assetHub->get_asset(handle)->metadata.filepath;
-                rContext.assetHub->call_asset_loader(asset_type::scene_assets, filepath);
+
+                auto result = asset_scene_assets_load(filepath);
+                if (!result.has_value())
+                {
+                    HAR_LOG_ERROR("Failed to load scene at: {}", filepath.string());
+                    return;
+                }
+
+                for (const auto& entry : result->entries)
+                {
+                    // TODO: in-place, but use thread here
+                    asset_handle handle = rContext.assetHub->load_asset(entry.type, entry.filepath, {}, true, entry.assedUUID);
+
+                    if (is_gpu_uploadable(entry.type))
+                        rContext.gpuUploader->upload_asset_from_hub(entry.type, handle);
+                }
+
+                send_scene_assets_loaded_event(*rContext.eventQueue);
             };
 
             engineTable["assets"] = assetsTable;

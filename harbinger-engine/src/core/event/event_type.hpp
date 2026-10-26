@@ -12,6 +12,7 @@ namespace har
         // scene:
         scene_created,
         scene_switched,
+        scene_assets_loaded,
 
         // assets:
         asset_loaded,

@@ -12,6 +12,7 @@
 
 #include "core/event/concrete/asset_events.hpp"
 
+#include "core/event/concrete/scene_events.hpp"
 #include "core/logging/logger.hpp"
 #include "core/assert/assert.hpp"
 
@@ -83,6 +84,10 @@ namespace har
         // TODO: write script loader
         // TODO: register unloader
         // Script:
+        register_asset_loader(asset_type::script, [&](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* _) 
+        {
+            
+        });
 
         // TODO: register unloader
         // Scene:
@@ -94,18 +99,6 @@ namespace har
                 HAR_LOG_ERROR("Failed to load scene at: {}", filepath.string());
                 return;
             }
-        });
-        register_asset_loader(asset_type::scene_assets, [&](const std::filesystem::path& filepath, asset* _, NON_OWNING asset_bank_option* __) 
-        {
-            auto result = asset_scene_assets_load(filepath);
-            if (!result.has_value())
-            {
-                HAR_LOG_ERROR("Failed to load scene at: {}", filepath.string());
-                return;
-            }
-
-            for (const auto& entry : result->entries)
-                load_asset(entry.type, entry.filepath, {}, true, entry.assedUUID);
         });
 
         // TODO: register unloader
@@ -241,12 +234,6 @@ namespace har
         }
     }
 
-    void asset_hub::call_asset_loader(asset_type type, const std::filesystem::path& filepath)
-    {
-        auto handle = mCache[filepath];
-        mLoaders[type](filepath, mAssets[handle], mAssetBank[filepath].get());
-    }
-
     asset* asset_hub::get_asset(const std::filesystem::path& filepath)
     {
         if (mCache.find(filepath) != mCache.end())
@@ -276,7 +263,6 @@ namespace har
         switch (type)
         {
             case asset_type::unknown:
-            case asset_type::scene_assets:
             {
                 HAR_LOG_CRITICAL("Attempted to allocate an unknown or invalid asset type.");
             } break;

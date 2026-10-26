@@ -47,8 +47,6 @@ namespace har
         void unload_asset(asset_type type, const std::filesystem::path& filepath, bool inPlace = false);
         void unload_asset(asset_type type, asset_handle handle, bool inPlace = false);
         
-        void call_asset_loader(asset_type type, const std::filesystem::path& filepath);
-
         asset* get_asset(const std::filesystem::path& filepath);
         asset* get_asset(asset_handle handle);
 

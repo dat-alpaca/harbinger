@@ -79,13 +79,13 @@ namespace har
     public:
         constexpr T& operator[](handle_t index)
         {
-            HAR_ASS(index < mSize && index >= 0);
+            HAR_ASS(index >= 0);
             return mBuffer[index].value;
         }
 
         constexpr const T& operator[](handle_t index) const
         {
-            HAR_ASS(index < mSize && index >= 0);
+            HAR_ASS(index >= 0);
             return mBuffer[index].value;
         }
 

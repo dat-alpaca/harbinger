@@ -9,7 +9,6 @@ namespace har
         unknown,
         pipeline_object,
         scene,
-        scene_assets,
         script,
         texture,
         material_instance,

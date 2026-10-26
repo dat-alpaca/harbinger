@@ -91,6 +91,7 @@ namespace har
             {
                 .sceneHolder = &context.sceneHolder,
                 .gpuUploader = &context.gpuUploader,
+                .eventQueue = context.eventQueue.get(),
                 .assetHub = &context.assetHub,
             });
         }
@@ -101,11 +102,19 @@ namespace har
             eventQueue->register_peeper({.callback = [&](event& event) { context.assetLinker.on_event(event); }});
         }
 
+        // Renderer:
+        // TODO: add tp cpfoig
+        context.renderer.initialize(&context.rhi, { .maxDrawInfoPerFrame = 100 });
+
         /* Systems */
         {
             // Script:
             context.scriptSystem.initialize(&context.assetHub);
             eventQueue->register_peeper({.callback = [&](event& event) { context.scriptSystem.on_event(event); }});
+        
+            // Renderer:
+            context.rendererSystem.initialize(&context.renderer, &context.assetHub, &context.sceneHolder);
+            eventQueue->register_peeper({.callback = [&](event& event) { context.rendererSystem.on_event(event); }});
         }
 
         /* Stats */

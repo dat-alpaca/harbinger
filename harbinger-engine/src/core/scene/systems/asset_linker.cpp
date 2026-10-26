@@ -31,7 +31,7 @@ namespace har
             else if (eventData.type == asset_type::pipeline_object)
                 handle_pso_asset_load(eventUUID, eventData.handle);
         }
-        else if (event.type == event_type::asset_loaded)
+        else if (event.type == event_type::asset_uploaded)
         {
             auto eventData = event.get<asset_uploaded_event_data>();
 

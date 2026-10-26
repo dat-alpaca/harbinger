@@ -6,6 +6,7 @@
 #include "core/memory/memory_tag.hpp"
 #include "core/memory/allocators.hpp"
 
+#include <deque>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -148,6 +149,9 @@ namespace har
 
     template<memory_tag tag, typename T>
     using har_transient_vector = std::vector<T, transient_allocator_wrapper<T, tag>>;
+
+    template<memory_tag tag, typename T>
+    using har_transient_deque = std::deque<T, transient_allocator_wrapper<T, tag>>;
 }
 
 namespace har
