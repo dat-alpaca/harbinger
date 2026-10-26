@@ -56,7 +56,7 @@ args = []
 
 sources = files(
     'src/core/implementation.cpp',
-    'src/core/assets/asset_bank.cpp',
+    'src/core/assets/asset_hub.cpp',
     'src/core/config/config.cpp',
     'src/core/engine/engine.cpp',
 
@@ -70,7 +70,6 @@ sources = files(
     'src/renderer/tilemap/tilemap_renderer.cpp',
     'src/renderer/renderer.cpp',
 
-    'src/core/bridges/asset_handler.cpp',
     'src/core/bridges/gpu_uploader.cpp',
 
     'src/core/scene/scene.cpp',

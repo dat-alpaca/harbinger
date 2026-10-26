@@ -9,16 +9,14 @@ namespace har
         window_close,
         window_resize,
 
+        // scene:
         scene_created,
-        scene_loaded,
         scene_switched,
 
-        texture_loaded,
-        texture_uploaded,
-        request_texture_upload,
-
-        pso_loaded,
-        pso_uploaded,
-        request_pso_upload,
+        // assets:
+        asset_loaded,
+        scene_asset_load_requested,
+        asset_upload_requested,
+        asset_uploaded,
     };
 }

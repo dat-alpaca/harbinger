@@ -2,12 +2,21 @@
 
 #pragma once
 #include <sol/sol.hpp>
+#include "core/assets/asset.hpp"
 #include "core/event/event.hpp"
 
 namespace har
 {
-    struct script_asset
+    struct script_asset : public asset
     {
+    public:
+        script_asset(const sol::table& self)
+            : self(self)
+        {
+        }
+        
+        script_asset() = default;
+
     public:
         void on_update()
         {
@@ -22,7 +31,7 @@ namespace har
             if (!hooks.onEvent.valid())
                 return;
 
-            hooks.onUpdate(event);
+            hooks.onEvent(event);
         }
 
     public:

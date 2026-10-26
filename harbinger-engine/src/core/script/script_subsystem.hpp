@@ -5,25 +5,31 @@
 
 #include "core/defines.hpp"
 #include "core/scene/scene_holder.hpp"
-#include "core/bridges/asset_handler.hpp"
+#include "core/assets/asset_hub.hpp"
 
 namespace har
 {
     struct script_subsystem_context
     {
         NON_OWNING scene_holder* sceneHolder;
-        NON_OWNING asset_handler* assetHandler;
+        NON_OWNING asset_hub* assetHub;
+    };
+
+    struct script_subsystem_desc
+    {
+        constexpr inline u32 get_required_dynamic_memory()
+        { 
+            return KiB(544); 
+        }
+
+        constexpr inline u32 get_required_static_memory()
+        { 
+            return sizeof(sol::state_view);
+        }
     };
 
     struct script_subsystem
     {
-    public:
-        static constexpr inline u32 get_required_dynamic_memory() { return KiB(544); }
-        static constexpr inline u32 get_required_static_memory()
-        { 
-            return sizeof(sol::state_view);
-        }
-
     public:
         void initialize(script_subsystem_context&& context);
 

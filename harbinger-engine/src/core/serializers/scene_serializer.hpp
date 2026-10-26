@@ -1,66 +1,21 @@
 #pragma once
-#include "core/assets/asset.hpp"
-#include "core/containers/containers.hpp"
-#include "core/logging/logger.hpp"
-#include "core/memory/memory_tag.hpp"
+#include <nlohmann/json.hpp>
+
 #include "entt/entity/fwd.hpp"
-#include "nlohmann/json.hpp"
+#include "core/logging/logger.hpp"
+#include "core/containers/containers.hpp"
+#include "core/assets/scene/scene_asset.hpp"
+
 #include "core/scene/scene.hpp"
 #include "core/scene/entity.hpp"
 #include "core/scene/components.hpp"
 #include "core/utils/json_serializable.hpp"
 
-namespace har
-{
-    struct scene_asset_data
-    {   
-        struct entry
-        {
-            std::filesystem::path filepath;
-            asset_type type = asset_type::invalid;
-        };
-
-        har_vector<memory_tag::scene, entry> entries;
-    };
-
-    inline nlohmann::json serialize_scene(const scene_t& scene)
-    {
-        using namespace nlohmann;
-
-        auto& registry = scene.get_registry();
-
-        json root = json::object();
-        json entityList = json::array();
-
-
-        registry.each([&](entt::entity entity)
-        {
-            json entityObject;
-            entityObject["id"] = static_cast<u32>(entity);
-
-            if (registry.all_of<name_component>(entity))
-            {
-                auto& nameComponent = registry.get<name_component>(entity);
-                entityObject["name"] = nameComponent.name;
-            }
-
-            if (registry.all_of<transform_component>(entity))
-            {
-                auto& transform = registry.get<transform_component>(entity).transform;
-                entityObject["transform"] = transform;
-            }
-
-            entityList.push_back(entityObject);
-        });
-
-        root["entities"] = entityList;
-        return root;
-    }
-}
-
 namespace
 {
-    inline void deserialize_assets(const nlohmann::json& sceneObject, har::scene_asset_data& data)
+    using namespace har;
+
+    inline void deserialize_assets(const nlohmann::json& sceneObject, scene_unloaded_asset_data& data)
     {
         using namespace har;
 
@@ -81,7 +36,7 @@ namespace
             har_string typeText = assetObject["type"].get<har_string>();
             asset_type type = get_asset_type_from_name(typeText.c_str());
             
-            if (type == asset_type::invalid)
+            if (type == asset_type::unknown)
             {
                 HAR_LOG_WARN("[Scene] Invalid scene asset entry: {}", assetObject["filepath"].get<std::string>());
                 continue;
@@ -129,7 +84,41 @@ namespace
 
 namespace har
 {
-    inline void deserialize_scene(const nlohmann::json& sceneObject, scene_t& scene, scene_asset_data& data)
+    inline nlohmann::json serialize_scene(const scene_t& scene)
+    {
+        using namespace nlohmann;
+
+        auto& registry = scene.get_registry();
+
+        json root = json::object();
+        json entityList = json::array();
+
+
+        registry.each([&](entt::entity entity)
+        {
+            json entityObject;
+            entityObject["id"] = static_cast<u32>(entity);
+
+            if (registry.all_of<name_component>(entity))
+            {
+                auto& nameComponent = registry.get<name_component>(entity);
+                entityObject["name"] = nameComponent.name;
+            }
+
+            if (registry.all_of<transform_component>(entity))
+            {
+                auto& transform = registry.get<transform_component>(entity).transform;
+                entityObject["transform"] = transform;
+            }
+
+            entityList.push_back(entityObject);
+        });
+
+        root["entities"] = entityList;
+        return root;
+    }
+
+    inline void deserialize_scene(const nlohmann::json& sceneObject, scene_t& scene, scene_unloaded_asset_data& data)
     {
         using namespace nlohmann;
 

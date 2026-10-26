@@ -21,7 +21,7 @@ namespace har
         constexpr u64 get_required_static_memory() const
         {
             return sizeof(har_unique<scene_t>) * maxSceneCount;
-        }   
+        }
 
     public:
         u32 maxSceneCount = 0;
@@ -37,7 +37,6 @@ namespace har
 
     public:
         void initialize(NON_OWNING event_queue* eventQueue, const scene_holder_desc& description);
-        void shutdown();
 
     public:
         scene_handle create_scene(scene_options options = scene_options::none);

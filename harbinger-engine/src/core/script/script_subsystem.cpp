@@ -13,7 +13,8 @@
 #include <sol/types.hpp>
 
 #include "core/assert/assert.hpp"
-#include "core/assets/texture/texture_loader.hpp"
+#include "core/assets/asset.hpp"
+#include "core/bridges/gpu_uploader.hpp"
 #include "core/defines.hpp"
 #include "core/event/concrete/asset_events.hpp"
 #include "core/event/concrete/scene_events.hpp"
@@ -23,6 +24,7 @@
 #include "core/memory/allocators.hpp"
 #include "core/memory/memory_tag.hpp"
 #include "core/scene/scene.hpp"
+#include "core/script/texture_script_options.hpp"
 
 static void* lua_allocator(void* user, void* address, size_t oldSize, size_t newSize)
 {
@@ -63,7 +65,7 @@ namespace har
     void script_subsystem::initialize(script_subsystem_context&& context)
     {
         rContext = std::move(context);
-        HAR_ASS(rContext.sceneHolder && rContext.assetHandler);
+        HAR_ASS(rContext.sceneHolder && rContext.assetHub);
 
         mState = lua_newstate(lua_allocator, &rContext);
         HAR_ASS(mState);
@@ -121,41 +123,44 @@ namespace har
         sol::table assetsTable = mView->create_table();
         {
             // Texture:
-            mView->new_enum("asset_upload_options", 
-                "none", asset_upload_options::none,
-                "upload_immediate", asset_upload_options::upload_immediate
-            );
-            
             assetsTable["load_texture"] = 
-            [&](const std::string& filepath, const sol::table& options, asset_upload_options assetOptions) -> asset_handle {
+            [&](const std::string& filepath, const sol::table& options) -> asset_handle
+            {
                 if (!options.valid())
                 {
                     HAR_LOG_ERROR("[Script Engine] invalid option arguments passed to load_scene.");
                     return invalid_small_handle;
                 }
 
-                texture_load_options textureOptions
-                {
-                    .desiredChannels = options["desired_channels"].get_or(DefaultChannelCount),
-                    .freeHostMemory = options["free_host_memory"].get_or(false)
-                };
+                asset_handle handle = rContext.assetHub->load_asset(asset_type::texture, filepath, {}, false);
 
-                return rContext.assetHandler->load_texture(filepath, textureOptions, assetOptions);
+                // TODO: if (options["upload_immediate"].get_or(true))
+                {
+                    
+                }
             };
 
-            assetsTable["unload_texture"] = sol::overload(
+            assetsTable["unload_texture"] = sol::overload
+            (
                 [&](scene_handle handle) {
-                    rContext.assetHandler->unload_texture(handle);
+                    rContext.assetHub->unload_asset(asset_type::texture, handle);
                 },
 
                 [&](std::string filepath) {
-                    rContext.assetHandler->unload_texture(filepath);
+                    rContext.assetHub->unload_asset(asset_type::texture, filepath);
                 }
             );
 
             // Scene:
-            assetsTable["load_scene"] = [&](const std::string& filepath) -> scene_handle {
-                return rContext.assetHandler->load_scene(filepath);
+            assetsTable["load_scene"] = [&](const std::string& filepath, bool setAsCurrent) -> scene_handle
+            {
+                scene_handle handle = rContext.assetHub->load_asset(asset_type::scene, filepath, [this, setAsCurrent](asset_handle handle)
+                {
+                    if (setAsCurrent)
+                        rContext.sceneHolder->set_current_scene(handle);
+                });
+                
+                return handle;
             };
 
             engineTable["assets"] = assetsTable;
@@ -185,18 +190,10 @@ namespace har
         }
 
         {
-            // Texture
-            auto loadedType = mView->new_usertype<texture_loaded_data>("texture_load", sol::no_constructor);
-            loadedType["handle"] = &texture_loaded_data::handle;
-            loadedType["freeHostMemory"] = &texture_loaded_data::freeHostMemory;
-            // options
-            
-            auto uploadRequestType = mView->new_usertype<texture_upload_request_data>("texture_upload_request", sol::no_constructor);
-            uploadRequestType["handle"] = &texture_upload_request_data::handle;
-            
-            auto uploadedType = mView->new_usertype<texture_uploaded_data>("texture_upload", sol::no_constructor);
-            uploadedType["assetHandle"] = &texture_uploaded_data::handle;
-            uploadedType["textureHandle"] = &texture_uploaded_data::combinedTextureHandle;
+            // Asset 
+            auto createType = mView->new_usertype<asset_loaded_event_data>("asset_loaded", sol::no_constructor);
+            createType["handle"] = &asset_loaded_event_data::handle;
+            createType["type"] = &asset_loaded_event_data::type;
         }
 
         // Event:
@@ -218,23 +215,8 @@ namespace har
                 case event_type::scene_switched:
                     return sol::make_object(lua, event.get<scene_switch_data>());
 
-                case event_type::texture_loaded:
-                    return sol::make_object(lua, event.get<texture_loaded_data>());
-
-                case event_type::texture_uploaded:
-                    return sol::make_object(lua, event.get<texture_uploaded_data>());
-
-                case event_type::request_texture_upload:
-                    return sol::make_object(lua, event.get<texture_upload_request_data>());
-
-                case event_type::pso_loaded:
-                    return sol::make_object(lua, event.get<pso_loaded_data>());
-
-                case event_type::pso_uploaded:
-                    return sol::make_object(lua, event.get<pso_uploaded_data>());
-
-                case event_type::request_pso_upload:
-                    return sol::make_object(lua, event.get<pso_loaded_data>());
+                case event_type::asset_loaded:
+                    return sol::make_object(lua, event.get<asset_loaded_event_data>());
 
                 default:
                     return sol::object();

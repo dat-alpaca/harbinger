@@ -5,6 +5,11 @@ namespace har
 {
     struct rhi_arguments
     {
+    public:
+        u32 get_rhi_required_static_memory();
+        u32 get_rhi_required_dynamic_memory();
+
+    public:
         u32 maxShaderCount                  = 2;
         u32 maxBufferCount                  = 1;
         u32 maxTextureCount                 = 2;
@@ -16,7 +21,4 @@ namespace har
         u32 maxPipelineCount                = 1;
         u32 maxVertexAttributesPerPipeline  = 8;
     };
-
-    u32 get_rhi_required_static_memory(const rhi_arguments& arguments);
-    u32 get_rhi_required_dynamic_memory(const rhi_arguments& arguments);
 }

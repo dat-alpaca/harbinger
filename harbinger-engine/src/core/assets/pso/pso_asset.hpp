@@ -1,11 +1,12 @@
 #pragma once
-#include "rhi/common/objects.hpp"
 #include <filesystem>
+#include "core/assets/asset.hpp"
+#include "rhi/common/objects.hpp"
 
 namespace har
 {
     // TODO: field that require spans
-    struct pso_asset
+    struct pso_asset : public asset
     {
         // vertex_input vertexInput    = {};
         rasterizer_t rasterizer;

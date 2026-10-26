@@ -20,16 +20,16 @@ namespace har
 
         // Window:
         else if (MATCH("window", "title"))
-            config->windowTitle = strdup(value);
+            config->windowSettings.title = strdup(value);
 
         else if (MATCH("window", "minWidth"))
-            config->windowMinWidth = std::atoi(value);
+            config->windowSettings.minWidth = std::atoi(value);
 
         else if (MATCH("window", "minHeight"))
-            config->windowMinHeight = std::atoi(value);
+            config->windowSettings.minHeight = std::atoi(value);
 
         else if (MATCH("window", "vsyncFrames"))
-            config->windowVsyncFrames = std::atoi(value);
+            config->windowSettings.vsyncFrames = std::atoi(value);
 
         // API:
         else if (MATCH("api", "major"))
@@ -40,10 +40,10 @@ namespace har
 
         // Event queue:
         else if (MATCH("events", "capacity"))
-            config->eventQueueCapacity = std::atoi(value);
+            config->eventQueueDesc.queueCapacity = std::atoi(value);
 
         else if (MATCH("events", "peepers"))
-            config->eventQueuePeepers = std::atoi(value);
+            config->eventQueueDesc.peeperCount = std::atoi(value);
 
         // RHI:
         else if (MATCH("rhi", "maxShaderCount"))
@@ -72,7 +72,7 @@ namespace har
 
         // Worker Pools:
         else if (MATCH("workers", "workerThreadCount"))
-            config->workerThreadCount = std::atoi(value);
+            config->workerPoolDesc.threadCount = std::atoi(value);
         
         // Scene Holder:
         else if (MATCH("scene_holder", "maxSceneCount"))

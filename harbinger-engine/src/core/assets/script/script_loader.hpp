@@ -3,24 +3,21 @@
 #include <expected>
 #include <filesystem>
 
-#include "core/assets/asset.hpp"
+#include "core/assets/asset_error.hpp"
 #include "core/logging/logger.hpp"
 #include "core/script/script_subsystem.hpp"
 #include "core/assets/script/script_asset.hpp"
 
 namespace har
 {
-    inline std::expected<script_asset, asset_load_error> load_script_task(const std::filesystem::path& filepath, NON_OWNING script_subsystem* scripts)
+    inline std::expected<script_asset, asset_load_error> asset_script_load(const std::filesystem::path& filepath, NON_OWNING script_subsystem* scripts)
     {
-        if (!std::filesystem::exists(filepath))
-            return std::unexpected { asset_load_error::invalid_filepath };
-
         // TODO: allow compiling and/or loading binary.
         auto scriptFile = scripts->open_file(filepath);
         if (!scriptFile.valid())
             return std::unexpected { asset_load_error::failed_to_load };
 
-        script_asset script { .self = scriptFile.call() };
+        script_asset script(scriptFile.call<sol::table>());
         auto& self = script.self;
 
         if (self["on_event"].valid())
@@ -32,7 +29,7 @@ namespace har
         return script;
     }
 
-    inline void post_load_script_task(script_asset& script, entt::entity entity)
+    inline void asset_script_post_load(script_asset& script, entt::entity entity)
     {
         if (!script.self.valid())
         {
@@ -44,7 +41,7 @@ namespace har
         self["id"] = entity;
     }
 
-    inline void post_unload_script_task(script_asset& script)
+    inline void asset_script_post_unload(script_asset& script)
     {
         script.self.abandon();
     }
