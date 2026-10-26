@@ -26,18 +26,21 @@ namespace har
         u32 safeMemoryAmount        = config.get_required_safe_memory();
 
         // Memory:
-        context.memoryPartitions = memory_partitions_initialize({
-            .staticMemorySizeBytes = staticMemoryAmount,
-            .dynamicMemorySizeBytes = dynamicMemoryAmount, // + MiB(10),
-            .transientMemorySizeBytes = transientMemoryAmount,
-            .safeMemorySizeBytes = safeMemoryAmount
-        });
-        auto& memoryPartitions = context.memoryPartitions;
+        {
+            context.memoryPartitions = memory_partitions_initialize(
+            {
+                .staticMemorySizeBytes = staticMemoryAmount,
+                .dynamicMemorySizeBytes = dynamicMemoryAmount, // + MiB(10),
+                .transientMemorySizeBytes = transientMemoryAmount,
+                .safeMemorySizeBytes = safeMemoryAmount
+            });
+            auto& memoryPartitions = context.memoryPartitions;
 
-        internal::MainStaticAllocator.initialize(memoryPartitions.staticMemory, memoryPartitions.staticMemorySize);
-        internal::MainTransientAllocator.initialize(memoryPartitions.transientMemory, memoryPartitions.transientMemorySize);
-        internal::MainDynamicAllocator.initialize(memoryPartitions.dynamicMemory, memoryPartitions.dynamicMemorySize);
-
+            internal::MainStaticAllocator.initialize(memoryPartitions.staticMemory, memoryPartitions.staticMemorySize);
+            internal::MainTransientAllocator.initialize(memoryPartitions.transientMemory, memoryPartitions.transientMemorySize);
+            internal::MainDynamicAllocator.initialize(memoryPartitions.dynamicMemory, memoryPartitions.dynamicMemorySize);
+        }
+        
         // Logging:
         initialize_logger(&internal::MainDynamicAllocator);
 
@@ -52,23 +55,28 @@ namespace har
         context.sceneHolder.initialize(eventQueue.get(), config.sceneHolderDesc);
 
         // Script:
-        context.scriptSubsystem.initialize({
-            .sceneHolder = &context.sceneHolder,
-            .assetHandler = &context.assetHandler,
-        });
+        {
+            context.scriptSubsystem.initialize(
+            {
+                .sceneHolder = &context.sceneHolder,
+                .assetHub = &context.assetHub,
+            });
+        }
 
         // Windowing:
-        context.windowing.initialize(context.eventQueue.get(),
         {
-            .major = config.apiMajor,
-            .minor = config.apiMinor
-        },
-        {
-            .title = config.windowTitle.c_str(),
-            .minWidth = config.windowMinWidth,
-            .minHeight = config.windowMinHeight,
-            .vsyncFrames = config.windowVsyncFrames
-        });
+            context.windowing.initialize(context.eventQueue.get(),
+            {
+                .major = config.apiMajor,
+                .minor = config.apiMinor
+            },
+            {
+                .title = config.windowTitle.c_str(),
+                .minWidth = config.windowMinWidth,
+                .minHeight = config.windowMinHeight,
+                .vsyncFrames = config.windowVsyncFrames
+            });
+        }
 
         // RHI:
         context.rhi.initialize(&context.config, &context.windowing.window, config.rhiArguments);
@@ -76,45 +84,32 @@ namespace har
         // Renderer:
         // renderer.initialize(&rhi, config.maxDrawInfoPerFrame, config.maxMaterialInstances, config.maxMeshes);
 
-        /* Subsystems */
-        // Asset Bank & Handler:
-        context.assetBank.initialize(config.rhiArguments.maxTextureCount);
-        context.assetBank.load_bank(config.assetBankFilepath.c_str());
-
+        // Asset Bank:
         {
-            asset_memory_options options =
+            context.assetHub.initialize(
             {
-                .maxTextureCount = config.rhiArguments.maxTextureCount,
-                .maxPipelineStateCount = config.rhiArguments.maxPipelineCount,
-                .maxScriptCount = config.maxScriptCount,
-            };
-            
-            context.assetHandler.initialize({
-                .eventQueue = context.eventQueue.get(),
                 .workerPool = &context.workerPool,
-                .assetBank = &context.assetBank,
-                .scriptEngine = &context.scriptSubsystem,
+                .eventQueue = context.eventQueue.get(),
                 .sceneHolder = &context.sceneHolder,
-            }, options);
-        
-            eventQueue->register_peeper({.callback = [&](event& event) { context.assetHandler.on_event(event); }});
+            }, config.assetHubDesc);
         }
+        
 
         // GPU Uploader:
-        context.gpuUploader.initialize({
-            .assetHandler = &context.assetHandler,
-            .eventQueue = context.eventQueue.get(),
-            .assetBank = &context.assetBank,
-            .config = &context.config, 
-            .rhi = &context.rhi,
-        });
         {
-            eventQueue->register_peeper({.callback = [&](event& event) { context.gpuUploader.on_event(event); }});
+            context.gpuUploader.initialize(
+            {
+                .assetHub = &context.assetHub,
+                .eventQueue = context.eventQueue.get(),
+                .config = &context.config, 
+                .rhi = &context.rhi,
+            });
         }
 
         /* Systems */
-        context.scriptSystem.initialize(&context.assetHandler);
         {
+            // Script:
+            context.scriptSystem.initialize(&context.assetHub);
             eventQueue->register_peeper({.callback = [&](event& event) { context.scriptSystem.on_event(event); }});
         }
 

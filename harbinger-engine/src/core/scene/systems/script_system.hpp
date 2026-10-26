@@ -1,12 +1,13 @@
 #pragma once
+#include "core/assets/script/script_loader.hpp"
 #include "core/defines.hpp"
 #include "core/event/event.hpp"
 #include "core/scene/scene.hpp"
 #include "core/assert/assert.hpp"
 #include "core/scene/components.hpp"
 #include "core/event/event_type.hpp"
-#include "core/bridges/asset_handler.hpp"
-#include "core/assets/script/script_loader.hpp"
+#include "core/assets/asset_hub.hpp"
+#include "core/assets/script/script_asset.hpp"
 #include "core/event/concrete/scene_events.hpp"
 
 namespace har
@@ -14,10 +15,10 @@ namespace har
     class script_system
     {
     public:
-        void initialize(NON_OWNING asset_handler* handler)
+        void initialize(NON_OWNING asset_hub* hub)
         {
-            HAR_ASS(handler);
-            rAssetHandler = handler;
+            HAR_ASS(hub);
+            rAssetHub = hub;
         }
 
     public:
@@ -38,7 +39,7 @@ namespace har
 
             for (auto [e, scriptComponent] : mCurrentScene->get_registry().view<script_component>().each())
             {
-                auto& script = rAssetHandler->get_scripts().get_asset(scriptComponent.handle)->resource;
+                auto& script = *static_cast<script_asset*>(rAssetHub->get_asset(scriptComponent.handle));
                 script.on_update();
             }
         }
@@ -51,7 +52,7 @@ namespace har
 
             for (auto [e, scriptComponent] : mCurrentScene->get_registry().view<script_component>().each())
             {
-                auto& script = rAssetHandler->get_scripts().get_asset(scriptComponent.handle)->resource;
+                auto& script = *static_cast<script_asset*>(rAssetHub->get_asset(scriptComponent.handle));
                 script.on_event(event);
             }
         }
@@ -63,13 +64,13 @@ namespace har
 
             for (auto [entity, scriptComponent] : mCurrentScene->get_registry().view<script_component>().each())
             {
-                auto& script = rAssetHandler->get_scripts().get_asset(scriptComponent.handle)->resource;
-                post_load_script_task(script, entity);
+                auto& script = *static_cast<script_asset*>(rAssetHub->get_asset(scriptComponent.handle));
+                asset_script_post_load(script, entity);
             }
         }
 
     private:
-        NON_OWNING asset_handler* rAssetHandler;
+        NON_OWNING asset_hub* rAssetHub = nullptr;
         NON_OWNING scene_t* mCurrentScene = nullptr;
     };
 }

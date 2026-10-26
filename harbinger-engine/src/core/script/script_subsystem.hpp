@@ -5,14 +5,14 @@
 
 #include "core/defines.hpp"
 #include "core/scene/scene_holder.hpp"
-#include "core/bridges/asset_handler.hpp"
+#include "core/assets/asset_hub.hpp"
 
 namespace har
 {
     struct script_subsystem_context
     {
         NON_OWNING scene_holder* sceneHolder;
-        NON_OWNING asset_handler* assetHandler;
+        NON_OWNING asset_hub* assetHub;
     };
 
     struct script_subsystem

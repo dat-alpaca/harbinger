@@ -1,6 +1,7 @@
 #pragma once
-#include "core/assert/assert.hpp"
 #include "core/defines.hpp"
+#include "core/assets/asset.hpp"
+#include "core/assert/assert.hpp"
 
 namespace har
 {
@@ -12,7 +13,9 @@ namespace har
         dxt5
     };
 
-    struct texture_asset
+    constexpr static u8 DefaultDesiredChannels = 0;
+
+    struct texture_asset : public asset
     {
     public:
         texture_asset(byte* data, u16 width, u16 height, u8 channels)
@@ -34,6 +37,5 @@ namespace har
         u16 width    : 14 = 0;       
         u16 height   : 14 = 0;
         u8 channels  : 4  = 0;
-        texture_compression compressionLevel = texture_compression::none;
     };
 }

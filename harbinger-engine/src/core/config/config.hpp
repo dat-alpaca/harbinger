@@ -1,4 +1,5 @@
 #pragma once
+#include "core/assets/asset_hub.hpp"
 #include "core/defines.hpp"
 #include "core/containers/nano_string.hpp"
 #include "core/scene/scene_holder.hpp"
@@ -34,6 +35,9 @@ namespace har
         u8 apiMinor = 6;
 
         u8 workerThreadCount = 4;
+
+    public:
+        asset_hub_desc assetHubDesc;
 
     public:
         scene_holder_desc sceneHolderDesc;

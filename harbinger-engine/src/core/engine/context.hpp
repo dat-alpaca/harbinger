@@ -1,20 +1,17 @@
 #pragma once
 #include "core/defines.hpp"
 #include "core/config/config.hpp"
-#include "core/assets/asset_bank.hpp"
+#include "core/assets/asset_hub.hpp"
 #include "core/event/event_queue.hpp"
 #include "core/memory/memory_partitions.hpp"
 
+#include "core/worker/worker_pool.hpp"
 #include "core/scene/scene_holder.hpp"
 #include "core/windowing/windowing.hpp"
-#include "core/worker/worker_pool.hpp"
-
-#include "core/scene/systems/script_system.hpp"
-
-#include "core/bridges/asset_handler.hpp"
-#include "core/script/script_subsystem.hpp"
 
 #include "core/bridges/gpu_uploader.hpp"
+#include "core/script/script_subsystem.hpp"
+#include "core/scene/systems/script_system.hpp"
 
 #include "renderer/renderer.hpp"
 #include "rhi/rhi.hpp"
@@ -30,10 +27,9 @@ namespace har
     public:
         har_unique<event_queue> eventQueue;
         script_subsystem scriptSubsystem;
-        asset_handler assetHandler;
         scene_holder sceneHolder;
         worker_pool workerPool;
-        asset_bank assetBank;
+        asset_hub assetHub;
         
     public:
         windowing_subsystem windowing;
