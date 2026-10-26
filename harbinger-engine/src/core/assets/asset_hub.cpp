@@ -80,6 +80,10 @@ namespace har
             std::destroy_at(asset);
         });
 
+        // TODO: write script loader
+        // TODO: register unloader
+        // Script:
+
         // TODO: register unloader
         // Scene:
         register_asset_loader(asset_type::scene, [&](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* _) 
