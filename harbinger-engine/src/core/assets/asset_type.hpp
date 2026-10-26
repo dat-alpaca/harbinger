@@ -9,8 +9,10 @@ namespace har
         unknown,
         pipeline_object,
         scene,
+        scene_assets,
         script,
         texture,
+        material_instance,
     };
 
     constexpr inline const char* get_name_from_asset(asset_type type)
@@ -28,6 +30,9 @@ namespace har
 
             case asset_type::texture: 
                 return "texture";
+
+            case asset_type::material_instance: 
+                return "material_instance";
 
             default:
                 return "unknown";
@@ -47,12 +52,15 @@ namespace har
 
         else if (std::strcmp(name, "texture") == 0)
             return asset_type::texture;
+
+        else if (std::strcmp(name, "material_instance") == 0)
+            return asset_type::material_instance;
         
         return asset_type::unknown;
     }
 
     constexpr inline bool is_gpu_uploadable(asset_type type)
     {
-        return (type == asset_type::texture || type == asset_type::pipeline_object);
+        return (type == asset_type::texture || type == asset_type::pipeline_object );
     }
 }

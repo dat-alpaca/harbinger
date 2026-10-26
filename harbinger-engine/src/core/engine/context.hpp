@@ -12,6 +12,7 @@
 #include "core/bridges/gpu_uploader.hpp"
 #include "core/script/script_subsystem.hpp"
 #include "core/scene/systems/script_system.hpp"
+#include "core/scene/systems/asset_linker.hpp"
 
 #include "renderer/renderer.hpp"
 #include "rhi/rhi.hpp"
@@ -38,6 +39,7 @@ namespace har
 
     public:
         gpu_uploader gpuUploader;
+        asset_linker assetLinker;
     
     public:
         script_system scriptSystem;

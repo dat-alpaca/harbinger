@@ -4,21 +4,20 @@
 
 #include "core/defines.hpp"
 #include "core/assets/asset.hpp"
-#include "core/config/config.hpp"
 #include "core/assets/asset_hub.hpp"
 #include "core/assets/asset_type.hpp"
 #include "core/event/event_queue.hpp"
 #include "core/containers/containers.hpp"
 #include "core/assets/asset_bank_option.hpp"
 
-
 #include "rhi/rhi.hpp"
 #include "rhi/glsl_compiler.hpp"
 #include "rhi/common/objects.hpp"
 
-
 namespace har
 {
+    struct config_t;
+
     struct gpu_uploader_context
     {
         NON_OWNING asset_hub*     assetHub     = nullptr;
@@ -35,7 +34,7 @@ namespace har
         void initialize(gpu_uploader_context&& context);
 
     public:
-        void upload_asset_from_hub(asset_type type, const std::filesystem::path& filepath);
+        void upload_asset_from_hub(asset_type type, asset_handle handle);
 
     private:
         shader_handle create_shader(shader_type type, const std::filesystem::path& shaderFilepath);

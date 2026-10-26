@@ -1,6 +1,7 @@
 #include "gpu_uploader.hpp"
 #include "core/assert/assert.hpp"
 #include "core/assets/asset.hpp"
+#include "core/config/config.hpp"
 #include "core/assets/asset_bank_option.hpp"
 #include "core/assets/asset_hub.hpp"
 #include "core/assets/asset_type.hpp"
@@ -9,6 +10,7 @@
 #include "core/assets/texture/texture_bank_options.hpp"
 
 #include "core/defines.hpp"
+#include "core/event/concrete/asset_events.hpp"
 #include "core/logging/logger.hpp"
 #include "core/utils/file.hpp"
 #include "rhi/common/objects.hpp"
@@ -65,24 +67,19 @@ namespace har
         });
     }
         
-    void gpu_uploader::upload_asset_from_hub(asset_type type, const std::filesystem::path& filepath)
+    void gpu_uploader::upload_asset_from_hub(asset_type type, asset_handle handle)
     {
-        auto* assetData = static_cast<asset*>(rContext.assetHub->get_asset(filepath));
-        auto* bankOptions = static_cast<asset_bank_option*>(rContext.assetHub->get_asset_bank()[filepath].get());
+        auto* assetData = static_cast<asset*>(rContext.assetHub->get_asset(handle));
+        auto* bankOption = rContext.assetHub->get_asset_bank()[assetData->metadata.filepath].get();
 
         if (!is_gpu_uploadable(type))
         {
-            HAR_LOG_ERROR("Attempted to upload a non-gpu uploadable asset: {} [{}]", filepath.string(), get_name_from_asset(type));
+            HAR_LOG_ERROR("Attempted to upload a non-gpu uploadable asset: {} [{}]", handle, get_name_from_asset(type));
             return;
         }
 
-        if (!std::filesystem::exists(filepath))
-        {
-            HAR_LOG_ERROR("Failed to upload asset at: {}", filepath.string());
-            return;
-        }
-
-        mUploadCalls[type](assetData, bankOptions, filepath);
+        handle_t gpuHandle = mUploadCalls[type](assetData, bankOption, assetData->metadata.filepath);
+        send_asset_uploaded_event(*rContext.eventQueue, { .assetHandle = handle, .gpuHandle = gpuHandle, .type = type });
     }
 
     shader_handle gpu_uploader::create_shader(shader_type type, const std::filesystem::path& shaderFilepath)

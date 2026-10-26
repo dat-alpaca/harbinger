@@ -8,12 +8,10 @@ namespace har
         OWNING byte* staticMemory;
         OWNING byte* dynamicMemory;
         OWNING byte* transientMemory;
-        OWNING byte* safeMemory;
 
         u32 staticMemorySize = 0;
         u32 dynamicMemorySize = 0;
         u32 transientMemorySize = 0;
-        u32 safeMemorySize = 0;
     };
 
     struct memory_partition_args
@@ -21,7 +19,6 @@ namespace har
         u32 staticMemorySizeBytes;
         u32 dynamicMemorySizeBytes;
         u32 transientMemorySizeBytes;
-        u32 safeMemorySizeBytes;
     };
 
     memory_partitions memory_partitions_initialize(const memory_partition_args& args);

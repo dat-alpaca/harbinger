@@ -57,6 +57,9 @@ namespace har
     {
         using namespace har::internal;
 
+        if (asset.channels != 4)
+            return;
+
         i32 cFlags = get_squish_flags(compressionLevel);
         i32 cSize = squish::GetStorageRequirements(asset.width, asset.height, cFlags);
         

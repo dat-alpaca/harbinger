@@ -1,11 +1,12 @@
 #pragma once
-#include "core/config/config.hpp"
 #include "core/defines.hpp"
 
 #include "platform/window.hpp"
 #include "rhi/common/objects.hpp"
 #include "rhi/opengl/containers.hpp"
 #include "rhi/common/rhi_arguments.hpp"
+
+namespace har { struct config_t; }
 
 namespace har::rhi
 {

@@ -15,6 +15,10 @@ namespace glm
     /* vec3 */
     void to_json(nlohmann::json& jsonObject, const glm::vec3& descriptor);
     void from_json(const nlohmann::json& jsonObject, glm::vec3& descriptor);
+
+    /* vec4 */
+    void to_json(nlohmann::json& jsonObject, const glm::vec4& descriptor);
+    void from_json(const nlohmann::json& jsonObject, glm::vec4& descriptor);
 }
 
 namespace har

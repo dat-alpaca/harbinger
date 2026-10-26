@@ -6,7 +6,6 @@
 #include "core/memory/memory_tag.hpp"
 #include "core/memory/allocators.hpp"
 
-#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>

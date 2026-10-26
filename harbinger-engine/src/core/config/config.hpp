@@ -17,7 +17,6 @@ namespace har
         u32 get_required_static_memory();
         u32 get_required_dynamic_memory();
         u32 get_required_transient_memory();
-        u32 get_required_safe_memory();
 
     public:        
         nano_string assetBankFilepath;

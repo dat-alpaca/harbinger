@@ -23,7 +23,6 @@ namespace har
         u32 staticMemoryAmount      = config.get_required_static_memory();
         u32 dynamicMemoryAmount     = config.get_required_dynamic_memory();
         u32 transientMemoryAmount   = config.get_required_transient_memory();
-        u32 safeMemoryAmount        = config.get_required_safe_memory();
 
         // Memory:
         {
@@ -32,7 +31,6 @@ namespace har
                 .staticMemorySizeBytes = staticMemoryAmount,
                 .dynamicMemorySizeBytes = dynamicMemoryAmount,
                 .transientMemorySizeBytes = transientMemoryAmount,
-                .safeMemorySizeBytes = safeMemoryAmount
             });
             auto& memoryPartitions = context.memoryPartitions;
 
@@ -53,15 +51,6 @@ namespace har
 
         // Scene Holder:
         context.sceneHolder.initialize(eventQueue.get(), config.sceneHolderDesc);
-
-        // Script:
-        {
-            context.scriptSubsystem.initialize(
-            {
-                .sceneHolder = &context.sceneHolder,
-                .assetHub = &context.assetHub,
-            });
-        }
 
         // Windowing:
         {
@@ -96,6 +85,22 @@ namespace har
             });
         }
 
+        // Script Subsystem:
+        {
+            context.scriptSubsystem.initialize(
+            {
+                .sceneHolder = &context.sceneHolder,
+                .gpuUploader = &context.gpuUploader,
+                .assetHub = &context.assetHub,
+            });
+        }
+
+        // Asset Linker:
+        {
+            context.assetLinker.initialize(&context.assetHub, &context.sceneHolder);
+            eventQueue->register_peeper({.callback = [&](event& event) { context.assetLinker.on_event(event); }});
+        }
+
         /* Systems */
         {
             // Script:
@@ -107,7 +112,6 @@ namespace har
         HAR_LOG_INFO("Static memory: {}B", staticMemoryAmount);
         HAR_LOG_INFO("Dynamic memory: {}MB", dynamicMemoryAmount / 1e6);
         HAR_LOG_INFO("Transient memory: {}B", transientMemoryAmount);
-        HAR_LOG_INFO("Safe memory: {}B", safeMemoryAmount);
     }
 
     void harbinger_engine_shutdown(context_t& context)

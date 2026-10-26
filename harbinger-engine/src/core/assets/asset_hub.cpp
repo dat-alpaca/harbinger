@@ -1,5 +1,7 @@
 #include "asset_hub.hpp"
 
+#include "core/assets/material_instance/material_instance_asset.hpp"
+#include "core/assets/material_instance/material_instance_loader.hpp"
 #include "core/assets/pso/pso_asset.hpp"
 #include "core/assets/pso/pso_loader.hpp"
 #include "core/assets/scene/scene_asset.hpp"
@@ -15,6 +17,7 @@
 
 #include "core/memory/memory_tag.hpp"
 #include "core/memory/allocators.hpp"
+#include "core/utils/uuid.hpp"
 #include "core/worker/worker_pool.hpp"
 
 #include "core/serializers/asset_bank_serializer.hpp"
@@ -22,6 +25,7 @@
 #include "core/assets/asset.hpp"
 #include "core/assets/texture/texture_loader.hpp"
 #include "core/assets/texture/texture_bank_options.hpp"
+#include <cstring>
 #include <memory>
 
 namespace har
@@ -73,8 +77,11 @@ namespace har
         {
             auto* asset = static_cast<texture_asset*>(assetData);
             asset_texture_free(asset->data);
+            std::destroy_at(asset);
         });
 
+        // TODO: register unloader
+        // Scene:
         register_asset_loader(asset_type::scene, [&](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* _) 
         {
             auto result = asset_scene_load(filepath, *mContext.sceneHolder, static_cast<scene_asset*>(assetData));
@@ -83,15 +90,26 @@ namespace har
                 HAR_LOG_ERROR("Failed to load scene at: {}", filepath.string());
                 return;
             }
+        });
+        register_asset_loader(asset_type::scene_assets, [&](const std::filesystem::path& filepath, asset* _, NON_OWNING asset_bank_option* __) 
+        {
+            auto result = asset_scene_assets_load(filepath);
+            if (!result.has_value())
+            {
+                HAR_LOG_ERROR("Failed to load scene at: {}", filepath.string());
+                return;
+            }
 
-            for (const auto& entry : result.value().entries)
-                load_asset(entry.type, entry.filepath, {}, true);
+            for (const auto& entry : result->entries)
+                load_asset(entry.type, entry.filepath, {}, true, entry.assedUUID);
         });
 
+        // TODO: register unloader
+        // PSO:
         register_asset_loader(asset_type::pipeline_object, [&](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* _) 
         {
-            auto psoResult = asset_pso_load(filepath);
-            if (!psoResult.has_value())
+            auto result = asset_pso_load(filepath);
+            if (!result.has_value())
             {
                 HAR_LOG_ERROR("Failed to load PSO at: {}", filepath.string());
                 return;
@@ -99,16 +117,36 @@ namespace har
 
             auto* psoAsset = static_cast<pso_asset*>(assetData);
             {
-                psoAsset->rasterizer = psoResult->rasterizer;
-                psoAsset->vertexShaderPath = psoResult->vertexShaderPath;
-                psoAsset->fragmentShaderPath = psoResult->fragmentShaderPath;
-                psoAsset->multisampling = psoResult->multisampling;
-                psoAsset->inputAssembly = psoResult->inputAssembly;
+                psoAsset->rasterizer            = result->rasterizer;
+                psoAsset->vertexShaderPath      = result->vertexShaderPath;
+                psoAsset->fragmentShaderPath    = result->fragmentShaderPath;
+                psoAsset->multisampling         = result->multisampling;
+                psoAsset->inputAssembly         = result->inputAssembly;
+            }
+        });
+
+        // TODO: register unloader
+        // Material instance:
+        register_asset_loader(asset_type::material_instance, [&](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* _)
+        {
+            auto result = asset_material_instance_load(filepath);
+            if (!result.has_value())
+            {
+                HAR_LOG_ERROR("Failed to load material instance at: {}", filepath.string());
+                return;
+            }
+
+            auto* materialInstanceAsset = static_cast<material_instance_asset*>(assetData);
+            {
+                materialInstanceAsset->type = result->type;
+
+                materialInstanceAsset->data.resize(result->data.size());
+                std::memcpy(materialInstanceAsset->data.data(), result->data.data(), result->data.size());
             }
         });
     }   
 
-    asset_handle asset_hub::load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback, bool inPlace)
+    asset_handle asset_hub::load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback, bool inPlace, uuid assetUUID)
     {
         if (!std::filesystem::exists(filepath))
         {
@@ -119,7 +157,7 @@ namespace har
         if (mCache.find(filepath) != mCache.end())
             return mCache[filepath];
         
-        asset_handle handle = mAssets.insert(allocate_appropriate_asset_type(type, filepath));
+        asset_handle handle = mAssets.insert(allocate_appropriate_asset_type(type, filepath, assetUUID));
         HAR_ASS(handle != invalid_small_handle);
 
         if (!inPlace)
@@ -199,6 +237,12 @@ namespace har
         }
     }
 
+    void asset_hub::call_asset_loader(asset_type type, const std::filesystem::path& filepath)
+    {
+        auto handle = mCache[filepath];
+        mLoaders[type](filepath, mAssets[handle], mAssetBank[filepath].get());
+    }
+
     asset* asset_hub::get_asset(const std::filesystem::path& filepath)
     {
         if (mCache.find(filepath) != mCache.end())
@@ -220,41 +264,55 @@ namespace har
         mUnloaders[type] = std::move(function);
     }
 
-    asset* asset_hub::allocate_appropriate_asset_type(asset_type type, const std::filesystem::path& filepath)
+    asset* asset_hub::allocate_appropriate_asset_type(asset_type type, const std::filesystem::path& filepath, uuid assetUUID)
     {
         using namespace har::internal;
         
-        asset* assetData;
+        asset* assetData = nullptr;
         switch (type)
         {
+            case asset_type::unknown:
+            case asset_type::scene_assets:
+            {
+                HAR_LOG_CRITICAL("Attempted to allocate an unknown or invalid asset type.");
+            } break;
+
             case asset_type::pipeline_object:
             {
                 assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(pso_asset)));
-                std::construct_at(assetData, pso_asset());
+                std::construct_at(static_cast<pso_asset*>(assetData));
             } break;
                 
             case asset_type::texture:
             {
                 assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(texture_asset)));
-                std::construct_at(assetData, texture_asset());
+                std::construct_at(static_cast<texture_asset*>(assetData));
             } break;
 
             case asset_type::scene:
             {
                 assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(scene_asset)));
-                std::construct_at(assetData, scene_asset());
+                std::construct_at(static_cast<scene_asset*>(assetData));
             } break;
 
             case asset_type::script:
             {
                 assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(script_asset)));
-                std::construct_at(assetData, script_asset());
+                std::construct_at(static_cast<script_asset*>(assetData));
             } break;
 
-            default:
-                return nullptr;
+            case asset_type::material_instance:
+            {
+                assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(material_instance_asset)));
+                std::construct_at(static_cast<material_instance_asset*>(assetData));
+            } break;
         }
 
+        if (assetUUID != invalid_uuid)
+            assetData->metadata.assetUUID = assetUUID;
+        else
+            assetData->metadata.assetUUID = generate_uuid();
+        
         assetData->metadata.filepath = filepath;
         assetData->type = type;
         return assetData;
@@ -275,6 +333,7 @@ namespace har
 
         send_asset_loaded_event(*mContext.eventQueue, { handle, type });
 
-        callback(handle);
+        if (callback)
+            callback(handle);
     }
 }

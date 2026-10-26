@@ -75,10 +75,14 @@ sources = files(
     'src/core/scene/entity.cpp',
 
     'src/core/scene/scene_holder.cpp',
+    'src/core/scene/systems/renderer_system.cpp',
+    'src/core/scene/systems/asset_linker.cpp',
 
     'src/core/worker/worker_pool.cpp',
 
     'src/core/utils/json_serializable.cpp',
+
+    'src/rhi/glsl_compiler.cpp',
 )
 
 # Platform-specific:

@@ -6,12 +6,14 @@
 #include "core/defines.hpp"
 #include "core/scene/scene_holder.hpp"
 #include "core/assets/asset_hub.hpp"
+#include "core/bridges/gpu_uploader.hpp"
 
 namespace har
 {
     struct script_subsystem_context
     {
         NON_OWNING scene_holder* sceneHolder;
+        NON_OWNING gpu_uploader* gpuUploader;
         NON_OWNING asset_hub* assetHub;
     };
 

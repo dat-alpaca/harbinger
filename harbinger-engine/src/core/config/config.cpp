@@ -36,9 +36,4 @@ namespace har
         return 
             eventQueueDesc.get_required_transient_memory();
     }
-
-    u32 config_t::get_required_safe_memory()
-    {
-        return 64;
-    }
 }

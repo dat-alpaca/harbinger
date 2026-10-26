@@ -65,7 +65,7 @@ namespace har
     void script_subsystem::initialize(script_subsystem_context&& context)
     {
         rContext = std::move(context);
-        HAR_ASS(rContext.sceneHolder && rContext.assetHub);
+        HAR_ASS(rContext.sceneHolder && rContext.assetHub && rContext.gpuUploader);
 
         mState = lua_newstate(lua_allocator, &rContext);
         HAR_ASS(mState);
@@ -128,16 +128,14 @@ namespace har
             {
                 if (!options.valid())
                 {
-                    HAR_LOG_ERROR("[Script Engine] invalid option arguments passed to load_scene.");
+                    HAR_LOG_ERROR("[Script Engine] invalid option arguments passed to load_texture.");
                     return invalid_small_handle;
                 }
 
                 asset_handle handle = rContext.assetHub->load_asset(asset_type::texture, filepath, {}, false);
 
-                // TODO: if (options["upload_immediate"].get_or(true))
-                {
-                    
-                }
+                if (options["upload_immediate"].get_or(true))
+                    rContext.gpuUploader->upload_asset_from_hub(asset_type::texture, handle);
             };
 
             assetsTable["unload_texture"] = sol::overload
@@ -161,6 +159,11 @@ namespace har
                 });
                 
                 return handle;
+            };
+            assetsTable["load_scene_assets"] = [&](scene_handle handle) -> void
+            {
+                auto& filepath = rContext.assetHub->get_asset(handle)->metadata.filepath;
+                rContext.assetHub->call_asset_loader(asset_type::scene_assets, filepath);
             };
 
             engineTable["assets"] = assetsTable;

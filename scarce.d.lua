@@ -42,10 +42,15 @@ function assets.unload_texture(filepath) end
 function assets.unload_texture(handle) end
 
 
---- Loads a texture from a filepath into the internal engine scene holder.
+--- Loads a scene from a filepath into the internal engine scene holder.
 ---@param filepath string The filepath to the scene
+---@param setAsCurrent boolean Whether to immediately set the current scene to the newly created one
 ---@return integer scene_handle The handle that describes the scene loaded
-function assets.load_scene(filepath) end
+function assets.load_scene(filepath, setAsCurrent) end
+
+--- Loads the assets defined by a scene
+---@param sceneHandle integer A scene_handle
+function assets.load_scene_assets(sceneHandle) end
 
 
 

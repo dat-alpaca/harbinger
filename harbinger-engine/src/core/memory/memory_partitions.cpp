@@ -10,12 +10,10 @@ namespace har
         partitions.staticMemory    = static_cast<byte*>(platform::allocate(args.staticMemorySizeBytes));
         partitions.dynamicMemory   = static_cast<byte*>(platform::allocate(args.dynamicMemorySizeBytes));
         partitions.transientMemory = static_cast<byte*>(platform::allocate(args.transientMemorySizeBytes));
-        partitions.safeMemory      = static_cast<byte*>(platform::allocate(args.safeMemorySizeBytes));
 
         partitions.staticMemorySize = args.staticMemorySizeBytes;
         partitions.dynamicMemorySize = args.dynamicMemorySizeBytes;
         partitions.transientMemorySize = args.transientMemorySizeBytes;
-        partitions.safeMemorySize = args.safeMemorySizeBytes;
 
         return partitions;
     }
@@ -25,6 +23,5 @@ namespace har
         platform::deallocate(partitions.staticMemory);
         platform::deallocate(partitions.dynamicMemory);
         platform::deallocate(partitions.transientMemory);
-        platform::deallocate(partitions.safeMemory);
     }
 }
