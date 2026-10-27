@@ -37,6 +37,9 @@ namespace har
 
         else if (MATCH("api", "minor"))
             config->apiMinor = std::atoi(value);
+        
+        else if (MATCH("api", "glslVersion"))
+            config->glslVersion = std::atoi(value);
 
         // Event queue:
         else if (MATCH("events", "capacity"))
@@ -76,6 +79,9 @@ namespace har
 
         else if (MATCH("renderer", "maxInstances"))
             config->rendererDesc.maxInstances = std::atoi(value);
+
+        else if (MATCH("renderer", "maxDataPerInstance"))
+            config->rendererDesc.maxDataPerInstance = std::atoi(value);
 
         // Worker Pools:
         else if (MATCH("workers", "workerThreadCount"))

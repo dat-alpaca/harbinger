@@ -24,6 +24,7 @@ namespace har
         u32 maxScriptCount = 1;
         u8 apiMajor = 4;
         u8 apiMinor = 6;
+        u16 glslVersion = 460;
 
         platform::window_settings windowSettings;
         harbinger_renderer_desc rendererDesc;

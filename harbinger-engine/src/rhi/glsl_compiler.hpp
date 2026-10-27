@@ -17,7 +17,8 @@ namespace har
     enum class glsl_compiler_error
     {
         compilation_error,
-        linking_error
+        linking_error,
+        reflection_error
     };
     inline const char* get_compiler_error_string(glsl_compiler_error error)
     {
@@ -25,6 +26,7 @@ namespace har
         {
             case glsl_compiler_error::compilation_error: return "compilation_error";
             case glsl_compiler_error::linking_error: return "linking_error";
+            case glsl_compiler_error::reflection_error: return "reflection_error";
         };
 
         return "invalid load error";

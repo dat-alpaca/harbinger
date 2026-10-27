@@ -1,5 +1,6 @@
 #include "renderer_system.hpp"
 
+#include "core/assets/material_instance/material_instance_asset.hpp"
 #include "core/defines.hpp"
 #include "core/assert/assert.hpp"
 #include "core/event/event_type.hpp"
@@ -54,10 +55,10 @@ namespace har
                 continue;
 
             // TODO: mateiral instance component
-            // asset* materialInstanceAssetData = rAssetHub->get_asset(matInstance.assetHandle);
+            auto* materialInstanceAssetData = static_cast<material_instance_asset*>(rAssetHub->get_asset(matInstance.assetHandle));
 
             // Pipeline:
-            rRenderer->push_object(transform.transform, renderable.pipelineHandle, renderable.isImmutable);
+            rRenderer->push_object(transform.transform, renderable.pipelineHandle, materialInstanceAssetData->data, renderable.isImmutable);
         }
     }
 

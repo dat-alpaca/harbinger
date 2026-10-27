@@ -1,7 +1,6 @@
 #include "gpu_uploader.hpp"
 #include "core/assert/assert.hpp"
 #include "core/assets/asset.hpp"
-#include "core/config/config.hpp"
 #include "core/assets/asset_bank_option.hpp"
 #include "core/assets/asset_hub.hpp"
 #include "core/assets/asset_type.hpp"
@@ -14,6 +13,7 @@
 #include "core/logging/logger.hpp"
 #include "core/utils/file.hpp"
 #include "rhi/common/objects.hpp"
+#include "rhi/glsl_compiler.hpp"
 #include <filesystem>
 
 namespace har

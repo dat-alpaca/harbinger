@@ -27,16 +27,20 @@ namespace har
         }
         inline u64 get_required_static_memory() 
         { 
-            return sizeof(instance_data) * maxInstances;
+            return 
+                sizeof(instance_data) * maxInstances +
+                sizeof(byte) * maxInstances * DefaultMaxDataPerInstance;
         }
 
     public:
         u64 maxDrawInfoPerFrame = DefaultMaxDrawInfoCount;
-        u64 maxInstances = DefaultMaxDrawInfoCount;
+        u64 maxInstances = DefaultMaxInstances;
+        u32 maxDataPerInstance = DefaultMaxDataPerInstance;
     
     private:
         constexpr static inline u64 DefaultMaxDrawInfoCount = 16;
         constexpr static inline u64 DefaultMaxInstances = 16;
+        constexpr static inline u64 DefaultMaxDataPerInstance = sizeof(float) * 8;
     };
 
     class harbinger_renderer
@@ -46,7 +50,7 @@ namespace har
         void render();
 
     public:
-        void push_object(const transform_t& transform, graphics_pipeline_handle handle, bool isImmutable);
+        void push_object(const transform_t& transform, graphics_pipeline_handle handle, std::span<const byte> userData = {}, bool isImmutable = false);
         void clear_draw_info();
 
     private:
@@ -68,10 +72,13 @@ namespace har
         u32 mCurrentOffset = 0;
 
     private:
-        descriptor_set_layout_handle mainLayout;
-        descriptor_set_handle mainSet;
+        descriptor_set_layout_handle mainLayout = invalid_small_handle;
+        descriptor_set_handle mainSet = invalid_small_handle;
 
         har_vector<memory_tag::renderer, instance_data> mInstanceBuffer;
-        buffer_handle mInstanceSSBO;
+        har_vector<memory_tag::renderer, byte> mUserBuffer;
+        
+        buffer_handle mInstanceSSBO = invalid_small_handle;
+        buffer_handle mUserSSBO = invalid_small_handle;
     };
 }

@@ -4,6 +4,7 @@
 #include "core/defines.hpp"
 #include "core/assert/assert.hpp"
 #include "rhi/common/objects.hpp"
+#include "rhi/default_layout.hpp"
 
 namespace har
 {
@@ -22,31 +23,34 @@ namespace har
         clear_draw_info();
 
         {
+            // Instance:
             buffer_descriptor descriptor;
             descriptor.bufferUsage = buffer_usage::storage | buffer_usage::coherent | buffer_usage::persistent | buffer_usage::write;
             descriptor.sizeBytes = sizeof(instance_data) * desc.maxInstances;
 
             mInstanceSSBO = rRHI->create_buffer(descriptor);
             mInstanceBuffer.reserve(descriptor.sizeBytes);
+
+            // User:
+            descriptor.sizeBytes = sizeof(byte) * desc.maxInstances * desc.maxDataPerInstance;
+            mUserSSBO = rRHI->create_buffer(descriptor);
+            mUserBuffer.reserve(descriptor.sizeBytes);
         }
 
         {
-            // TODO: pipeline reflection (each pipeline builds its own descriptor set layout and main descriptor set)
-            // TODO: here, using the pipeline reflection data (mainly the descriptor set lauyout), bind the appropriate ssbos to the correct places
-            
-
             descriptor_set_layout layout;
-            layout.items.push_back(
-            {
-                .type = descriptor_set_type::storage_buffer,
-                .stage = pipeline_stage::vertex, 
-                .binding = 0, 
-                .amount = 1, 
-            });
+            layout.items.push_back({ descriptor_set_type::storage_buffer, pipeline_stage::vertex, DefaultDescriptor_Position, 1,});
+            layout.items.push_back({ descriptor_set_type::storage_buffer, pipeline_stage::vertex, DefaultDescriptor_Normals, 1,});
+            layout.items.push_back({ descriptor_set_type::storage_buffer, pipeline_stage::vertex, DefaultDescriptor_UV0, 1,});
+            layout.items.push_back({ descriptor_set_type::storage_buffer, pipeline_stage::vertex, DefaultDescriptor_Instance, 1,});
+            layout.items.push_back({ descriptor_set_type::storage_buffer, pipeline_stage::vertex, DefaultDescriptor_User, 1,});
+
             mainLayout = rRHI->create_descriptor_set_layout(layout);
             mainSet = rRHI->create_descriptor_set(mainLayout);
 
-            rRHI->write_storage_buffer_to_set(mainSet, mInstanceSSBO, 0);
+            // TODO: remaining ssbos
+            rRHI->write_storage_buffer_to_set(mainSet, mInstanceSSBO, DefaultDescriptor_Instance);
+            rRHI->write_storage_buffer_to_set(mainSet, mUserSSBO, DefaultDescriptor_User);
         }
     }
     void harbinger_renderer::render()
@@ -71,7 +75,7 @@ namespace har
         rRHI->end_frame();
     }
 
-    void harbinger_renderer::push_object(const transform_t& transform, graphics_pipeline_handle handle, bool isImmutable)
+    void harbinger_renderer::push_object(const transform_t& transform, graphics_pipeline_handle handle, std::span<const byte> userData, bool isImmutable)
     {
         mDrawInfo.push_back(draw_info 
         {
@@ -80,6 +84,7 @@ namespace har
         });
 
         mInstanceBuffer.push_back( { .model = transform.get_transform_matrix() });
+        mUserBuffer.insert(mUserBuffer.end(), userData.begin(), userData.end());
     }
 
     void harbinger_renderer::prepare_draw_info()
@@ -112,6 +117,15 @@ namespace har
             ), 
             0
         );
+        mTransferBuffer.update_buffer
+        (
+            mUserSSBO, std::span<const byte>
+            (
+                reinterpret_cast<const byte*>(mUserBuffer.data()), 
+                mUserBuffer.size() * sizeof(byte)
+            ), 
+            0
+        );
         mTransferBuffer.end();
     }
 
@@ -137,5 +151,6 @@ namespace har
         mDrawGroups.reserve(mMaxDrawInfoPerFrame);
         
         mInstanceBuffer.clear();
+        mUserBuffer.clear();
     }
 }
