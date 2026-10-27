@@ -27,7 +27,7 @@
     },
 
     "input_assembly": {
-        "topology": "point",
+        "topology": "points",
         "primitive_restart_enable": false
     }    
 }

@@ -24,6 +24,16 @@
             "filepath": "res/pipelines/point.pso", 
             "uuid": 3,
             "type": "pso" 
+        },
+        { 
+            "filepath": "res/pipelines/quad.pso", 
+            "uuid": 5,
+            "type": "pso" 
+        },
+        { 
+            "filepath": "res/material_instances/quad_0.json", 
+            "uuid": 6,
+            "type": "material_instance" 
         }
     ],
     "entities": [
@@ -66,10 +76,23 @@
                 "rotation": { "x":  0.0, "y": 0.0, "z": 0.0 },   
                 "scale":    { "x":  1.0, "y": 1.0, "z": 1.0 } 
             },
-
             "renderable": {
                 "is_immutable": true,
                 "pipeline_uuid": 3 
+            },
+            "material_instance": { "uuid": 4 }
+        },
+        {
+            "id": 3,
+            "name": "example_4",
+            "transform": { 
+                "position": { "x": -0.3, "y": -0.5, "z": 0.0 },   
+                "rotation": { "x":  0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x":  1.0, "y": 1.0, "z": 1.0 } 
+            },
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 5
             },
             "material_instance": { "uuid": 4 }
         }

@@ -35,6 +35,11 @@ namespace har
             descriptor.sizeBytes = sizeof(byte) * desc.maxInstances * desc.maxDataPerInstance;
             mUserSSBO = rRHI->create_buffer(descriptor);
             mUserBuffer.reserve(descriptor.sizeBytes);
+
+            // Position:
+            descriptor.sizeBytes = sizeof(glm::vec4) * desc.maxInstances;
+            mPositionSSBO = rRHI->create_buffer(descriptor);
+            mPositionBuffer.reserve(descriptor.sizeBytes);
         }
 
         {
@@ -49,6 +54,7 @@ namespace har
             mainSet = rRHI->create_descriptor_set(mainLayout);
 
             // TODO: remaining ssbos
+            rRHI->write_storage_buffer_to_set(mainSet, mPositionSSBO, DefaultDescriptor_Position);
             rRHI->write_storage_buffer_to_set(mainSet, mInstanceSSBO, DefaultDescriptor_Instance);
             rRHI->write_storage_buffer_to_set(mainSet, mUserSSBO, DefaultDescriptor_User);
         }
@@ -65,7 +71,8 @@ namespace har
             for (const auto& group : mDrawGroups)
             {
                 rebind(group);
-                mCommandBuffer.draw(1, group.instanceCount, 0, group.offset);
+                // TODO: instead of 3, use mesh data from sort key
+                mCommandBuffer.draw(3, group.instanceCount, 0, group.offset);
             }
 
             mCommandBuffer.end();
@@ -83,6 +90,9 @@ namespace har
             mCurrentOffset++ 
         });
 
+        mPositionBuffer.push_back({ 0.0, 0.0, 0.0, 1.0 });
+        mPositionBuffer.push_back({ 1.0, 0.0, 0.0, 1.0 });
+        mPositionBuffer.push_back({ 1.0, 1.0, 0.0, 1.0 });
         mInstanceBuffer.push_back( { .model = transform.get_transform_matrix() });
         mUserBuffer.insert(mUserBuffer.end(), userData.begin(), userData.end());
     }
@@ -108,6 +118,15 @@ namespace har
         }
     
         mTransferBuffer.begin();
+        mTransferBuffer.update_buffer
+        (
+            mPositionSSBO, std::span<const byte>
+            (
+                reinterpret_cast<const byte*>(mPositionBuffer.data()), 
+                mPositionBuffer.size() * sizeof(glm::vec4)
+            ), 
+            0
+        );
         mTransferBuffer.update_buffer
         (
             mInstanceSSBO, std::span<const byte>
@@ -150,6 +169,7 @@ namespace har
         mDrawInfo.reserve(mMaxDrawInfoPerFrame);
         mDrawGroups.reserve(mMaxDrawInfoPerFrame);
         
+        mPositionBuffer.clear();
         mInstanceBuffer.clear();
         mUserBuffer.clear();
     }

@@ -72,6 +72,9 @@ namespace
         if (!objectData.is_array())
             return asset_load_error::failed_to_load;
 
+        if (objectData.empty())
+            return asset_load_error::none;
+
         for (const auto& entry : objectData)
         {
             if (!entry.contains("type"))

@@ -4,6 +4,7 @@
 
 #include "core/assert/assert.hpp"
 #include "core/defines.hpp"
+#include "core/logging/logger.hpp"
 
 namespace har
 {
@@ -42,8 +43,11 @@ namespace har
         constexpr handle_t insert(const T& value)
         {
             if (mSize >= mCapacity || mFree == invalid_handle)
+            {
+                HAR_LOG_ERROR("Attempted to insert data into a full free list.");    
                 return invalid_small_handle;
-
+            }
+                
             handle_t freeIndex = mFree;
             mFree = mBuffer[freeIndex].nextFree;
 

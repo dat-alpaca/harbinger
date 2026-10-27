@@ -62,6 +62,11 @@ namespace har
                 .multisampling  = psoAsset->multisampling,
                 .inputAssembly  = psoAsset->inputAssembly
             });
+            if (pipeline == invalid_small_handle)
+            {
+                HAR_LOG_ERROR("Failed to create graphics pipeline");
+                return pipeline;
+            }
 
             return pipeline;
         });

@@ -29,7 +29,8 @@ namespace har
         { 
             return 
                 sizeof(instance_data) * maxInstances +
-                sizeof(byte) * maxInstances * DefaultMaxDataPerInstance;
+                sizeof(byte) * maxInstances * DefaultMaxDataPerInstance +
+                sizeof(glm::vec4) * maxInstances;
         }
 
     public:
@@ -75,9 +76,11 @@ namespace har
         descriptor_set_layout_handle mainLayout = invalid_small_handle;
         descriptor_set_handle mainSet = invalid_small_handle;
 
+        har_vector<memory_tag::renderer, glm::vec4> mPositionBuffer;
         har_vector<memory_tag::renderer, instance_data> mInstanceBuffer;
         har_vector<memory_tag::renderer, byte> mUserBuffer;
         
+        buffer_handle mPositionSSBO = invalid_small_handle;
         buffer_handle mInstanceSSBO = invalid_small_handle;
         buffer_handle mUserSSBO = invalid_small_handle;
     };
