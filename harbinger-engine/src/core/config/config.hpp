@@ -7,6 +7,7 @@
 #include "core/script/script_subsystem.hpp"
 #include "core/worker/worker_pool.hpp"
 #include "platform/window_settings.hpp"
+#include "renderer/renderer.hpp"
 #include "rhi/common/rhi_arguments.hpp"
 
 namespace har
@@ -25,6 +26,7 @@ namespace har
         u8 apiMinor = 6;
 
         platform::window_settings windowSettings;
+        harbinger_renderer_desc rendererDesc;
         scene_holder_desc sceneHolderDesc;
         worker_pool_desc workerPoolDesc;
         event_queue_desc eventQueueDesc;

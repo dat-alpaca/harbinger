@@ -6,6 +6,13 @@ namespace har
     struct draw_info
     {
         sort_key sortKey;
-        u64 offset;
+        u32 offset;
+    };
+
+    struct draw_group
+    {
+        u32 instanceCount = 0;
+        u32 offset;
+        sort_key sortKey;
     };
 }

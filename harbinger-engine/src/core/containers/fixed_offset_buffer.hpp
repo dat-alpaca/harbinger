@@ -74,6 +74,12 @@ namespace har
         constexpr u32 capacity() const { return mCapacity; }
         constexpr u32 size() const { return mIndex; }
 
+        constexpr T* begin() { return mBuffer; }
+        constexpr const T* begin() const { return mBuffer; }
+        
+        constexpr T* end() { return mBuffer + mIndex; }
+        constexpr const T* end() const { return mBuffer + mIndex; }
+
     private:
         T* mBuffer = nullptr;
         u32 mCapacity = 0;

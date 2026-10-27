@@ -19,6 +19,7 @@ namespace har::gl
 				options.es = false;
     			compiler.set_common_options(options);
 			}
+
             return har_string { compiler.compile() };
 		}
 		catch (const std::exception& e)

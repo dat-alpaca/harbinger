@@ -1,8 +1,9 @@
 #include "renderer.hpp"
+#include "renderer/sort_key.hpp"
 
 #include "core/defines.hpp"
 #include "core/assert/assert.hpp"
-#include "core/memory/allocators.hpp"
+#include "rhi/common/objects.hpp"
 
 namespace har
 {
@@ -17,22 +18,120 @@ namespace har
         mTransferBuffer = rRHI->create_command_buffer();
 
         mMaxDrawInfoPerFrame = desc.maxDrawInfoPerFrame;
+        
+        clear_draw_info();
+
+        {
+            buffer_descriptor descriptor;
+            descriptor.bufferUsage = buffer_usage::storage | buffer_usage::coherent | buffer_usage::persistent | buffer_usage::write;
+            descriptor.sizeBytes = sizeof(instance_data) * desc.maxInstances;
+
+            mInstanceSSBO = rRHI->create_buffer(descriptor);
+            mInstanceBuffer.reserve(descriptor.sizeBytes);
+        }
+
+        {
+            descriptor_set_layout layout;
+            layout.items.push_back(
+            {
+                .type = descriptor_set_type::storage_buffer,
+                .stage = pipeline_stage::vertex, 
+                .binding = 0, 
+                .amount = 1, 
+            });
+            mainLayout = rRHI->create_descriptor_set_layout(layout);
+            mainSet = rRHI->create_descriptor_set(mainLayout);
+
+            rRHI->write_storage_buffer_to_set(mainSet, mInstanceSSBO, 0);
+        }
+    }
+    void harbinger_renderer::render()
+    {
+        if(!rRHI->begin_frame() || mDrawInfo.empty())
+            return;
+
+        prepare_draw_info();
+
+        mCommandBuffer.begin();
+        {
+            for (const auto& group : mDrawGroups)
+            {
+                rebind(group);
+                mCommandBuffer.draw(1, group.instanceCount, 0, group.offset);
+            }
+
+            mCommandBuffer.end();
+        }
+        rRHI->execute(mCommandBuffer);
+
+        rRHI->end_frame();
     }
 
-    void harbinger_renderer::push_draw_info(graphics_pipeline_handle handle, bool isImmutable)
+    void harbinger_renderer::push_object(const transform_t& transform, graphics_pipeline_handle handle, bool isImmutable)
     {
-        mDrawInfo.insert_fixed(draw_info 
+        mDrawInfo.push_back(draw_info 
         {
             { .pipeline = handle }, 
             mCurrentOffset++ 
         });
+
+        mInstanceBuffer.push_back( { .model = transform.get_transform_matrix() });
+    }
+
+    void harbinger_renderer::prepare_draw_info()
+    {
+        std::sort(mDrawInfo.begin(), mDrawInfo.end(), [](const draw_info& lhs, const draw_info& rhs)
+        {
+            return lhs.sortKey.pack() < rhs.sortKey.pack();
+        });
+
+        for (const auto& info : mDrawInfo)
+        {
+            if (mDrawGroups.empty() || mDrawGroups.back().sortKey.pack() != info.sortKey.pack())
+                mDrawGroups.push_back(
+                { 
+                    .instanceCount = 1, 
+                    .offset = info.offset, 
+                    .sortKey = info.sortKey, 
+                });
+            else
+                mDrawGroups.back().instanceCount++;
+        }
+    
+        mTransferBuffer.begin();
+        mTransferBuffer.update_buffer
+        (
+            mInstanceSSBO, std::span<const byte>
+            (
+                reinterpret_cast<const byte*>(mInstanceBuffer.data()), 
+                mInstanceBuffer.size() * sizeof(instance_data)
+            ), 
+            0
+        );
+        mTransferBuffer.end();
+    }
+
+    void harbinger_renderer::rebind(const draw_group& group)
+    {
+        if (mBoundPipeline != group.sortKey.pipeline)
+        {
+            mBoundPipeline = group.sortKey.pipeline; 
+            mCommandBuffer.bind_graphics_pipeline(mBoundPipeline);
+            mCommandBuffer.bind_descriptor_set(mainSet);
+        }
     }
 
     void harbinger_renderer::clear_draw_info()
     {
+        mBoundPipeline = invalid_small_handle;
         mCurrentOffset = 0;
 
-        byte* backingBuffer = MainTransientAllocator.push(mDrawInfo.required_memory(mMaxDrawInfoPerFrame), alignof(u8));
-        mDrawInfo.initialize(backingBuffer, mMaxDrawInfoPerFrame);
+        mDrawInfo.clear();
+        mDrawGroups.clear();
+
+        mDrawInfo.reserve(mMaxDrawInfoPerFrame);
+        mDrawGroups.reserve(mMaxDrawInfoPerFrame);
+        
+        mInstanceBuffer.clear();
     }
 }

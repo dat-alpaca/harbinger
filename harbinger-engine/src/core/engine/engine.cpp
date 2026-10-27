@@ -103,8 +103,7 @@ namespace har
         }
 
         // Renderer:
-        // TODO: add tp cpfoig
-        context.renderer.initialize(&context.rhi, { .maxDrawInfoPerFrame = 100 });
+        context.renderer.initialize(&context.rhi, config.rendererDesc);
 
         /* Systems */
         {

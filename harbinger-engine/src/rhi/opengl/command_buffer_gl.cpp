@@ -180,6 +180,7 @@ namespace har::rhi
         gl_handle vao = rRHI->vao();
 
         glUseProgram(pipeline.handle);
+        glEnable(GL_PROGRAM_POINT_SIZE);
 
         // Vertex Input:
         const auto& attributes = pipeline.vertexInput.attributes;

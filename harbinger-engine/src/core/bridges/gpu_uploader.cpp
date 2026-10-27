@@ -88,19 +88,19 @@ namespace har
         auto* rhi = rContext.rhi;
 
         auto text = read_file_contents(shaderFilepath);
-        auto result = mCompiler.compile_shader(type, text, config);
+        auto resultSPV = mCompiler.compile_shader(type, text, config);
 
-        if (!result.has_value())
+        if (!resultSPV.has_value())
         {
             HAR_LOG_ERROR("[GPU Uploader] Failed to load and compile {} shader: {} | Code: {}", 
                 get_shader_type_name(type),
                 shaderFilepath.string(), 
-                get_compiler_error_string(result.error())
+                get_compiler_error_string(resultSPV.error())
             );
             return invalid_small_handle;
         }
 
-        return rhi->create_shader(type, result.value());
+        return rhi->create_shader(type, resultSPV.value());
     }
 
     void gpu_uploader::register_gpu_upload_function(asset_type type, gpu_upload_function&& function)

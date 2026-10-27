@@ -16,6 +16,6 @@ namespace har
         }
 
     public:
-        graphics_pipeline_handle pipeline;  // u16
+        graphics_pipeline_handle pipeline = invalid_small_handle;  // u16
     };
 }

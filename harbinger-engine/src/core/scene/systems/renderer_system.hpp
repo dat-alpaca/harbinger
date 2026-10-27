@@ -12,8 +12,10 @@ namespace har
     public:
         void initialize(NON_OWNING harbinger_renderer* renderer, NON_OWNING asset_hub* assetHub, NON_OWNING scene_holder* sceneHolder);
         void on_event(event& event);
+        void on_render();
 
     private:
+        void handle_new_objects();
         void handle_scene_switch(event& event);
     
     private:

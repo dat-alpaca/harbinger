@@ -24,7 +24,7 @@ namespace har
         }
 
     public:
-        u32 maxSceneCount = 0;
+        u32 maxSceneCount = 1;
     };
 
     class scene_holder

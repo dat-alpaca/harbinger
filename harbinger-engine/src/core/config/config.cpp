@@ -17,7 +17,8 @@ namespace har
             assetHubDesc.get_required_static_memory() +
             eventQueueDesc.get_required_static_memory() +
             rhiArguments.get_rhi_required_static_memory() + 
-            scriptSubsystemDesc.get_required_static_memory();
+            scriptSubsystemDesc.get_required_static_memory() +
+            rendererDesc.get_required_static_memory();
     }
 
     u32 config_t::get_required_dynamic_memory()
@@ -34,6 +35,7 @@ namespace har
     u32 config_t::get_required_transient_memory()
     {
         return 
-            eventQueueDesc.get_required_transient_memory();
+            eventQueueDesc.get_required_transient_memory() +
+            rendererDesc.get_required_transient_memory();
     }
 }

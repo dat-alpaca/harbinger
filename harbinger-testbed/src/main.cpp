@@ -41,6 +41,12 @@ int main(int argc, char** argv)
 
         harbinger_engine_start_frame(context);
         harbinger_engine_on_update(context);
+
+        {
+            context.rendererSystem.on_render();
+            context.rhi.submit();
+            context.rhi.present();
+        }
     }
 
     harbinger_engine_shutdown(context);

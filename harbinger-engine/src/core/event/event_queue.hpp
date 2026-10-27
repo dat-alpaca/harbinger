@@ -27,8 +27,8 @@ namespace har
         }
 
     public:
-        u8 queueCapacity = 8;
-        u8 peeperCount = 16;
+        u8 queueCapacity = 50;
+        u8 peeperCount = 3;
     };
 
     class event_queue

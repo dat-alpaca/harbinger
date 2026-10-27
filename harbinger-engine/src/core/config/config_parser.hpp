@@ -70,6 +70,13 @@ namespace har
         else if (MATCH("rhi", "maxCombinedTextureCount"))
             config->rhiArguments.maxCombinedTextureCount = std::atoi(value);
 
+        // Renderer:
+        else if (MATCH("renderer", "maxDrawInfoPerFrame"))
+            config->rendererDesc.maxDrawInfoPerFrame = std::atoi(value);
+
+        else if (MATCH("renderer", "maxInstances"))
+            config->rendererDesc.maxInstances = std::atoi(value);
+
         // Worker Pools:
         else if (MATCH("workers", "workerThreadCount"))
             config->workerPoolDesc.threadCount = std::atoi(value);

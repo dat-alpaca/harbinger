@@ -19,22 +19,36 @@ namespace har
         rSceneHolder = sceneHolder;
     }
 
+    void harbinger_renderer_system::on_render()
+    {
+        if (!rSceneHolder->get_current_scene())
+            return;
+
+        rRenderer->clear_draw_info();
+        handle_new_objects();
+        
+        rRenderer->render();
+    }
+
     void harbinger_renderer_system::on_event(event& event)
     {
+        if (!rSceneHolder->get_current_scene())
+            return;
+
         if (event.type == event_type::scene_assets_loaded)
             handle_scene_switch(event);
     }
 
-    void harbinger_renderer_system::handle_scene_switch(event& event)
+    void harbinger_renderer_system::handle_new_objects()
     {
-        rRenderer->clear_draw_info();
-
         auto& registry = rSceneHolder->get_current_scene()->get_registry();
+
         auto view = registry.view<const transform_component, const renderable_component, const material_instance_component>().each();
         for (auto [_, transform, renderable, matInstance] : view)
         {
-            if (!renderable.isImmutable)
-                continue;
+            // TODO: Only mutable
+            //if (!renderable.isImmutable)
+            //    continue;
 
             if (renderable.pipelineHandle == invalid_small_handle)
                 continue;
@@ -43,7 +57,14 @@ namespace har
             // asset* materialInstanceAssetData = rAssetHub->get_asset(matInstance.assetHandle);
 
             // Pipeline:
-            rRenderer->push_draw_info(renderable.pipelineHandle, true);
+            rRenderer->push_object(transform.transform, renderable.pipelineHandle, renderable.isImmutable);
         }
+    }
+
+    void harbinger_renderer_system::handle_scene_switch(event& event)
+    {
+        // TODO: use fixed offsets for immutable objects
+        //rRenderer->clear_draw_info();
+        //handle_new_objects();
     }
 }
