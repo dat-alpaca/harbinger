@@ -1,0 +1,33 @@
+{
+    "name": "point",
+
+    "vertex_shader": "res/shaders/point.vert",
+    "fragment_shader": "res/shaders/point.frag",
+
+    "vertex_input": {},
+    "rasterizer": {
+        "front_face": "ccw",
+        "cull_mode": "front",
+        "polygon_mode": "fill",
+        "enable_depth_clamp": false,
+        "enable_discard": false,
+        "enable_depth_bias": false
+    },
+
+    "color_blending": {
+        "enable_blending": true,
+        "attachments": [
+            { "inherit": "alpha_blending_default" }
+        ]
+    },
+
+    "multisampling": {
+        "sample_count": 1,
+        "enable_sampling": false
+    },
+
+    "input_assembly": {
+        "topology": "point",
+        "primitive_restart_enable": false
+    }    
+}

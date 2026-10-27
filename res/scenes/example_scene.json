@@ -1,0 +1,57 @@
+{
+    "assets": [
+        { 
+            "filepath": "res/material_instances/plain_colored_0.json", 
+            "uuid": 0,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/textures/cat.jpg", 
+            "uuid": 1,
+            "type": "texture" 
+        },
+        { 
+            "filepath": "res/scripts/test.lua", 
+            "uuid": 2,
+            "type": "script" 
+        },
+        { 
+            "filepath": "res/pipelines/point.pso", 
+            "uuid": 3,
+            "type": "pso" 
+        }
+    ],
+    "entities": [
+        {
+            "id": 0,
+            "name": "example_1",
+            "transform": { 
+                "position": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x": 1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 3 
+            },
+            "material_instance": { "uuid": 0 },
+            "script": { "uuid": 2  }
+        },
+        {
+            "id": 1,
+            "name": "example_2",
+            "transform": { 
+                "position": { "x": -0.5, "y": 0.0, "z": 0.0 },   
+                "rotation": { "x":  0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x":  1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 3 
+            },
+            "material_instance": { "uuid": 0 }
+        }
+    ]
+}
