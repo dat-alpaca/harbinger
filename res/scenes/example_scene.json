@@ -1,8 +1,13 @@
 {
     "assets": [
         { 
-            "filepath": "res/material_instances/plain_colored_0.json", 
+            "filepath": "res/material_instances/point_0.json", 
             "uuid": 0,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/material_instances/point_1.json", 
+            "uuid": 4,
             "type": "material_instance" 
         },
         { 
@@ -51,7 +56,22 @@
                 "is_immutable": true,
                 "pipeline_uuid": 3 
             },
-            "material_instance": { "uuid": 0 }
+            "material_instance": { "uuid": 4 }
+        },
+        {
+            "id": 2,
+            "name": "example_3",
+            "transform": { 
+                "position": { "x": -0.5, "y": -0.5, "z": 0.0 },   
+                "rotation": { "x":  0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x":  1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 3 
+            },
+            "material_instance": { "uuid": 4 }
         }
     ]
 }

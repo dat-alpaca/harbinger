@@ -1,0 +1,19 @@
+{
+    "type": "custom",
+    "data": [
+        { 
+            "name": "color",
+            "type": "vec3",
+            "data": {
+                "x": 0.3,
+                "y": 0.1,
+                "z": 0.2
+            }
+        },
+        {
+            "name": "point_size",
+            "type": "float32",
+            "data": 130.0
+        }
+    ]
+}
