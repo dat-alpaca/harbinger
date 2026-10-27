@@ -31,6 +31,10 @@ namespace har
         }
 
         {
+            // TODO: pipeline reflection (each pipeline builds its own descriptor set layout and main descriptor set)
+            // TODO: here, using the pipeline reflection data (mainly the descriptor set lauyout), bind the appropriate ssbos to the correct places
+            
+
             descriptor_set_layout layout;
             layout.items.push_back(
             {
