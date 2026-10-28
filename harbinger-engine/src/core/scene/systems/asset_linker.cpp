@@ -2,7 +2,6 @@
 
 #include "core/assert/assert.hpp"
 #include "core/assets/asset_type.hpp"
-#include "core/event/concrete/scene_events.hpp"
 #include "core/event/event_type.hpp"
 #include "core/scene/renderer_component.hpp"
 #include "core/event/concrete/asset_events.hpp"
@@ -16,84 +15,38 @@ namespace har
 
         rAssetHub = assetHub;
         rSceneHolder = sceneHolder;
+
+        register_asset_loader<material_instance_component>(asset_type::material_instance);
+        register_asset_loader<renderable_component>(asset_type::pipeline_object);
+        register_asset_loader<mesh_component>(asset_type::mesh);
+
+        register_asset_uploader<material_instance_component>(asset_type::material_instance);
+        register_asset_uploader<renderable_component>(asset_type::pipeline_object);
     }
 
     void asset_linker::on_event(event& event)
     {
-        if (event.type == event_type::asset_loaded)
+        switch (event.type)
         {
-            auto eventData = event.get<asset_loaded_event_data>();
-            const auto& eventUUID = rAssetHub->get_asset(eventData.handle)->metadata.assetUUID;
+            case event_type::asset_loaded:
+            {
+                auto eventData = event.get<asset_loaded_event_data>();
 
-            if (eventData.type == asset_type::material_instance)
-                handle_material_instance_asset_load(eventUUID, eventData.handle);
+                const auto& eventUUID = rAssetHub->get_asset(eventData.handle)->metadata.assetUUID;
+                if (mLoaders.contains(eventData.type))
+                    mLoaders.at(eventData.type)(eventUUID, eventData.handle);
+            } break;
 
-            else if (eventData.type == asset_type::pipeline_object)
-                handle_pso_asset_load(eventUUID, eventData.handle);
-        }
-        else if (event.type == event_type::asset_uploaded)
-        {
-            auto eventData = event.get<asset_uploaded_event_data>();
+            case event_type::asset_uploaded:
+            {
+                auto eventData = event.get<asset_uploaded_event_data>();
 
-            if (eventData.type == asset_type::material_instance)
-                handle_material_instance_asset_upload(eventData.assetHandle, eventData.gpuHandle);
+                if (mUploaders.contains(eventData.type))
+                    mUploaders.at(eventData.type)(eventData.assetHandle, eventData.gpuHandle);
+            } break;
 
-            else if (eventData.type == asset_type::pipeline_object)
-                handle_pso_asset_upload(eventData.assetHandle, eventData.gpuHandle);
-        }
-    }
-
-    void asset_linker::handle_material_instance_asset_load(uuid eventUUID, asset_handle handle)
-    {
-        if (!rSceneHolder->get_current_scene())
-            return;
-
-        auto view = rSceneHolder->get_current_scene()->get_registry().view<material_instance_component>();
-        for (auto entity : view)
-        {
-            auto& materialInstance = view.get<material_instance_component>(entity);
-            if (materialInstance.assetUUID == eventUUID)
-                materialInstance.assetHandle = handle;
-        }
-    }
-    void asset_linker::handle_material_instance_asset_upload(asset_handle assetHandle, handle_t gpuHandle)
-    {
-        if (!rSceneHolder->get_current_scene())
-            return;
-
-        auto view = rSceneHolder->get_current_scene()->get_registry().view<material_instance_component>();
-        for (auto entity : view)
-        {
-            auto& materialInstance = view.get<material_instance_component>(entity);
-            if (materialInstance.assetHandle == assetHandle)
-                materialInstance.materialHandle = gpuHandle;
-        }
-    }
-
-    void asset_linker::handle_pso_asset_load(uuid eventUUID, asset_handle handle)
-    {
-        if (!rSceneHolder->get_current_scene())
-            return;
-
-        auto view = rSceneHolder->get_current_scene()->get_registry().view<renderable_component>();
-        for (auto entity : view)
-        {
-            auto& renderable = view.get<renderable_component>(entity);
-            if (renderable.pipelineAssetUUID == eventUUID)
-                renderable.pipelineAssetHandle = handle;
-        }
-    }
-    void asset_linker::handle_pso_asset_upload(asset_handle assetHandle, handle_t gpuHandle)
-    {
-        if (!rSceneHolder->get_current_scene())
-            return;
-
-        auto view = rSceneHolder->get_current_scene()->get_registry().view<renderable_component>();
-        for (auto entity : view)
-        {
-            auto& renderable = view.get<renderable_component>(entity);
-            if (renderable.pipelineAssetHandle == assetHandle)
-                renderable.pipelineHandle = gpuHandle;
+            default:
+                return;
         }
     }
 }
