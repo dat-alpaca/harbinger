@@ -46,7 +46,7 @@ namespace
                 continue;
             }
 
-            uuid assetUUID = assetObject["uuid"].get<uuid>();
+            uuid_t assetUUID = assetObject["uuid"].get<uuid_t>();
 
             data.entries.push_back({ .filepath = assetObject["filepath"], .type = type, .assedUUID = assetUUID });
         }
@@ -79,13 +79,13 @@ namespace
             if (entityObject.contains("material_instance"))
             {
                 auto& instance = entity.emplace<material_instance_component>();
-                instance.assetUUID = static_cast<uuid>(entityObject["material_instance"].at("uuid").get<u64>());
+                instance.assetUUID = static_cast<uuid_t>(entityObject["material_instance"].at("uuid").get<u64>());
             }
 
             if (entityObject.contains("renderable"))
             {
                 auto& instance = entity.emplace<renderable_component>();
-                instance.pipelineAssetUUID = entityObject["renderable"]["pipeline_uuid"];
+                instance.assetUUID = entityObject["renderable"]["pipeline_uuid"];
                 instance.isImmutable = entityObject["renderable"]["is_immutable"];
             }
 

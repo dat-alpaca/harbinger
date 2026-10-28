@@ -1,7 +1,10 @@
 #include "asset_hub.hpp"
 
+#include "core/assets/asset_type.hpp"
 #include "core/assets/material_instance/material_instance_asset.hpp"
 #include "core/assets/material_instance/material_instance_loader.hpp"
+#include "core/assets/mesh/mesh_asset.hpp"
+#include "core/assets/mesh/mesh_loader.hpp"
 #include "core/assets/pso/pso_asset.hpp"
 #include "core/assets/pso/pso_loader.hpp"
 #include "core/assets/scene/scene_asset.hpp"
@@ -141,9 +144,27 @@ namespace har
                 std::memcpy(materialInstanceAsset->data.data(), result->data.data(), result->data.size());
             }
         });
+
+        // TODO: register unloader
+        register_asset_loader(asset_type::mesh, [&](const std::filesystem::path& filepath, asset* assetData, NON_OWNING asset_bank_option* _)
+        {
+            auto result = asset_mesh_load(filepath);
+            if (!result.has_value())
+            {
+                HAR_LOG_ERROR("Failed to load mesh at: {}", filepath.string());
+                return;
+            }
+
+            auto* meshAsset = static_cast<mesh_asset*>(assetData);
+            {
+                std::memcpy(meshAsset->vertices.data(), result->vertices.data(), result->vertices.size());
+                std::memcpy(meshAsset->indices.data(), result->indices.data(), result->indices.size());
+                meshAsset->offsets = result->offsets;
+            }
+        });
     }   
 
-    asset_handle asset_hub::load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback, bool inPlace, uuid assetUUID)
+    asset_handle asset_hub::load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback, bool inPlace, uuid_t assetUUID)
     {
         if (!std::filesystem::exists(filepath))
         {
@@ -255,7 +276,7 @@ namespace har
         mUnloaders[type] = std::move(function);
     }
 
-    asset* asset_hub::allocate_appropriate_asset_type(asset_type type, const std::filesystem::path& filepath, uuid assetUUID)
+    asset* asset_hub::allocate_appropriate_asset_type(asset_type type, const std::filesystem::path& filepath, uuid_t assetUUID)
     {
         using namespace har::internal;
         
@@ -295,6 +316,12 @@ namespace har
             {
                 assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(material_instance_asset)));
                 std::construct_at(static_cast<material_instance_asset*>(assetData));
+            } break;
+
+            case asset_type::mesh:
+            {
+                assetData = static_cast<asset*>(MainDynamicAllocator.allocate(memory_tag::assets, sizeof(mesh_asset)));
+                std::construct_at(static_cast<mesh_asset*>(assetData));
             } break;
         }
 

@@ -17,12 +17,12 @@ namespace har
         renderable_component(const renderable_component&) = default;
 
     public:
-        // Set through serialization
-        FIELD_SET_INTERNALLY uuid pipelineAssetUUID = invalid_uuid;
+        // Set through serialization (pipeline asset uuid)
+        FIELD_SET_INTERNALLY uuid_t assetUUID = invalid_uuid;
 
-        // Set through asset_linker system
-        FIELD_SET_INTERNALLY asset_handle pipelineAssetHandle = invalid_small_handle;
-        FIELD_SET_INTERNALLY graphics_pipeline_handle pipelineHandle = invalid_small_handle;
+        // Set through asset_linker system (pipeline asset handle)
+        FIELD_SET_INTERNALLY asset_handle assetHandle = invalid_small_handle;
+        FIELD_SET_INTERNALLY graphics_pipeline_handle gpuObjectHandle = invalid_small_handle;
 
         // Set through serialization
         FIELD_SET_INTERNALLY bool isImmutable : 1 = true;
@@ -38,10 +38,26 @@ namespace har
 
     public:
         // Set through serialization
-        FIELD_SET_INTERNALLY uuid assetUUID = invalid_uuid;
+        FIELD_SET_INTERNALLY uuid_t assetUUID = invalid_uuid;
 
         // Set through asset_linker system
         FIELD_SET_INTERNALLY asset_handle assetHandle = invalid_small_handle;
-        FIELD_SET_INTERNALLY material_instance_handle materialHandle = invalid_small_handle;
+        FIELD_SET_INTERNALLY material_instance_handle gpuObjectHandle = invalid_small_handle;
+    };
+
+    struct mesh_component
+    {
+        REGISTER_COMPONENT(mesh_component)
+
+    public:
+        mesh_component() = default;
+        mesh_component(const mesh_component&) = default;
+
+    public:
+        // Set through serialization
+        FIELD_SET_INTERNALLY uuid_t assetUUID = invalid_uuid;
+
+        // Set through asset_linker system
+        FIELD_SET_INTERNALLY asset_handle assetHandle = invalid_small_handle;
     };
 }

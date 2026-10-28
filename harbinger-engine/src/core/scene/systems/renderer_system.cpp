@@ -51,14 +51,14 @@ namespace har
             //if (!renderable.isImmutable)
             //    continue;
 
-            if (renderable.pipelineHandle == invalid_small_handle)
+            if (renderable.gpuObjectHandle == invalid_small_handle)
                 continue;
 
             // TODO: mateiral instance component
             auto* materialInstanceAssetData = static_cast<material_instance_asset*>(rAssetHub->get_asset(matInstance.assetHandle));
 
             // Pipeline:
-            rRenderer->push_object(transform.transform, renderable.pipelineHandle, materialInstanceAssetData->data, renderable.isImmutable);
+            rRenderer->push_object(transform.transform, renderable.gpuObjectHandle, materialInstanceAssetData->data, renderable.isImmutable);
         }
     }
 

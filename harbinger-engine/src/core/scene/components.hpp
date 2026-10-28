@@ -5,10 +5,11 @@
 #include "core/assets/asset.hpp"
 #include "core/utils/transform.hpp"
 #include "renderer/material.hpp"
-#include "renderer/mesh.hpp"
 
 #include "core/defines.hpp"
 #include "core/containers/containers.hpp"
+
+#include "scene_concepts.hpp"
 
 #define REGISTER_COMPONENT(componentName) 													\
 public:																						\

@@ -117,6 +117,8 @@ namespace har
                 mDrawGroups.back().instanceCount++;
         }
     
+        // TODO: if pipeline doesnt need some buffers, clear them?
+
         mTransferBuffer.begin();
         mTransferBuffer.update_buffer
         (

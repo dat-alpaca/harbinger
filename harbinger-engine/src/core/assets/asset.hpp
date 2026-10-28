@@ -9,7 +9,7 @@ namespace har
     struct asset_meta
     {
         std::filesystem::path filepath;
-        uuid assetUUID;
+        uuid_t assetUUID;
     };
 
     enum class asset_status : u8

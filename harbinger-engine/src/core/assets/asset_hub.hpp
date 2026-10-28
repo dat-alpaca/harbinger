@@ -43,7 +43,7 @@ namespace har
         void initialize(asset_hub_context&& context, const asset_hub_desc& desc, const std::filesystem::path& assetBankFilepath);
 
     public:
-        asset_handle load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback = {}, bool inPlace = false, uuid assetUUID = invalid_uuid);
+        asset_handle load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback = {}, bool inPlace = false, uuid_t assetUUID = invalid_uuid);
         void unload_asset(asset_type type, const std::filesystem::path& filepath, bool inPlace = false);
         void unload_asset(asset_type type, asset_handle handle, bool inPlace = false);
         
@@ -53,7 +53,7 @@ namespace har
     private:
         void register_asset_loader(asset_type type, asset_loader_function&& function);
         void register_asset_unloader(asset_type type, asset_unloader_function&& function);
-        asset* allocate_appropriate_asset_type(asset_type type, const std::filesystem::path& filepath, uuid assetUUID = invalid_uuid);
+        asset* allocate_appropriate_asset_type(asset_type type, const std::filesystem::path& filepath, uuid_t assetUUID = invalid_uuid);
 
     public:
         constexpr const asset_bank& get_asset_bank() const { return mAssetBank; }

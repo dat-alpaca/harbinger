@@ -16,7 +16,7 @@ namespace har
         {
             std::filesystem::path filepath;
             asset_type type = asset_type::unknown;
-            uuid assedUUID;
+            uuid_t assedUUID;
         };
 
         har_vector<memory_tag::scene, entry> entries;

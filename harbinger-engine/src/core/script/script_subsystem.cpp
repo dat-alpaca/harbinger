@@ -138,6 +138,10 @@ namespace har
 
                 if (options["upload_immediate"].get_or(true))
                     rContext.gpuUploader->upload_asset_from_hub(asset_type::texture, handle);
+
+                // TODO: free memory after load option
+
+                return handle;
             };
 
             assetsTable["unload_texture"] = sol::overload

@@ -8,4 +8,15 @@ namespace har
     constexpr u8 DefaultDescriptor_UV0      = 2;
     constexpr u8 DefaultDescriptor_Instance = 3;
     constexpr u8 DefaultDescriptor_User     = 4;
+    constexpr u8 DefaultDescriptor_Count    = 5;
+
+    enum class vertex_layout : u8
+    {
+        position = DefaultDescriptor_Position,
+        normals  = DefaultDescriptor_Normals,
+        uv0      = DefaultDescriptor_UV0,
+        instance = DefaultDescriptor_Instance,
+        user     = DefaultDescriptor_User,
+        count,
+    };
 }
