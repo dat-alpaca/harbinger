@@ -31,6 +31,8 @@
     inline bool operator==(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) == rhs; }; \
     inline bool operator!=(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) != rhs; };
 
+#define HAR_ENGINE_INTERNAL_URI "$engine"
+
 namespace har
 {
     using u8  = uint8_t;

@@ -71,6 +71,8 @@ sources = files(
 
     'src/core/bridges/gpu_uploader.cpp',
 
+    'src/core/event/event_queue.cpp',
+
     'src/core/scene/scene.cpp',
     'src/core/scene/entity.cpp',
 

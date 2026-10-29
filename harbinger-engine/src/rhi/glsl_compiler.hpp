@@ -37,12 +37,12 @@ namespace har
         using glslc_return = std::expected<har_vector<memory_tag::rhi, u32>, glsl_compiler_error>;
 
     public:
-        inline void initialize()
+        static inline void initialize()
         {
             glslang::InitializeProcess();
         }
 
-        inline void shutdown()
+        static inline void shutdown()
         {
             glslang::FinalizeProcess();
         }

@@ -1,6 +1,7 @@
 #include "renderer_system.hpp"
 
 #include "core/assets/material_instance/material_instance_asset.hpp"
+#include "core/assets/mesh/mesh_asset.hpp"
 #include "core/defines.hpp"
 #include "core/assert/assert.hpp"
 #include "core/event/event_type.hpp"
@@ -36,8 +37,11 @@ namespace har
         if (!rSceneHolder->get_current_scene())
             return;
 
-        if (event.type == event_type::scene_assets_loaded)
-            handle_scene_switch(event);
+        if (event.type == event_type::scene_switched)
+            rRenderer->clear_mesh_data();
+
+        if (event.type == event_type::asset_handle_linked)
+            handle_scene_assets_linked(event);
     }
 
     void harbinger_renderer_system::handle_new_objects()
@@ -45,8 +49,11 @@ namespace har
         auto& registry = rSceneHolder->get_current_scene()->get_registry();
 
         auto view = registry.view<const transform_component, const renderable_component, const material_instance_component>().each();
-        for (auto [_, transform, renderable, matInstance] : view)
+        for (auto [entity, transform, renderable, matInstance] : view)
         {
+            const auto* mesh = registry.try_get<const mesh_component>(entity);
+            mesh_handle meshHandle = mesh ? mesh->gpuObjectHandle : invalid_small_handle;
+
             // TODO: Only mutable
             //if (!renderable.isImmutable)
             //    continue;
@@ -58,14 +65,19 @@ namespace har
             auto* materialInstanceAssetData = static_cast<material_instance_asset*>(rAssetHub->get_asset(matInstance.assetHandle));
 
             // Pipeline:
-            rRenderer->push_object(transform.transform, renderable.gpuObjectHandle, materialInstanceAssetData->data, renderable.isImmutable);
+            rRenderer->push_object(transform.transform, renderable.gpuObjectHandle, meshHandle, materialInstanceAssetData->data, renderable.isImmutable);
         }
     }
 
-    void harbinger_renderer_system::handle_scene_switch(event& event)
+    void harbinger_renderer_system::handle_scene_assets_linked(event& event)
     {
-        // TODO: use fixed offsets for immutable objects
-        //rRenderer->clear_draw_info();
-        //handle_new_objects();
+        auto view = rSceneHolder->get_current_scene()->get_registry().view<mesh_component>();
+        for (auto entity : view)
+        {
+            auto& mesh = view.get<mesh_component>(entity);
+
+            mesh_asset* meshAsset = static_cast<mesh_asset*>(rAssetHub->get_asset(mesh.assetHandle));
+            mesh.gpuObjectHandle = rRenderer->push_mesh(mesh.assetHandle, *meshAsset);
+        }
     }
 }

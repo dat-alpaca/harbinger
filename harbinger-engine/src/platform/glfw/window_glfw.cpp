@@ -58,7 +58,8 @@ namespace har::platform
 
         glfwInitAllocator(&allocator);
 
-        HAR_ASS(glfwInit());
+        i32 result = glfwInit();
+        HAR_ASS(result);
     }
 
     window_glfw window_initialize(const window_settings& settings, NON_OWNING event_queue* queue)

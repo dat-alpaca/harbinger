@@ -89,6 +89,12 @@ namespace
                 instance.isImmutable = entityObject["renderable"]["is_immutable"];
             }
 
+            if (entityObject.contains("mesh"))
+            {
+                auto& mesh = entity.emplace<mesh_component>();
+                mesh.assetUUID = static_cast<uuid_t>(entityObject["mesh"].at("uuid").get<u64>());
+            }
+
             // TODO: Script deferral 
             if (entityObject.contains("script"))
             {

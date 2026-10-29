@@ -83,6 +83,9 @@ namespace har
         else if (MATCH("renderer", "maxDataPerInstance"))
             config->rendererDesc.maxDataPerInstance = std::atoi(value);
 
+        else if (MATCH("renderer", "maxMeshes"))
+            config->rendererDesc.maxMeshes = std::atoi(value);
+        
         // Worker Pools:
         else if (MATCH("workers", "workerThreadCount"))
             config->workerPoolDesc.threadCount = std::atoi(value);

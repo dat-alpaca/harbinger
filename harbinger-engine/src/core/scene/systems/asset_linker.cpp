@@ -8,13 +8,13 @@
 
 namespace har
 {
-    void asset_linker::initialize(NON_OWNING asset_hub* assetHub, NON_OWNING scene_holder* sceneHolder)
+    void asset_linker::initialize(asset_linker_context&& context)
     {
-        HAR_ASS(assetHub);
-        HAR_ASS(sceneHolder);
+        HAR_ASS(context.assetHub);
+        HAR_ASS(context.sceneHolder);
+        HAR_ASS(context.eventQueue);
 
-        rAssetHub = assetHub;
-        rSceneHolder = sceneHolder;
+        mContext = std::move(context);
 
         register_asset_loader<material_instance_component>(asset_type::material_instance);
         register_asset_loader<renderable_component>(asset_type::pipeline_object);
@@ -32,7 +32,7 @@ namespace har
             {
                 auto eventData = event.get<asset_loaded_event_data>();
 
-                const auto& eventUUID = rAssetHub->get_asset(eventData.handle)->metadata.assetUUID;
+                const auto& eventUUID = mContext.assetHub->get_asset(eventData.handle)->metadata.assetUUID;
                 if (mLoaders.contains(eventData.type))
                     mLoaders.at(eventData.type)(eventUUID, eventData.handle);
             } break;

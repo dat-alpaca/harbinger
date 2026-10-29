@@ -31,13 +31,8 @@ namespace har
 
             mBuffer = reinterpret_cast<node*>(backingBuffer);
             mCapacity = elementCount;
-            mSize = 0;
-            mFree = 0;
-
-            for (u32 i = 0; i < mCapacity; ++i)
-                mBuffer[i].nextFree = i + 1;
-
-            mBuffer[elementCount - 1].nextFree = invalid_handle;
+            
+            clear();
         }
 
         constexpr handle_t insert(const T& value)
@@ -78,6 +73,17 @@ namespace har
             mBuffer[index].nextFree = mFree;
             mFree = index;
             --mSize;
+        }
+
+        constexpr void clear()
+        {
+            for (u32 i = 0; i < mCapacity; ++i)
+                mBuffer[i].nextFree = i + 1;
+
+            mBuffer[mCapacity - 1].nextFree = invalid_handle;
+
+            mSize = 0;
+            mFree = 0;
         }
 
     public:

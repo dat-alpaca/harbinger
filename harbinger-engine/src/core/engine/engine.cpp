@@ -64,6 +64,9 @@ namespace har
         // RHI:
         context.rhi.initialize(&context.config, &context.windowing.window, config.rhiArguments);
 
+        // GLSL:
+        glsl_compiler::initialize();
+
         // Asset Bank:
         {
             context.assetHub.initialize(
@@ -98,7 +101,12 @@ namespace har
 
         // Asset Linker:
         {
-            context.assetLinker.initialize(&context.assetHub, &context.sceneHolder);
+            context.assetLinker.initialize(
+            {
+                .assetHub = &context.assetHub,
+                .sceneHolder = &context.sceneHolder,
+                .eventQueue = context.eventQueue.get(),
+            });
             eventQueue->register_peeper({.callback = [&](event& event) { context.assetLinker.on_event(event); }});
         }
 
@@ -124,6 +132,8 @@ namespace har
 
     void harbinger_engine_shutdown(context_t& context)
     {
+        glsl_compiler::shutdown();
+
         context.workerPool.shutdown();
     }
 

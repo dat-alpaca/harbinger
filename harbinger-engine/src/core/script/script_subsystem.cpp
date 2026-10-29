@@ -27,6 +27,8 @@
 #include "core/memory/memory_tag.hpp"
 #include "core/scene/scene.hpp"
 #include "core/script/texture_script_options.hpp"
+#include "sol/error.hpp"
+#include "sol/protected_function_result.hpp"
 
 static void* lua_allocator(void* user, void* address, size_t oldSize, size_t newSize)
 {
@@ -93,18 +95,30 @@ namespace har
 
     void script_subsystem::invoke_startup_script(const std::filesystem::path& filepath, file_type type)
     {
-        open_script(filepath, type);
-
-        try 
         {
-            (*mView)["startup"]();
-        } catch(const sol::error& error) {
-            HAR_LOG_ERROR("[Script Engine] Startup script failed: {}", error.what());
+            sol::environment environment(*mView, sol::create, mView->globals());
+
+            try 
+            {
+                mView->script_file(filepath, environment, get_load_mode(type));
+
+                sol::protected_function startup = environment["startup"];
+                if (!startup.valid())
+                    return;
+
+                auto result = startup();
+                if(!result.valid())
+                {
+                    sol::error error = result;
+                    HAR_LOG_ERROR("[Script Engine] Startup script failed: {}", error.what());
+                }
+            } catch(const sol::error& error) {
+                HAR_LOG_ERROR("[Script Engine] Startup script failed: {}", error.what());
+            }
         }
 
-        (*mView)["startup"] = sol::nil;
-
-        mView->script("collectgarbage('collect')");
+        mView->collect_garbage();
+        mView->collect_garbage();
     }
     
     void script_subsystem::initialize_engine()
@@ -162,7 +176,7 @@ namespace har
                 {
                     if (setAsCurrent)
                         rContext.sceneHolder->set_current_scene(handle);
-                });
+                }, true);
                 
                 return handle;
             };

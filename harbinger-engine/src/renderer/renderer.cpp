@@ -1,10 +1,15 @@
 #include "renderer.hpp"
+#include "core/assets/mesh/mesh_asset.hpp"
+#include "core/event/event_type.hpp"
+#include "core/logging/logger.hpp"
+#include "core/memory/allocators.hpp"
 #include "renderer/sort_key.hpp"
 
 #include "core/defines.hpp"
 #include "core/assert/assert.hpp"
 #include "rhi/common/objects.hpp"
 #include "rhi/default_layout.hpp"
+#include <cstring>
 
 namespace har
 {
@@ -17,9 +22,18 @@ namespace har
         rRHI = rhi;
         mCommandBuffer = rRHI->create_command_buffer();
         mTransferBuffer = rRHI->create_command_buffer();
-
         mMaxDrawInfoPerFrame = desc.maxDrawInfoPerFrame;
-        
+
+        const int MAX_POS_PER_MESH = 8;
+        mPositionBuffer.resize(desc.maxMeshes * sizeof(glm::vec3) * MAX_POS_PER_MESH);
+
+        byte* backingBuffer = internal::MainStaticAllocator.push
+        (
+            mGPUOffsets.required_memory(desc.maxMeshes),
+            1
+        );
+        mGPUOffsets.initialize(backingBuffer, desc.maxMeshes);
+
         clear_draw_info();
 
         {
@@ -71,8 +85,17 @@ namespace har
             for (const auto& group : mDrawGroups)
             {
                 rebind(group);
-                // TODO: instead of 3, use mesh data from sort key
-                mCommandBuffer.draw(3, group.instanceCount, 0, group.offset);
+
+                u32 meshOffset = 0;
+                u32 count = 1;
+                if (group.sortKey.mesh != invalid_small_handle)
+                {
+                    auto& offset = mGPUOffsets[group.sortKey.mesh];
+                    meshOffset = offset.offset[0];
+                    count = offset.count;
+                }
+
+                mCommandBuffer.draw(count, group.instanceCount, meshOffset, group.offset);
             }
 
             mCommandBuffer.end();
@@ -82,19 +105,74 @@ namespace har
         rRHI->end_frame();
     }
 
-    void harbinger_renderer::push_object(const transform_t& transform, graphics_pipeline_handle handle, std::span<const byte> userData, bool isImmutable)
+    void harbinger_renderer::push_object(const transform_t& transform, graphics_pipeline_handle handle, mesh_handle mesh, std::span<const byte> userData, bool isImmutable)
     {
         mDrawInfo.push_back(draw_info 
         {
-            { .pipeline = handle }, 
+            { 
+                .pipeline = handle, 
+                .mesh = mesh 
+            }, 
             mCurrentOffset++ 
         });
 
-        mPositionBuffer.push_back({ 0.0, 0.0, 0.0, 1.0 });
-        mPositionBuffer.push_back({ 1.0, 0.0, 0.0, 1.0 });
-        mPositionBuffer.push_back({ 1.0, 1.0, 0.0, 1.0 });
         mInstanceBuffer.push_back( { .model = transform.get_transform_matrix() });
         mUserBuffer.insert(mUserBuffer.end(), userData.begin(), userData.end());
+    }
+
+    mesh_handle harbinger_renderer::push_mesh(asset_handle assetHandle, const mesh_asset& asset)
+    {
+        if (mMeshMap.contains(assetHandle))
+            return mMeshMap.at(assetHandle);
+
+        mesh_handle handle = mGPUOffsets.insert({});
+        mMeshMap[assetHandle] = handle;
+
+        auto& gpuOffset = mGPUOffsets[handle];
+        gpuOffset.count = asset.vertexCount;
+        for (vertex_layout layout = vertex_layout {0}; layout < vertex_layout::count; layout += static_cast<vertex_layout>(1))
+        {
+            mesh_offsets::data meshOffsetData = asset.offsets.get_data(layout);
+            auto* bufferData = static_cast<const byte*>(asset.vertices.data());
+
+            switch (layout)
+            {
+                case vertex_layout::position:
+                {
+                    gpuOffset.offset[DefaultDescriptor_Position] = mPositionByteOffset / sizeof(glm::vec4);
+
+                    const float* src = reinterpret_cast<const float*>(bufferData + meshOffsetData.byteOffset);
+                    float* dst = reinterpret_cast<float*>(mPositionBuffer.data()) + (mPositionByteOffset / sizeof(float));
+
+                    for (u64 i = 0; i < asset.vertexCount; ++i)
+                    {
+                        for (u64 j = 0; j < 3; ++j)
+                            *dst++ = *src++;
+                        *dst++ = 0.0f;
+                    }
+                    mPositionByteOffset += meshOffsetData.byteCount + asset.vertexCount * sizeof(float);
+                } break;
+
+                case vertex_layout::normals:
+                {
+                } break;
+
+                case vertex_layout::uv0:
+                {
+                } break;
+
+                default:
+                    break;
+            }
+        }
+
+        return handle;
+    }
+
+    void harbinger_renderer::clear_mesh_data()
+    {
+        mMeshMap.clear();
+        mGPUOffsets.clear();
     }
 
     void harbinger_renderer::prepare_draw_info()
@@ -125,7 +203,7 @@ namespace har
             mPositionSSBO, std::span<const byte>
             (
                 reinterpret_cast<const byte*>(mPositionBuffer.data()), 
-                mPositionBuffer.size() * sizeof(glm::vec4)
+                mPositionByteOffset
             ), 
             0
         );
@@ -171,7 +249,7 @@ namespace har
         mDrawInfo.reserve(mMaxDrawInfoPerFrame);
         mDrawGroups.reserve(mMaxDrawInfoPerFrame);
         
-        mPositionBuffer.clear();
+        //mPositionBuffer.clear();
         mInstanceBuffer.clear();
         mUserBuffer.clear();
     }

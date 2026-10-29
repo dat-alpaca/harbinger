@@ -19,4 +19,16 @@ namespace har
         user     = DefaultDescriptor_User,
         count,
     };
+
+    constexpr inline vertex_layout operator+(vertex_layout lhs, vertex_layout rhs)
+    {
+        u8 dataLHS = static_cast<u8>(lhs);
+        u8 dataRHS = static_cast<u8>(rhs);
+        return static_cast<vertex_layout>(dataLHS + dataRHS);
+    }
+    constexpr inline vertex_layout& operator+=(vertex_layout& lhs, const vertex_layout& rhs)
+    {
+        lhs = static_cast<vertex_layout>(lhs + rhs);
+        return lhs;
+    }
 }

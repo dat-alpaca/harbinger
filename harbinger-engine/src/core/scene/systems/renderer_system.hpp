@@ -16,7 +16,7 @@ namespace har
 
     private:
         void handle_new_objects();
-        void handle_scene_switch(event& event);
+        void handle_scene_assets_linked(event& event);
     
     private:
         NON_OWNING harbinger_renderer* rRenderer = nullptr;

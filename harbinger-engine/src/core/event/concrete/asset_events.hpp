@@ -3,6 +3,7 @@
 #include "core/event/event.hpp"
 #include "core/assets/asset.hpp"
 #include "core/event/event_queue.hpp"
+#include "core/event/event_type.hpp"
 
 namespace har
 {
@@ -30,5 +31,10 @@ namespace har
     inline void send_scene_assets_loaded_event(event_queue& queue)
     {
         queue.push(event { event_type::scene_assets_loaded });
+    }
+
+    inline void send_asset_handle_linked_event(event_queue& queue)
+    {
+        queue.push(event { event_type::asset_handle_linked });
     }
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "core/assets/mesh/mesh_asset.hpp"
 #include "core/defines.hpp"
 #include "core/utils/uuid.hpp"
 #include "core/assets/asset.hpp"
@@ -59,5 +60,6 @@ namespace har
 
         // Set through asset_linker system
         FIELD_SET_INTERNALLY asset_handle assetHandle = invalid_small_handle;
+        FIELD_SET_INTERNALLY mesh_handle gpuObjectHandle = invalid_small_handle;
     };
 }

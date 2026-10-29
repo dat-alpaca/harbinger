@@ -83,6 +83,9 @@ namespace har
             return;
         }
 
+        if (!mUploadCalls.contains(type))
+            return;
+
         handle_t gpuHandle = mUploadCalls[type](assetData, bankOption, assetData->metadata.filepath);
         send_asset_uploaded_event(*rContext.eventQueue, { .assetHandle = handle, .gpuHandle = gpuHandle, .type = type });
     }
@@ -93,7 +96,10 @@ namespace har
         auto* rhi = rContext.rhi;
 
         auto text = read_file_contents(shaderFilepath);
-        auto resultSPV = mCompiler.compile_shader(type, text, config);
+        
+        // TODO: accept offline pre-compiled shaders
+        glsl_compiler compiler;
+        auto resultSPV = compiler.compile_shader(type, text, config);
 
         if (!resultSPV.has_value())
         {

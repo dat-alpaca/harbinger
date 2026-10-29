@@ -35,7 +35,6 @@ namespace har
     u32 config_t::get_required_transient_memory()
     {
         return 
-            eventQueueDesc.get_required_transient_memory() +
             rendererDesc.get_required_transient_memory();
     }
 }

@@ -20,7 +20,8 @@ namespace har::platform
         HAR_ASS(window.window);
         glfwMakeContextCurrent(window.window);
 
-        HAR_ASS(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
+        i32 result = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        HAR_ASS(result);
     }
 
     void present(window_t& window)

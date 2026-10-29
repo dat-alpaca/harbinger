@@ -4,6 +4,8 @@
 #include "core/containers/containers.hpp"
 #include "core/defines.hpp"
 #include "core/assets/asset_hub.hpp"
+#include "core/event/concrete/asset_events.hpp"
+#include "core/event/event_queue.hpp"
 #include "core/logging/logger.hpp"
 #include "core/scene/scene_concepts.hpp"
 #include "core/scene/scene_holder.hpp"
@@ -11,19 +13,22 @@
 
 namespace har
 {
+    struct asset_linker_context
+    {
+        asset_hub* assetHub;
+        scene_holder* sceneHolder;
+        event_queue* eventQueue;
+    };
+
     class asset_linker
     {
         using asset_loader_function   = std::function<void(uuid_t, asset_handle)>;
         using asset_uploader_function = std::function<void(asset_handle, handle_t)>;
 
     public:
-        void initialize(NON_OWNING asset_hub* assetHub, NON_OWNING scene_holder* sceneHolder);
+        void initialize(asset_linker_context&& context);
         void on_event(event& event);
 
-    private:
-        void handle_material_instance_asset_upload(asset_handle assetHandle, handle_t gpuHandle);
-        void handle_pso_asset_upload(asset_handle assetHandle, handle_t gpuHandle);
-    
     private:
         template <is_component_linkable_through_load Component>
         void register_asset_loader(asset_type type)
@@ -43,34 +48,39 @@ namespace har
             };
         }
 
+    private:
         template <is_component_linkable_through_load Component>
         void handle_asset_load(uuid_t eventUUID, asset_handle handle)
         {
-            if (!rSceneHolder->get_current_scene())
+            auto* sceneHolder = mContext.sceneHolder;
+            if (!sceneHolder->get_current_scene())
             {
                 HAR_LOG_ERROR("Attempted to link asset handles from uuid too early.")
                 return;
             }
 
-            auto view = rSceneHolder->get_current_scene()->get_registry().view<Component>();
+            auto view = sceneHolder->get_current_scene()->get_registry().view<Component>();
             for (auto entity : view)
             {
                 auto& component = view.template get<Component>(entity);
                 if (component.assetUUID == eventUUID)
                     component.assetHandle = handle;
             }
+
+            send_asset_handle_linked_event(*mContext.eventQueue);
         }
 
         template <is_component_linkable_through_upload Component>
         void handle_asset_upload(asset_handle assetHandle, handle_t gpuObjectHandle)
         {
-            if (!rSceneHolder->get_current_scene())
+            auto* sceneHolder = mContext.sceneHolder;
+            if (!sceneHolder->get_current_scene())
             {
                 HAR_LOG_ERROR("Attempted to link gpu handles from asset handles too early.")
                 return;
             }
 
-            auto view = rSceneHolder->get_current_scene()->get_registry().view<Component>();
+            auto view = sceneHolder->get_current_scene()->get_registry().view<Component>();
             for (auto entity : view)
             {
                 auto& renderable = view.template get<Component>(entity);
@@ -80,8 +90,7 @@ namespace har
         }
 
     private:
-        NON_OWNING asset_hub* rAssetHub = nullptr;
-        NON_OWNING scene_holder* rSceneHolder = nullptr;
+        asset_linker_context mContext;    
 
     private:
         har_unordered_map<asset_type, asset_loader_function>   mLoaders;

@@ -2,8 +2,9 @@
 
 meson setup --reconfigure build --prefix=$(pwd)/deploy
 #meson setup --reconfigure -Db_sanitize=address build
-meson configure build -Dbuildtype=debug
-#meson configure build -Dbuildtype=release
+#meson configure build -Dbuildtype=debug
+meson configure build -Dbuildtype=release
+#meson configure build -Dbuildtype=debugoptimized
 cd build
 meson compile
 meson install --no-rebuild --only-changed --tags deploy

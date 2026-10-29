@@ -157,16 +157,20 @@ namespace har
 
             auto* meshAsset = static_cast<mesh_asset*>(assetData);
             {
+                meshAsset->vertices.resize(result->vertices.size());
+                meshAsset->indices.resize(result->indices.size());
+
                 std::memcpy(meshAsset->vertices.data(), result->vertices.data(), result->vertices.size());
                 std::memcpy(meshAsset->indices.data(), result->indices.data(), result->indices.size());
                 meshAsset->offsets = result->offsets;
+                meshAsset->vertexCount = result->vertexCount;
             }
         });
     }   
 
     asset_handle asset_hub::load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback, bool inPlace, uuid_t assetUUID)
     {
-        if (!std::filesystem::exists(filepath))
+        if (!filepath.string().starts_with(HAR_ENGINE_INTERNAL_URI) && !std::filesystem::exists(filepath))
         {
             HAR_LOG_ERROR("Invalid filepath: {}", filepath.string());
             return invalid_small_handle;

@@ -45,7 +45,6 @@ namespace har
     private:
         command_buffer_t mTransferBuffer;
         gpu_uploader_context rContext;
-        glsl_compiler mCompiler;
         har_unordered_map<asset_type, gpu_upload_function> mUploadCalls;
     };
 }
