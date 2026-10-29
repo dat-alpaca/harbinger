@@ -1,5 +1,15 @@
 {
     "type": "custom",
     "data": [
+        { 
+            "name": "color",
+            "type": "vec4",
+            "data": {
+                "x": 0.4,
+                "y": 0.3,
+                "z": 0.9,
+                "w": 1.0
+            }
+        }
     ]
 }

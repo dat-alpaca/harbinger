@@ -1,4 +1,5 @@
 #version 460
+layout (location = 0) out vec3 v_color;
 
 struct user_data
 {
@@ -15,8 +16,6 @@ layout(std430, binding = 4) readonly buffer b_user_buffer
 {
 	user_data data[];
 } b_user;
-
-layout (location = 0) out vec3 v_color;
 
 void main()
 {
