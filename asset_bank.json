@@ -1,15 +1,15 @@
 {
-    "res/textures/cat.jpg": {
+    "res/textures/board.png": {
         "type": "texture",
         "options": {
             "compression": "dxt5",
             "dataFormat": "dxt5_rgba",
             "dataType": "unsigned_byte",
             "gpuOptions": {
-                "width": 289,
-                "height": 295,
-                "layerWidth": 289,
-                "layerHeight": 295,
+                "width": 16,
+                "height": 16,
+                "layerWidth": 16,
+                "layerHeight": 16,
                 "depth": 1,
                 "dimension": "texture_2d",
                 "arraySize": 1,
