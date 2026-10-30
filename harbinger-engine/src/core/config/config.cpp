@@ -29,7 +29,8 @@ namespace har
         return 
             windowingMemory + 
             workerPoolDesc.required_dynamic_memory_worker_pool() +
-            scriptSubsystemDesc.get_required_dynamic_memory();
+            scriptSubsystemDesc.get_required_dynamic_memory() + 
+            rendererDesc.get_required_dynamic_memory();
     }
 
     u32 config_t::get_required_transient_memory()

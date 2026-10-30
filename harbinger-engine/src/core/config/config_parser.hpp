@@ -85,7 +85,16 @@ namespace har
 
         else if (MATCH("renderer", "maxMeshes"))
             config->rendererDesc.maxMeshes = std::atoi(value);
-        
+
+        else if (MATCH("renderer", "maxPositions"))
+            config->rendererDesc.maxPositions = std::atoi(value);
+
+        else if (MATCH("renderer", "maxNormals"))
+            config->rendererDesc.maxNormals = std::atoi(value);
+
+        else if (MATCH("renderer", "maxUV0s"))
+            config->rendererDesc.maxUV0s = std::atoi(value);
+
         // Worker Pools:
         else if (MATCH("workers", "workerThreadCount"))
             config->workerPoolDesc.threadCount = std::atoi(value);

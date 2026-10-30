@@ -16,19 +16,19 @@ namespace
 
     static inline void asset_load_default_triangle(mesh_asset& asset)
     {
-        f32 positionData[] = 
+        constexpr static const f32 positionData[] = 
         { 
             -0.5f, -0.5f, 0.0f,
              0.5f, -0.5f, 0.0f,
              0.5f,  0.5f, 0.0f,
         };
-        f32 normalData[] = 
+        constexpr static const f32 normalData[] = 
         { 
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
         };
-        f32 uv0Data[] = 
+        constexpr static const f32 uv0Data[] = 
         { 
             0.0f,  0.0f,
             1.0f,  0.0f,
@@ -64,13 +64,6 @@ namespace
 
     static inline void asset_load_default_quad(mesh_asset& asset)
     {
-        f32 _positionData[] = 
-        { 
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.5f,  0.5f, 0.0f,
-            -0.5f,  0.5f, 0.0f,
-        };
         f32 positionData[] = 
         { 
             -0.5f, -0.5f, 0.0f,
@@ -82,21 +75,21 @@ namespace
         };
         f32 normalData[] = 
         { 
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
         };
         f32 uv0Data[] = 
         { 
             0.0f, 0.0f,
             1.0f, 0.0f,
             1.0f, 1.0f,
+            1.0f, 1.0f,
             0.0f, 1.0f,
-            0.0f, 1.0f,
-            0.0f, 1.0f,
+            0.0f, 0.0f,
         };
 
         asset.vertexCount = 6;

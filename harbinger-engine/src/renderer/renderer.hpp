@@ -43,18 +43,33 @@ namespace har
                 sizeof(glm::vec4) * maxInstances +
                 nano_free_list<gpu_mesh_offset>::required_memory(maxMeshes);
         }
+        inline u64 get_required_dynamic_memory() 
+        { 
+            return 
+                sizeof(glm::vec4) * DefaultMaxPositions +
+                sizeof(glm::vec4) * DefaultMaxNormals +
+                sizeof(glm::vec2) * DefaultMaxUV0s;
+        }
 
     public:
         u64 maxDrawInfoPerFrame = DefaultMaxDrawInfoCount;
         u64 maxInstances = DefaultMaxInstances;
         u32 maxDataPerInstance = DefaultMaxDataPerInstance;
         u32 maxMeshes = DefaultMaxMeshes;
+
+        u32 maxPositions = DefaultMaxPositions;
+        u32 maxNormals = DefaultMaxNormals;
+        u32 maxUV0s = DefaultMaxUV0s;
     
     private:
         constexpr static inline u64 DefaultMaxDrawInfoCount = 16;
         constexpr static inline u64 DefaultMaxInstances = 16;
         constexpr static inline u64 DefaultMaxDataPerInstance = sizeof(float) * 8;
         constexpr static inline u64 DefaultMaxMeshes = 8;
+
+        constexpr static inline u64 DefaultMaxPositions = 32;
+        constexpr static inline u64 DefaultMaxNormals = 32;
+        constexpr static inline u64 DefaultMaxUV0s = 16;
     };
 
     class harbinger_renderer
@@ -95,10 +110,18 @@ namespace har
         har_vector<memory_tag::renderer, glm::vec4> mPositionBuffer;
         u32 mPositionByteOffset = 0;
 
+        har_vector<memory_tag::renderer, glm::vec4> mNormalBuffer;
+        u32 mNormalByteOffset = 0;
+
+        har_vector<memory_tag::renderer, glm::vec4> mUV0Buffer;
+        u32 mUV0ByteOffset = 0;
+
         har_vector<memory_tag::renderer, instance_data> mInstanceBuffer;
         har_vector<memory_tag::renderer, byte> mUserBuffer;
         
         buffer_handle mPositionSSBO = invalid_small_handle;
+        buffer_handle mNormalSSBO = invalid_small_handle;
+        buffer_handle mUV0SSBO = invalid_small_handle;
         buffer_handle mInstanceSSBO = invalid_small_handle;
         buffer_handle mUserSSBO = invalid_small_handle;
 
