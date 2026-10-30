@@ -26,6 +26,7 @@ rhi = {
             'src/rhi/opengl/command_buffer_gl.cpp',
             'src/rhi/opengl/resources.cpp',
             'src/rhi/opengl/rhi_arguments.cpp',
+            'src/rhi/opengl/shader_compat.cpp',
         ),
         'args': ['-DHAR_GL']
     }
