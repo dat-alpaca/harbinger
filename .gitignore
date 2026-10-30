@@ -3,3 +3,4 @@
 deploy/
 subprojects/*
 !subprojects/*.wrap
+scripts/run_local.sh
