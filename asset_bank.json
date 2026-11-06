@@ -26,5 +26,33 @@
                 "enableMipFiltering": true
             }
         }
+    },
+    "res/textures/face.png": {
+        "type": "texture",
+        "options": {
+            "compression": "none",
+            "dataFormat": "rgb_ui8",
+            "dataType": "unsigned_byte",
+            "gpuOptions": {
+                "width": 32,
+                "height": 32,
+                "layerWidth": 32,
+                "layerHeight": 32,
+                "depth": 1,
+                "dimension": "texture_2d",
+                "arraySize": 1,
+                "internalFormat": "rgba_ui8",
+                "levels": 1,
+                "isRenderTarget": false
+            },
+            "samplerOptions": {
+                "wrapS": "repeat",
+                "wrapT": "repeat",
+                "wrapR": "repeat",
+                "magFilter": "nearest",
+                "minFilter": "nearest",
+                "enableMipFiltering": true
+            }
+        }
     }
 }

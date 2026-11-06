@@ -67,6 +67,6 @@ namespace har
 
     constexpr inline bool is_gpu_uploadable(asset_type type)
     {
-        return (type == asset_type::texture || type == asset_type::pipeline_object || type == asset_type::mesh );
+        return (type == asset_type::texture || type == asset_type::pipeline_object );
     }
 }

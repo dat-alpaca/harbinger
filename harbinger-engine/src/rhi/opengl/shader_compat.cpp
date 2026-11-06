@@ -2,11 +2,10 @@
 
 #include "core/logging/logger.hpp"
 #include "core/utils/api_utils.hpp"
-#include "rhi/common/objects.hpp"
 
 namespace har::gl
 {
-    har_string convert_spv_to_gl_glsl(const config_t& config, std::span<u32> data, shader_type type)
+    har_string convert_spv_to_gl_glsl(const config_t& config, std::span<u32> data)
 	{
 		har_string source;
 		try

@@ -58,8 +58,6 @@ namespace
     {
         using namespace har;
 
-        // TODO: finish
-
         if (!sceneObject.contains("entities") || !sceneObject["entities"].is_array())
         {
             HAR_LOG_CRITICAL("Invalid scene object. Invalid entities registry");

@@ -33,8 +33,12 @@ namespace har
         queue.push(event { event_type::scene_assets_loaded });
     }
 
-    inline void send_asset_handle_linked_event(event_queue& queue)
+    inline void send_asset_linked_after_load_event(event_queue& queue)
     {
-        queue.push(event { event_type::asset_handle_linked });
+        queue.push(event { event_type::asset_linked_after_load });
+    }
+    inline void send_asset_linked_after_upload_event(event_queue& queue)
+    {
+        queue.push(event { event_type::asset_linked_after_upload });
     }
 }

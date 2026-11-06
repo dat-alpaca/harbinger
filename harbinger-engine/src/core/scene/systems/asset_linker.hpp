@@ -10,6 +10,7 @@
 #include "core/scene/scene_concepts.hpp"
 #include "core/scene/scene_holder.hpp"
 #include "core/utils/uuid.hpp"
+#include "rhi/common/objects.hpp"
 
 namespace har
 {
@@ -67,7 +68,7 @@ namespace har
                     component.assetHandle = handle;
             }
 
-            send_asset_handle_linked_event(*mContext.eventQueue);
+            send_asset_linked_after_load_event(*mContext.eventQueue);
         }
 
         template <is_component_linkable_through_upload Component>
@@ -76,7 +77,7 @@ namespace har
             auto* sceneHolder = mContext.sceneHolder;
             if (!sceneHolder->get_current_scene())
             {
-                HAR_LOG_ERROR("Attempted to link gpu handles from asset handles too early.")
+                HAR_LOG_ERROR("Attempted to link gpu handles from asset handles too early. No scene is set.");
                 return;
             }
 
@@ -87,10 +88,19 @@ namespace har
                 if (renderable.assetHandle == assetHandle)
                     renderable.gpuObjectHandle = gpuObjectHandle;
             }
+
+            send_asset_linked_after_upload_event(*mContext.eventQueue);
         }
 
+    public:
+        combined_texture_handle fetch_texture_from_uuid(uuid_t uuid) const { return mTextureMap.at(uuid); }
+
+    public:
+        asset_hub* get_asset_hub() const { return mContext.assetHub; }
+
     private:
-        asset_linker_context mContext;    
+        asset_linker_context mContext;
+        har_unordered_map<uuid_t, combined_texture_handle> mTextureMap;
 
     private:
         har_unordered_map<asset_type, asset_loader_function>   mLoaders;

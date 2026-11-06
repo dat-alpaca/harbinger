@@ -10,7 +10,7 @@ namespace har
         // Upload options:
         texture_descriptor gpuOptions;
         sampler_descriptor samplerOptions;
-        format dataFormat;
+        format_t dataFormat;
         data_type dataType;
 
         // Load options:

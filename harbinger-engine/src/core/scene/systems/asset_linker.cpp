@@ -22,6 +22,7 @@ namespace har
 
         register_asset_uploader<material_instance_component>(asset_type::material_instance);
         register_asset_uploader<renderable_component>(asset_type::pipeline_object);
+        register_asset_uploader<mesh_component>(asset_type::mesh);
     }
 
     void asset_linker::on_event(event& event)

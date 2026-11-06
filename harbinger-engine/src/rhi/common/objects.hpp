@@ -16,6 +16,7 @@ namespace har
         none        = 0,
         vertex      = 1,
         fragment    = 1 << 1,
+        both        = 2
     };
     HAR_DEFINE_ENUM(pipeline_stage); 
 
@@ -86,7 +87,7 @@ namespace har
         u8 depth               = 1;
         
         texture_dimension dimension = texture_dimension::invalid;
-        format internalFormat       = format::rgba_ui8;
+        format_t internalFormat       = format_t::rgba_ui8;
         u8  levels                  = 1;
         
         u8  isRenderTarget : 1;
@@ -147,7 +148,7 @@ namespace har
     {
         texture_handle texture = invalid_small_handle;
         sampler_handle sampler = invalid_small_handle;
-        format textureFormat = format::invalid;
+        format_t textureFormat = format_t::invalid;
     };
 
     struct render_target_descriptor
@@ -164,7 +165,7 @@ namespace har
     {
         u8 binding;
         u8 offset;
-        format vertexFormat;
+        format_t vertexFormat;
         u8 location : 3;
         u8 instanced : 1;
     };

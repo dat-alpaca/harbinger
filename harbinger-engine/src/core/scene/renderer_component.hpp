@@ -5,6 +5,7 @@
 #include "core/assets/asset.hpp"
 #include "core/scene/components.hpp"
 #include "renderer/material.hpp"
+#include "renderer/texture_id.hpp"
 #include "rhi/common/objects.hpp"
 
 namespace har
@@ -43,7 +44,7 @@ namespace har
 
         // Set through asset_linker system
         FIELD_SET_INTERNALLY asset_handle assetHandle = invalid_small_handle;
-        FIELD_SET_INTERNALLY material_instance_handle gpuObjectHandle = invalid_small_handle;
+        FIELD_SET_INTERNALLY handle_t gpuObjectHandle = invalid_small_handle;
     };
 
     struct mesh_component

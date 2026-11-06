@@ -4,6 +4,7 @@
 
 #include "rhi/common/clear_flags.hpp"
 #include "rhi/common/color.hpp"
+#include "rhi/common/copying.hpp"
 #include "rhi/common/objects.hpp"
 #include "rhi/common/rect.hpp"
 #include "rhi/opengl/rhi_gl.hpp"
@@ -36,7 +37,11 @@ namespace har::rhi
 
     public:
         void update_buffer(buffer_handle handle, std::span<const byte> buffer, u64 offset);
-        void update_texture(texture_handle handle, const texture_asset& textureAsset, format dataFormat, data_type dataType);
+        void update_texture(texture_handle handle, const texture_asset& textureAsset, format_t dataFormat, data_type dataType);
+        void update_texture_layer(texture_handle handle, const texture_asset& textureAsset, format_t dataFormat, data_type dataType, u32 layer);
+
+    public:
+        void copy_texture(texture_handle src, texture_handle dst, texture_copy_loc srcLoc, texture_copy_loc dstLoc, texture_copy_dimens srcDimension);
 
     public:
         void draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance);

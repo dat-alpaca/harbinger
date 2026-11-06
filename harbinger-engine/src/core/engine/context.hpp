@@ -5,6 +5,7 @@
 #include "core/event/event_queue.hpp"
 #include "core/memory/memory_partitions.hpp"
 
+#include "core/scene/systems/material_instance_proxy.hpp"
 #include "core/scene/systems/renderer_system.hpp"
 #include "core/worker/worker_pool.hpp"
 #include "core/scene/scene_holder.hpp"
@@ -45,5 +46,6 @@ namespace har
     public:
         script_system scriptSystem;
         harbinger_renderer_system rendererSystem;
+        material_instance_proxy materialInstanceProxy;
     };
 }

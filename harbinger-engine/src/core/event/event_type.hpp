@@ -17,6 +17,7 @@ namespace har
         // assets:
         asset_loaded,
         asset_uploaded,
-        asset_handle_linked,
+        asset_linked_after_load,
+        asset_linked_after_upload,
     };
 }

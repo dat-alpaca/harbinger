@@ -74,21 +74,21 @@ namespace har::rhi
         }
     }
 
-    static constexpr gl_handle get_attribute_format(format attributeFormat)
+    static constexpr gl_handle get_attribute_format(format_t attributeFormat)
     {
         switch(attributeFormat)
         {
-            case format::r_ui8:
-            case format::r_snorm8:
-            case format::rg_ui8:     
-            case format::rg_snorm8:
-            case format::rgb_ui8:    
-            case format::rgb_snorm8: 
-            case format::rgba_ui8:   
-            case format::rgba_snorm8:
+            case format_t::r_ui8:
+            case format_t::r_snorm8:
+            case format_t::rg_ui8:     
+            case format_t::rg_snorm8:
+            case format_t::rgb_ui8:    
+            case format_t::rgb_snorm8: 
+            case format_t::rgba_ui8:   
+            case format_t::rgba_snorm8:
                 return GL_UNSIGNED_BYTE;
 
-            case format::rgb_f32:
+            case format_t::rgb_f32:
                 return GL_FLOAT;
 
             default:
@@ -96,26 +96,26 @@ namespace har::rhi
         }
     }
 
-    static constexpr u32 get_attribute_format_size(format attributeFormat)
+    static constexpr u32 get_attribute_format_size(format_t attributeFormat)
     {
         switch(attributeFormat)
         {
-            case format::r_ui8:
-            case format::r_snorm8:
+            case format_t::r_ui8:
+            case format_t::r_snorm8:
                 return 1;
-            case format::rg_ui8:     
-            case format::rg_snorm8:
+            case format_t::rg_ui8:     
+            case format_t::rg_snorm8:
                 return 2;
 
-            case format::rgb_ui8:    
-            case format::rgb_snorm8:
+            case format_t::rgb_ui8:    
+            case format_t::rgb_snorm8:
                 return 3;
             
-            case format::rgba_ui8:   
-            case format::rgba_snorm8:
+            case format_t::rgba_ui8:   
+            case format_t::rgba_snorm8:
                 return 4;
             
-            case format::rgb_f32:
+            case format_t::rgb_f32:
                 return 3;
 
             default:
@@ -261,32 +261,44 @@ namespace har::rhi
         for(u32 i = 0; i < set.descriptors.size(); ++i)
         {
             const auto& descriptor = set.descriptors[i];
+            u16 amount = descriptor.amount > 0 ? descriptor.amount : 1;
 
             switch(descriptor.type)
             {
                 case descriptor_set_type::uniform_buffer:
                 {
-                    auto& buffer = rRHI->buffers()[descriptor.handle];
-                    
-                    glBindBuffer(GL_UNIFORM_BUFFER, buffer);
-					glBindBufferBase(GL_UNIFORM_BUFFER, descriptor.binding, buffer);
+                    for (u16 i = 0; i < amount; ++i)
+                    {
+                        auto& buffer = rRHI->buffers()[descriptor.handles[i]];
+                        u32 binding = descriptor.binding + i;
+
+                        glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer);
+                    }
                 } break;
 
                 case descriptor_set_type::storage_buffer:
                 {
-                    auto& buffer = rRHI->buffers()[descriptor.handle];
+                    for (u16 i = 0; i < amount; ++i)
+                    {
+                        auto& buffer = rRHI->buffers()[descriptor.handles[i]];
+                        u32 binding = descriptor.binding + i;
 
-                    glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
-					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, descriptor.binding, buffer);
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, buffer);
+                    }
                 } break;
 
                 case descriptor_set_type::combined_texture:
                 {
-                    auto& texture = rRHI->textures()[descriptor.handle];
-                    auto& sampler = rRHI->samplers()[descriptor.handle];
-                    
-                    glBindTextureUnit(descriptor.binding, texture.handle);
-                    glBindSampler(descriptor.binding, sampler);
+                    for (u16 i = 0; i < amount; i += 2)
+                    {
+                        auto& texture = rRHI->textures()[descriptor.handles[i + 0]];
+                        auto& sampler = rRHI->samplers()[descriptor.handles[i + 1]];
+
+                        u32 unit = descriptor.binding + i;
+
+                        glBindTextureUnit(unit, texture.handle);
+                        glBindSampler(unit, sampler);
+                    }
                 } break;
 
                 default:
@@ -300,38 +312,38 @@ namespace har::rhi
 
 namespace har::rhi
 {
-    constexpr static gl_handle get_data_format(format format)
+    constexpr static gl_handle get_data_format(format_t format)
     {
         switch(format)
         {
-            case format::r_ui8:
-            case format::r_snorm8: 
+            case format_t::r_ui8:
+            case format_t::r_snorm8: 
                 return GL_RED;
 
-            case format::rg_ui8:
-            case format::rg_snorm8:
+            case format_t::rg_ui8:
+            case format_t::rg_snorm8:
                 return GL_RG;
 
-            case format::rgb_ui8:
-            case format::rgb_snorm8:
+            case format_t::rgb_ui8:
+            case format_t::rgb_snorm8:
                 return GL_RGB;
             
-            case format::rgba_ui8:
-            case format::rgba_snorm8:
+            case format_t::rgba_ui8:
+            case format_t::rgba_snorm8:
                 return GL_RGBA;
 
-            case format::rgb_f32:
+            case format_t::rgb_f32:
                 return GL_RGB;
 
             // Compressed:
             // TODO: check if i should use GL_RGBA instead
-            case format::dxt1_rgba:
+            case format_t::dxt1_rgba:
                 return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; 
             
-            case format::dxt3_rgba:
+            case format_t::dxt3_rgba:
                 return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 
-            case format::dxt5_rgba:
+            case format_t::dxt5_rgba:
                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; 
 
             default:
@@ -405,9 +417,9 @@ namespace har::rhi
         glNamedBufferSubData(bufferHandle, offset, buffer.size(), buffer.data());
     }
 
-    void command_buffer_gl::update_texture(texture_handle handle, const texture_asset& textureAsset, format dataFormat, data_type dataType)
+    void command_buffer_gl::update_texture(texture_handle handle, const texture_asset& textureAsset, format_t dataFormat, data_type dataType)
     {
-        /* Obs: textureAsset must contain the "true width and height', whereas the asset contains the layer width and height "*/
+        /* Obs: textureAsset must contain the "true width and height", whereas the texture_handle contains the layer width and height "*/
 
         // TODO: check if buffer handle exists
         const auto& textureGL = rRHI->textures()[handle];
@@ -435,27 +447,8 @@ namespace har::rhi
 
             case texture_dimension::texture_2d_array:
             {
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                glPixelStorei(GL_UNPACK_ROW_LENGTH, textureAsset.width);
-
-                u8 dataTypeSize = get_data_type_size(dataType);
-
                 for(u32 i = 0; i < textureGL.arraySize; ++i)
-                {
-                    glTextureSubImage3D
-                    (
-                        textureGL.handle,
-                        0,
-                        0, 0, i,
-                        textureGL.layerWidth, textureGL.layerHeight, 1,
-                        textureDataFormat,
-                        textureDataType,
-                        data + i * (textureGL.layerWidth * dataTypeSize)
-                    );
-                }
-
-                glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+                    update_texture_layer(handle, textureAsset, dataFormat, dataType, i);
             } break;
 
             case texture_dimension::texture_3d:
@@ -473,6 +466,68 @@ namespace har::rhi
 
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+
+    void command_buffer_gl::update_texture_layer(texture_handle handle, const texture_asset& textureAsset, format_t dataFormat, data_type dataType, u32 layer)
+    {
+        const auto& textureGL = rRHI->textures()[handle];
+
+        if (textureGL.dimension != texture_dimension::texture_2d_array)
+        {
+            HAR_LOG_ERROR("Attempted to modify texture layer of a non array-texture object");
+            return;
+        }
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, textureAsset.width);
+
+        u8 dataTypeSize = get_data_type_size(dataType);
+
+        gl_handle textureDataFormat = get_data_format(dataFormat);
+        gl_handle textureDataType = get_data_type(dataType);
+        byte* data = static_cast<byte*>(textureAsset.data);
+
+        glTextureSubImage3D
+        (
+            textureGL.handle,
+            0,
+            0, 0, layer,
+            textureGL.layerWidth, textureGL.layerHeight, 1,
+            textureDataFormat,
+            textureDataType,
+            data + layer * (textureGL.layerWidth * dataTypeSize)
+        );
+
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+}
+
+namespace har::rhi
+{
+    void command_buffer_gl::copy_texture(texture_handle src, texture_handle dst, texture_copy_loc srcLoc, texture_copy_loc dstLoc, texture_copy_dimens srcDimension)
+    {
+        const auto& srcGL = rRHI->textures()[src];
+        const auto& dstGL = rRHI->textures()[dst];
+        // TODO: check src and dst internal format compatibility: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCopyImageSubData.xhtml
+
+        auto srcTarget = get_gl_dimension(srcGL.dimension);
+        auto dstTarget = get_gl_dimension(dstGL.dimension);
+
+        glCopyImageSubData
+        (
+            srcGL.handle,
+            srcTarget,
+            srcLoc.level,
+            srcLoc.x, srcLoc.y, srcLoc.z,
+
+            dstGL.handle,
+            dstTarget,
+            dstLoc.level,
+            dstLoc.x, dstLoc.y, dstLoc.z,
+
+            srcDimension.width, srcDimension.height, srcDimension.depth
+        );
     }
 }
 

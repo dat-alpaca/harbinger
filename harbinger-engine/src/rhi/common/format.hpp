@@ -3,7 +3,7 @@
 
 namespace har
 {
-    enum class format : u8
+    enum class format_t : u8
     {
         invalid = invalid_type_t<u8>,
 

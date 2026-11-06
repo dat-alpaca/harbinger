@@ -1,0 +1,21 @@
+{
+    "data": [
+        { 
+            "name": "color",
+            "type": "vec3",
+            "data": {
+                "x": 0.4,
+                "y": 0.3,
+                "z": 0.9,
+                "w": 1.0
+            }
+        },
+        { 
+            "name": "albedo",
+            "type": "texture",
+            "data": {
+                "uuid": 10000
+            }
+        }
+    ]
+}

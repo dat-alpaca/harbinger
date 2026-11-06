@@ -57,7 +57,7 @@ namespace har
     {
         using namespace har::internal;
 
-        if (asset.channels != 4)
+        if (asset.channels != 4 || compressionLevel == texture_compression::none)
             return;
 
         i32 cFlags = get_squish_flags(compressionLevel);

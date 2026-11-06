@@ -36,7 +36,12 @@
             "type": "material_instance" 
         },
         { 
-            "filepath": "res/textures/board.png", 
+            "filepath": "res/material_instances/texture_0.json", 
+            "uuid": 1003,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/textures/face.png", 
             "uuid": 10000,
             "type": "texture" 
         }
@@ -103,7 +108,7 @@
             "material_instance": { "uuid": 1001 }
         },
         {
-            "id": 3,
+            "id": 4,
             "name": "triangle_center",
             "transform": { 
                 "position": { "x": 0.0, "y": 0.0, "z": 0.0 },   
@@ -115,11 +120,11 @@
                 "is_immutable": true,
                 "pipeline_uuid": 101
             },
-            "material_instance": { "uuid": 1001 },
+            "material_instance": { "uuid": 1002 },
             "mesh": { "uuid": 0 }
         },
         {
-            "id": 4,
+            "id": 5,
             "name": "quad_center0",
             "transform": { 
                 "position": { "x": 0.0, "y": 0.7, "z": 0.0 },   
@@ -131,11 +136,11 @@
                 "is_immutable": true,
                 "pipeline_uuid": 101
             },
-            "material_instance": { "uuid": 1001 },
+            "material_instance": { "uuid": 1002 },
             "mesh": { "uuid": 1 }
         },
         {
-            "id": 5,
+            "id": 6,
             "name": "quad_center1",
             "transform": { 
                 "position": { "x": 0.0, "y": 0.9, "z": 0.0 },   

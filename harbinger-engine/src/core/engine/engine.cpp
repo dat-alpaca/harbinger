@@ -111,7 +111,7 @@ namespace har
         }
 
         // Renderer:
-        context.renderer.initialize(&context.rhi, config.rendererDesc);
+        context.renderer.initialize(&context.rhi, &context.assetLinker, config.rendererDesc);
 
         /* Systems */
         {
@@ -119,8 +119,19 @@ namespace har
             context.scriptSystem.initialize(&context.assetHub);
             eventQueue->register_peeper({.callback = [&](event& event) { context.scriptSystem.on_event(event); }});
         
+            // Material Instance Proxy:
+            context.materialInstanceProxy.initialize(&context.assetHub, &context.renderer, context.eventQueue.get());
+            eventQueue->register_peeper({.callback = [&](event& event) { context.materialInstanceProxy.on_event(event); }});
+
             // Renderer:
-            context.rendererSystem.initialize(&context.renderer, &context.assetHub, &context.sceneHolder);
+            context.rendererSystem.initialize
+            ({
+                .renderer = &context.renderer,
+                .assetHub = &context.assetHub,
+                .eventQueue = context.eventQueue.get(), 
+                .sceneHolder = &context.sceneHolder,
+                .materialProxy = &context.materialInstanceProxy
+            });
             eventQueue->register_peeper({.callback = [&](event& event) { context.rendererSystem.on_event(event); }});
         }
 

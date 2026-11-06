@@ -30,7 +30,7 @@ namespace har
         data get_data(vertex_layout layoutIndex) const { return mData[static_cast<u8>(layoutIndex)]; }
 
     private:
-        data mData[DefaultDescriptor_Count];
+        data mData[DefaultDescriptor_MeshCount];
     };
 
     struct mesh_asset : public asset

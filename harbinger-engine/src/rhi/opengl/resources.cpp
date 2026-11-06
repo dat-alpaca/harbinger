@@ -1,9 +1,13 @@
+#include <cstring>
 #include <glad.h>
+#include <initializer_list>
 #include <span>
 
 #include "core/defines.hpp"
 #include "core/logging/logger.hpp"
 
+#include "core/memory/allocators.hpp"
+#include "core/memory/memory_tag.hpp"
 #include "rhi_gl.hpp"
 #include "rhi/opengl/descriptor_gl.hpp"
 #include "rhi/opengl/shader_compat.hpp"
@@ -189,50 +193,50 @@ namespace har::rhi
         return invalid_handle;
     }
 
-    constexpr static gl_handle get_internal_format(format format)
+    constexpr static gl_handle get_internal_format(format_t format)
     {
         switch(format)
         {
-            case format::r_ui8:
+            case format_t::r_ui8:
                 return GL_R8;
-            case format::r_snorm8: 
+            case format_t::r_snorm8: 
                 return GL_R8_SNORM;
 
-            case format::rg_ui8:
+            case format_t::rg_ui8:
                 return GL_RG8;
-            case format::rg_snorm8:
+            case format_t::rg_snorm8:
                 return GL_RG8_SNORM;
 
-            case format::rgb_ui8:
+            case format_t::rgb_ui8:
                 return GL_RGB8;
-            case format::rgb_snorm8:
+            case format_t::rgb_snorm8:
                 return GL_RGB8_SNORM;
             
-            case format::rgba_ui8:
+            case format_t::rgba_ui8:
                 return GL_RGBA8;
-            case format::rgba_snorm8:
+            case format_t::rgba_snorm8:
                 return GL_RGBA8_SNORM;
 
-            case format::d16:
+            case format_t::d16:
                 return GL_DEPTH_COMPONENT16;
 
-            case format::d32:
+            case format_t::d32:
                 return GL_DEPTH_COMPONENT32F;
 
-            case format::d24_s8:
+            case format_t::d24_s8:
                 return GL_DEPTH24_STENCIL8;
 
-            case format::rgb_f32:
+            case format_t::rgb_f32:
                 return GL_RGB32F;
 
             // Compressed:
-            case format::dxt1_rgba:
+            case format_t::dxt1_rgba:
                 return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; 
             
-            case format::dxt3_rgba:
+            case format_t::dxt3_rgba:
                 return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 
-            case format::dxt5_rgba:
+            case format_t::dxt5_rgba:
                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; 
 
             default:
@@ -249,16 +253,7 @@ namespace har::rhi
         textureGL.dimension = descriptor.dimension; 
         
         // Texture dimensions:
-        gl_handle textureDimension = invalid_handle;
-        switch(descriptor.dimension)
-        {
-            case texture_dimension::texture_2d: textureDimension = GL_TEXTURE_2D; break; 
-            case texture_dimension::texture_2d_array: textureDimension = GL_TEXTURE_2D; break;           
-            default:
-            {
-                HAR_LOG_CRITICAL("OpenGL: Invalid texture dimension.");
-            } break;
-        }
+        gl_handle textureDimension = get_gl_dimension(descriptor.dimension);
 
         // Creation:
         textureGL.handle = invalid_handle;
@@ -280,7 +275,6 @@ namespace har::rhi
             case texture_dimension::texture_2d:
             {
                 glTextureStorage2D(textureGL.handle, descriptor.levels, internalFormat, descriptor.width, descriptor.height);
-                
                 textureGL.width = descriptor.width;
                 textureGL.height = descriptor.height;
             } break;
@@ -487,6 +481,8 @@ namespace har::rhi
 // Descriptor set:
 namespace har::rhi
 {
+    using namespace har::internal;
+
     descriptor_set_layout_handle rhi_gl::create_descriptor_set_layout(const descriptor_set_layout& layout)
     {
         if (mDescriptorSets.size() + 1 > mDescriptorSets.capacity())
@@ -505,38 +501,95 @@ namespace har::rhi
         return static_cast<descriptor_set_handle>(handle);
     }
 
-    void rhi_gl::write_uniform_buffer_to_set(descriptor_set_handle set, buffer_handle buffer, u32 binding)
-    {
+    void rhi_gl::write_uniform_buffer_to_set(descriptor_set_handle set, std::initializer_list<buffer_handle> buffers, u32 binding)
+    {   
+        u32 amount = buffers.size();
+
+        auto* handles = static_cast<buffer_handle*>(MainDynamicAllocator.allocate(memory_tag::rhi, amount * sizeof(buffer_handle)));
+        std::memcpy(handles, buffers.begin(), amount * sizeof(buffer_handle));
+
         mDescriptorSets[set].descriptors.push_back
         ({ 
-            .handle = buffer, 
+            .handles = handles, 
             .binding = static_cast<u16>(binding),
-            .type = descriptor_set_type::uniform_buffer 
+            .amount = static_cast<u16>(amount),
+            .type = descriptor_set_type::uniform_buffer,
         });
     }
-    void rhi_gl::write_storage_buffer_to_set(descriptor_set_handle set, buffer_handle buffer, u32 binding)
+    void rhi_gl::write_storage_buffer_to_set(descriptor_set_handle set, std::initializer_list<buffer_handle> buffers, u32 binding)
     {
+        u32 amount = buffers.size();
+        auto* handles = static_cast<small_handle_t*>(MainDynamicAllocator.allocate(memory_tag::rhi, amount * sizeof(small_handle_t)));
+        std::memcpy(handles, buffers.begin(), amount * sizeof(buffer_handle));
+
         mDescriptorSets[set].descriptors.push_back
         ({ 
-            .handle = buffer,
+            .handles = handles,
             .binding = static_cast<u16>(binding),
-            .type = descriptor_set_type::storage_buffer 
+            .amount = static_cast<u16>(amount),
+            .type = descriptor_set_type::storage_buffer,
         });
     }
 
-    void rhi_gl::write_combined_image_to_set(descriptor_set_handle set, texture_handle texture, sampler_handle sampler, u32 binding)
+    void rhi_gl::write_combined_image_to_set(descriptor_set_handle set, std::initializer_list<texture_handle> textures, std::initializer_list<sampler_handle> samplers, u32 binding)
     {
+        HAR_ASS(textures.size() == samplers.size());
+        u32 amount = textures.size();
+
+        auto* handles = static_cast<small_handle_t*>(MainDynamicAllocator.allocate(memory_tag::rhi, 2 * amount * sizeof(small_handle_t)));
+        auto* handleIt = handles;
+
+        auto textureIt = textures.begin();
+        auto samplerIt = samplers.begin();
+        for (u64 i = 0; i < amount; ++i)
+        {
+            *handleIt++ = *textureIt++;
+            *handleIt++ = *samplerIt++;
+        }
+
         mDescriptorSets[set].descriptors.push_back
         ({ 
-            .handle = texture,
-            .extraHandle = sampler,
+            .handles = handles,
             .binding = static_cast<u16>(binding),
-            .type = descriptor_set_type::combined_texture
+            .amount = static_cast<u16>(2 * amount),
+            .type = descriptor_set_type::combined_texture,
+        });
+    }
+
+    void rhi_gl::write_combined_image_to_set(descriptor_set_handle set, std::initializer_list<combined_texture_handle> textures, u32 binding)
+    {
+        u32 amount = textures.size();
+
+        auto* handles = static_cast<small_handle_t*>(MainDynamicAllocator.allocate(memory_tag::rhi, 2 * amount * sizeof(small_handle_t)));
+        auto* handleIt = handles;
+
+        for (const auto& texture : textures)
+        {
+            const auto& textureHandle = combined_textures()[texture].textureHandle;
+            const auto& samplerHandle = combined_textures()[texture].samplerHandle;
+        
+            *handleIt++ = textureHandle;
+            *handleIt++ = samplerHandle;
+        }
+
+        mDescriptorSets[set].descriptors.push_back
+        ({ 
+            .handles = handles,
+            .binding = static_cast<u16>(binding),
+            .amount = static_cast<u16>(2 * amount),
+            .type = descriptor_set_type::combined_texture,
         });
     }
     
     void rhi_gl::destroy_descriptor_set(descriptor_set_handle& handle)
     {   
+        for (u64 i = 0; i < mDescriptorSets.size(); ++i)
+        {
+            auto& set = mDescriptorSets[i];
+            for (auto& descriptor : set.descriptors)
+                MainDynamicAllocator.deallocate(memory_tag::rhi, descriptor.handles);
+        }
+
         mDescriptorSets[handle].descriptors.clear();
 
         mDescriptorSets.remove(handle);

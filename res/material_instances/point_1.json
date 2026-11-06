@@ -1,13 +1,13 @@
 {
-    "type": "custom",
     "data": [
         { 
             "name": "color",
-            "type": "vec3",
+            "type": "vec4",
             "data": {
                 "x": 0.1,
                 "y": 0.4,
-                "z": 0.6
+                "z": 0.6,
+                "w": 1.0
             }
         },
         {

@@ -3,12 +3,18 @@
 
 namespace har
 {
-    constexpr u8 DefaultDescriptor_Position = 0;
-    constexpr u8 DefaultDescriptor_Normals  = 1;
-    constexpr u8 DefaultDescriptor_UV0      = 2;
-    constexpr u8 DefaultDescriptor_Instance = 3;
-    constexpr u8 DefaultDescriptor_User     = 4;
-    constexpr u8 DefaultDescriptor_Count    = 5;
+    constexpr u8 DefaultDescriptor_Position        = 0;
+    constexpr u8 DefaultDescriptor_Normals         = 1;
+    constexpr u8 DefaultDescriptor_UV0             = 2;
+    constexpr u8 DefaultDescriptor_Instance        = 3;
+    constexpr u8 DefaultDescriptor_User            = 4;
+    constexpr u8 DefaultDescriptor_MeshCount       = 5;
+
+    constexpr u8 DefaultDescriptor_TextureEntries  = 6;
+    
+    constexpr u8 DefaultDescriptor_Texture0     = 7;
+    constexpr u8 DefaultDescriptor_Texture1     = 8;
+    constexpr u8 DefaultDescriptor_Texture2     = 9;
 
     enum class vertex_layout : u8
     {

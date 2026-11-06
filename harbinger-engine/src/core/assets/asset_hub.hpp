@@ -44,11 +44,14 @@ namespace har
 
     public:
         asset_handle load_asset(asset_type type, const std::filesystem::path& filepath, asset_loader_callback&& callback = {}, bool inPlace = false, uuid_t assetUUID = invalid_uuid);
+        
+        // TODO: URGENT - create another method called "destroy". Unload should remove any underlying data; destroy should remove the entire asset (metadata inc.)
         void unload_asset(asset_type type, const std::filesystem::path& filepath, bool inPlace = false);
         void unload_asset(asset_type type, asset_handle handle, bool inPlace = false);
         
         asset* get_asset(const std::filesystem::path& filepath);
         asset* get_asset(asset_handle handle);
+        asset* get_asset(uuid_t uuid);
 
     private:
         void register_asset_loader(asset_type type, asset_loader_function&& function);

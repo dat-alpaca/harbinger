@@ -30,6 +30,12 @@ namespace har
             auto* textureAsset = static_cast<texture_asset*>(asset);
             const auto& options = *static_cast<texture_asset_bank_options*>(option);
 
+            if (!option)
+            {
+                HAR_LOG_ERROR("Bank option for texture {} not found. Add it to the asset bank file.", asset->metadata.filepath.string());
+                return invalid_small_handle;
+            }
+
             texture_handle texture = rContext.rhi->create_texture(options.gpuOptions);
             sampler_handle sampler = rContext.rhi->create_sampler(options.samplerOptions);
             

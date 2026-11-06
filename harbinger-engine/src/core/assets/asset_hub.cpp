@@ -66,8 +66,11 @@ namespace har
                 return;
             }
 
-            const texture_asset_bank_options& options = *static_cast<texture_asset_bank_options*>(bankOption);
-            asset_texture_compress(textureAssetResult.value(), options.compression);
+            if (bankOption)
+            {
+                const texture_asset_bank_options& options = *static_cast<texture_asset_bank_options*>(bankOption);
+                asset_texture_compress(textureAssetResult.value(), options.compression);
+            }
             
             auto* textureAsset = static_cast<texture_asset*>(assetData);
             {
@@ -139,9 +142,7 @@ namespace har
             auto* materialInstanceAsset = static_cast<material_instance_asset*>(assetData);
             {
                 materialInstanceAsset->type = result->type;
-
-                materialInstanceAsset->data.resize(result->data.size());
-                std::memcpy(materialInstanceAsset->data.data(), result->data.data(), result->data.size());
+                materialInstanceAsset->entries = std::move(result->entries);
             }
         });
 
@@ -269,6 +270,17 @@ namespace har
     asset* asset_hub::get_asset(asset_handle handle)
     {
         return mAssets[handle];
+    }
+    asset* asset_hub::get_asset(uuid_t uuid)
+    {
+        for (u64 i = 0; i < mAssets.size(); ++i)
+        {
+            auto* asset = mAssets[i]; 
+            if (asset->metadata.assetUUID == uuid)
+                return asset;
+        }
+
+        return nullptr;
     }
 
     void asset_hub::register_asset_loader(asset_type type, asset_loader_function&& function)
