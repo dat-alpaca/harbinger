@@ -136,7 +136,7 @@
                 "is_immutable": true,
                 "pipeline_uuid": 101
             },
-            "material_instance": { "uuid": 1002 },
+            "material_instance": { "uuid": 1003 },
             "mesh": { "uuid": 1 }
         },
         {
@@ -152,7 +152,7 @@
                 "is_immutable": true,
                 "pipeline_uuid": 101
             },
-            "material_instance": { "uuid": 1002 },
+            "material_instance": { "uuid": 1003 },
             "mesh": { "uuid": 1 }
         }
     ]

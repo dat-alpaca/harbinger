@@ -19,5 +19,8 @@ namespace har
         asset_uploaded,
         asset_linked_after_load,
         asset_linked_after_upload,
+
+        // renderer:
+        renderer_texture_pushed
     };
 }

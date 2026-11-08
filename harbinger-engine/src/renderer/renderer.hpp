@@ -6,6 +6,7 @@
 #include "core/assets/mesh/mesh_asset.hpp"
 #include "core/containers/nano_free_list.hpp"
 #include "core/defines.hpp"
+#include "core/event/event_queue.hpp"
 #include "core/scene/systems/asset_linker.hpp"
 #include "core/utils/transform.hpp"
 #include "core/memory/memory_tag.hpp"
@@ -94,7 +95,7 @@ namespace har
     class harbinger_renderer
     {
     public:
-        void initialize(NON_OWNING rhi_t* rhi, NON_OWNING asset_linker* assetLinker, const harbinger_renderer_desc& desc);
+        void initialize(NON_OWNING rhi_t* rhi, NON_OWNING asset_linker* assetLinker, NON_OWNING event_queue* eventQueue, const harbinger_renderer_desc& desc);
         void render();
 
     public:
@@ -116,6 +117,8 @@ namespace har
     private:
         NON_OWNING asset_linker* rAssetLinker = nullptr;
         NON_OWNING rhi_t* rRHI = nullptr;
+        NON_OWNING event_queue* rEventQueue = nullptr;
+
         command_buffer_t mCommandBuffer;
         command_buffer_t mTransferBuffer;
     

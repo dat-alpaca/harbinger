@@ -4,6 +4,7 @@
 #include "core/assets/asset.hpp"
 #include "core/event/event_queue.hpp"
 #include "core/event/event_type.hpp"
+#include "core/utils/uuid.hpp"
 
 namespace har
 {
@@ -40,5 +41,14 @@ namespace har
     inline void send_asset_linked_after_upload_event(event_queue& queue)
     {
         queue.push(event { event_type::asset_linked_after_upload });
+    }
+
+    struct renderer_texture_pushed_data
+    {
+        uuid_t uuid;
+    };
+    inline void send_renderer_texture_pushed_event(event_queue& queue, renderer_texture_pushed_data&& data)
+    {
+        queue.push(event { event_type::renderer_texture_pushed, std::move(data) });
     }
 }

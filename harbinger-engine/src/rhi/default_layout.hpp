@@ -10,11 +10,10 @@ namespace har
     constexpr u8 DefaultDescriptor_User            = 4;
     constexpr u8 DefaultDescriptor_MeshCount       = 5;
 
-    constexpr u8 DefaultDescriptor_TextureEntries  = 6;
-    
-    constexpr u8 DefaultDescriptor_Texture0     = 7;
-    constexpr u8 DefaultDescriptor_Texture1     = 8;
-    constexpr u8 DefaultDescriptor_Texture2     = 9;
+    constexpr u8 DefaultDescriptor_TextureEntries  = 5;
+    constexpr u8 DefaultDescriptor_Texture0     = 6;
+    constexpr u8 DefaultDescriptor_Texture1     = 7;
+    constexpr u8 DefaultDescriptor_Texture2     = 8;
 
     enum class vertex_layout : u8
     {

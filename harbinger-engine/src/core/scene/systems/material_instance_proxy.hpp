@@ -53,13 +53,10 @@ namespace har
                 });
             }
 
-            else if (event.type == event_type::asset_uploaded)
+            else if (event.type == event_type::renderer_texture_pushed)
             {
-                auto eventData = event.get<asset_uploaded_event_data>();
-                if (eventData.type != asset_type::texture)
-                    return;
-
-                handle_texture_uploaded();
+                auto eventData = event.get<renderer_texture_pushed_data>();
+                handle_texture_uploaded(eventData.uuid);
             }
         }
 
@@ -97,6 +94,12 @@ namespace har
                         {
                             auto defaultTextureID = rRenderer->get_default_texture_id_handle();
                             std::memcpy(currentData + byteOffset, &defaultTextureID, sizeof(handle_t));
+                            mPendingMaterialTextures.push_back
+                            ({ 
+                                .uuid = textureUUID,
+                                .index = static_cast<handle_t>(mMaterialInstanceData.size() - 1), 
+                                .position = byteOffset 
+                            });
                         }
                     } break;
 
@@ -114,16 +117,17 @@ namespace har
             return mMaterialInstanceData.size() - 1;
         }
 
-        void handle_texture_uploaded()
+        void handle_texture_uploaded(uuid_t textureUUID)
         {
             for (auto it = mPendingMaterialTextures.begin(); it != mPendingMaterialTextures.end();)
             {
-                const auto& unresolvedTextureID = *it;
-                uuid_t uuid = *reinterpret_cast<uuid_t*>(unresolvedTextureID);
+                const auto& pending = *it;
 
-                if (rRenderer->get_texture_id_map().contains(uuid))
+                if (pending.uuid == textureUUID)
                 {
-                    std::memcpy(unresolvedTextureID, &rRenderer->get_texture_id_map().at(uuid), sizeof(handle_t));
+                    auto* currentData = mMaterialInstanceData.at(pending.index).first;
+                    auto textureIDHandle =rRenderer->get_texture_id_map().at(textureUUID);
+                    std::memcpy(currentData + pending.position, &textureIDHandle, sizeof(handle_t));
                     it = mPendingMaterialTextures.erase(it);
                 }
                 else
@@ -140,7 +144,14 @@ namespace har
         NON_OWNING event_queue* rEventQueue = nullptr;
 
     private:
-        har_vector<memory_tag::renderer, texture_id*> mPendingMaterialTextures;
+        struct pending_resource
+        {
+            uuid_t uuid;
+            handle_t index;
+            handle_t position;
+        };
+
+        har_vector<memory_tag::renderer, pending_resource> mPendingMaterialTextures;
         har_vector<memory_tag::renderer, std::pair<byte*, u64>> mMaterialInstanceData;
     };
 }

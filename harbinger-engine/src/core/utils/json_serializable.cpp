@@ -196,7 +196,7 @@ namespace har
     void from_json(const nlohmann::json& jsonObject, texture_descriptor& descriptor) 
     {
         jsonObject.at("width").get_to(descriptor.width);
-        jsonObject.at("height").get_to(descriptor.width);
+        jsonObject.at("height").get_to(descriptor.height);
         jsonObject.at("layerWidth").get_to(descriptor.layerWidth);
         jsonObject.at("layerHeight").get_to(descriptor.layerHeight);
         

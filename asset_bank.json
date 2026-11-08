@@ -31,7 +31,7 @@
         "type": "texture",
         "options": {
             "compression": "none",
-            "dataFormat": "rgb_ui8",
+            "dataFormat": "rgba_ui8",
             "dataType": "unsigned_byte",
             "gpuOptions": {
                 "width": 32,

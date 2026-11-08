@@ -1,11 +1,11 @@
 #include "renderer.hpp"
 #include "core/assets/asset_hub.hpp"
 #include "core/assets/texture/texture_asset.hpp"
+#include "core/event/concrete/asset_events.hpp"
+#include "core/event/event_queue.hpp"
 #include "core/memory/allocators.hpp"
-#include "core/assets/custom_format.hpp"
 #include "core/assets/mesh/mesh_asset.hpp"
 
-#include "core/utils/uuid.hpp"
 #include "renderer/sort_key.hpp"
 
 #include "core/defines.hpp"
@@ -18,11 +18,13 @@ namespace har
 {
     using namespace har::internal;
 
-    void harbinger_renderer::initialize(NON_OWNING rhi_t* rhi, NON_OWNING asset_linker* assetLinker, const harbinger_renderer_desc& desc)
+    void harbinger_renderer::initialize(NON_OWNING rhi_t* rhi, NON_OWNING asset_linker* assetLinker, NON_OWNING event_queue* eventQueue, const harbinger_renderer_desc& desc)
     {
         HAR_ASS(rhi);
         HAR_ASS(assetLinker);
+        HAR_ASS(eventQueue);
 
+        rEventQueue = eventQueue;
         rRHI = rhi;
         rAssetLinker = assetLinker;
 
@@ -172,6 +174,7 @@ namespace har
                 mTransferBuffer.end();
                 rRHI->execute(mTransferBuffer);
 
+                // Default texture entry:
                 mTextureEntryBuffer.clear();
                 mTextureEntryBuffer.push_back({ .uvScale = { 1.0f, 1.0f }, .bin = DefaultTextureBin, .layer = DefaultTextureLayer });
 
@@ -339,7 +342,7 @@ namespace har
         mTransferBuffer.begin();
         mTransferBuffer.copy_texture
         (
-            textureHandle, 
+            textureHandle,
             arrayTexture.textureHandle, 
             {
                 .x = 0,
@@ -350,12 +353,12 @@ namespace har
             {
                 .x = 0,
                 .y = 0,
-                .z = 0,
-                .level = arrayTexture.currentLayer
+                .z = arrayTexture.currentLayer,
+                .level = 0
             },
             {
                 .width = textureAsset->width,
-                .height = textureAsset->width,
+                .height = textureAsset->height,
                 .depth = 1
             }
         );
@@ -366,6 +369,8 @@ namespace har
         mTextureEntryBuffer.push_back({.uvScale = { 1.0f, 1.0f }, .bin = bin, .layer = layer});
 
         mArrayTextureIdMap[textureUUID] = mTextureEntryBuffer.size() - 1;
+
+        send_renderer_texture_pushed_event(*rEventQueue, { .uuid = textureUUID });
     }
 
     void harbinger_renderer::clear_mesh_data()

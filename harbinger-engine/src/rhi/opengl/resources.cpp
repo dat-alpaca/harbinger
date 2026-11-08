@@ -311,11 +311,11 @@ namespace har::rhi
         glSamplerParameteri(samplerID, GL_TEXTURE_WRAP_T, get_wrap_mode(descriptor.wrapS));
         glSamplerParameteri(samplerID, GL_TEXTURE_WRAP_R, get_wrap_mode(descriptor.wrapS));
 
-        glTextureParameteri
+        glSamplerParameteri
         (
 			samplerID, GL_TEXTURE_MIN_FILTER, get_min_filter_mode(descriptor.minFilter, descriptor.enableMipFiltering)
 		);
-		glTextureParameteri
+		glSamplerParameteri
         (
             samplerID, GL_TEXTURE_MAG_FILTER, get_mag_filter_mode(descriptor.magFilter, descriptor.enableMipFiltering)
         );

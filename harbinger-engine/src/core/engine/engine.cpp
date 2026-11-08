@@ -111,7 +111,7 @@ namespace har
         }
 
         // Renderer:
-        context.renderer.initialize(&context.rhi, &context.assetLinker, config.rendererDesc);
+        context.renderer.initialize(&context.rhi, &context.assetLinker, context.eventQueue.get(), config.rendererDesc);
 
         /* Systems */
         {
