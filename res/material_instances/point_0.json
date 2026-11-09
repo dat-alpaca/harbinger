@@ -1,0 +1,19 @@
+{
+    "data": [
+        { 
+            "name": "color",
+            "type": "vec4",
+            "data": {
+                "x": 0.9,
+                "y": 0.1,
+                "z": 0.2,
+                "w": 1.0
+            }
+        },
+        {
+            "name": "point_size",
+            "type": "float32",
+            "data": 10.0
+        }
+    ]
+}

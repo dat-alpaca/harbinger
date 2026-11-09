@@ -2,12 +2,14 @@
 #include <filesystem>
 #include "asset_type.hpp"
 #include "core/defines.hpp"
+#include "core/utils/uuid.hpp"
 
 namespace har
 {
     struct asset_meta
     {
         std::filesystem::path filepath;
+        uuid_t assetUUID;
     };
 
     enum class asset_status : u8

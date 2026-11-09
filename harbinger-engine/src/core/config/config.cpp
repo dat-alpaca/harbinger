@@ -17,7 +17,8 @@ namespace har
             assetHubDesc.get_required_static_memory() +
             eventQueueDesc.get_required_static_memory() +
             rhiArguments.get_rhi_required_static_memory() + 
-            scriptSubsystemDesc.get_required_static_memory();
+            scriptSubsystemDesc.get_required_static_memory() +
+            rendererDesc.get_required_static_memory();
     }
 
     u32 config_t::get_required_dynamic_memory()
@@ -28,17 +29,13 @@ namespace har
         return 
             windowingMemory + 
             workerPoolDesc.required_dynamic_memory_worker_pool() +
-            scriptSubsystemDesc.get_required_dynamic_memory();
+            scriptSubsystemDesc.get_required_dynamic_memory() + 
+            rendererDesc.get_required_dynamic_memory();
     }
 
     u32 config_t::get_required_transient_memory()
     {
         return 
-            eventQueueDesc.get_required_transient_memory();
-    }
-
-    u32 config_t::get_required_safe_memory()
-    {
-        return 64;
+            rendererDesc.get_required_transient_memory();
     }
 }

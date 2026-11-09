@@ -37,6 +37,9 @@ namespace har
 
         else if (MATCH("api", "minor"))
             config->apiMinor = std::atoi(value);
+        
+        else if (MATCH("api", "glslVersion"))
+            config->glslVersion = std::atoi(value);
 
         // Event queue:
         else if (MATCH("events", "capacity"))
@@ -69,6 +72,28 @@ namespace har
 
         else if (MATCH("rhi", "maxCombinedTextureCount"))
             config->rhiArguments.maxCombinedTextureCount = std::atoi(value);
+
+        // Renderer:
+        else if (MATCH("renderer", "maxDrawInfoPerFrame"))
+            config->rendererDesc.maxDrawInfoPerFrame = std::atoi(value);
+
+        else if (MATCH("renderer", "maxInstances"))
+            config->rendererDesc.maxInstances = std::atoi(value);
+
+        else if (MATCH("renderer", "maxDataPerInstance"))
+            config->rendererDesc.maxDataPerInstance = std::atoi(value);
+
+        else if (MATCH("renderer", "maxMeshes"))
+            config->rendererDesc.maxMeshes = std::atoi(value);
+
+        else if (MATCH("renderer", "maxPositions"))
+            config->rendererDesc.maxPositions = std::atoi(value);
+
+        else if (MATCH("renderer", "maxNormals"))
+            config->rendererDesc.maxNormals = std::atoi(value);
+
+        else if (MATCH("renderer", "maxUV0s"))
+            config->rendererDesc.maxUV0s = std::atoi(value);
 
         // Worker Pools:
         else if (MATCH("workers", "workerThreadCount"))

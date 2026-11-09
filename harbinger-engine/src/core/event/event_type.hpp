@@ -12,11 +12,15 @@ namespace har
         // scene:
         scene_created,
         scene_switched,
+        scene_assets_loaded,
 
         // assets:
         asset_loaded,
-        scene_asset_load_requested,
-        asset_upload_requested,
         asset_uploaded,
+        asset_linked_after_load,
+        asset_linked_after_upload,
+
+        // renderer:
+        renderer_texture_pushed
     };
 }

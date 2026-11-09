@@ -34,6 +34,24 @@ namespace glm
         jsonObject.at("y").get_to(descriptor.y);
         jsonObject.at("z").get_to(descriptor.z);
     }
+
+    void to_json(nlohmann::json& jsonObject, const glm::vec4& descriptor)
+    {
+        jsonObject = nlohmann::json
+        {
+            { "x", descriptor.x },  
+            { "y", descriptor.y },  
+            { "z", descriptor.z },  
+            { "w", descriptor.w },  
+        };
+    }
+    void from_json(const nlohmann::json& jsonObject, glm::vec4& descriptor)
+    {
+        jsonObject.at("x").get_to(descriptor.x);
+        jsonObject.at("y").get_to(descriptor.y);
+        jsonObject.at("z").get_to(descriptor.z);
+        jsonObject.at("w").get_to(descriptor.w);
+    }
 }
 
 /* rasterizer */
@@ -178,7 +196,7 @@ namespace har
     void from_json(const nlohmann::json& jsonObject, texture_descriptor& descriptor) 
     {
         jsonObject.at("width").get_to(descriptor.width);
-        jsonObject.at("height").get_to(descriptor.width);
+        jsonObject.at("height").get_to(descriptor.height);
         jsonObject.at("layerWidth").get_to(descriptor.layerWidth);
         jsonObject.at("layerHeight").get_to(descriptor.layerHeight);
         

@@ -1,11 +1,12 @@
 #pragma once
-#include "core/config/config.hpp"
 #include "core/defines.hpp"
 
 #include "platform/window.hpp"
 #include "rhi/common/objects.hpp"
 #include "rhi/opengl/containers.hpp"
 #include "rhi/common/rhi_arguments.hpp"
+
+namespace har { struct config_t; }
 
 namespace har::rhi
 {
@@ -43,9 +44,10 @@ namespace har::rhi
         void destroy_graphics_pipeline(graphics_pipeline_handle& handle);
         void destroy_descriptor_set(descriptor_set_handle& handle);
 
-        void write_uniform_buffer_to_set(descriptor_set_handle set, buffer_handle buffer, u32 binding);
-        void write_storage_buffer_to_set(descriptor_set_handle set, buffer_handle buffer, u32 binding);
-        void write_combined_image_to_set(descriptor_set_handle set, texture_handle texture, sampler_handle sampler, u32 binding);
+        void write_uniform_buffer_to_set(descriptor_set_handle set, std::initializer_list<buffer_handle> buffers, u32 binding);
+        void write_storage_buffer_to_set(descriptor_set_handle set, std::initializer_list<buffer_handle> buffers, u32 binding);
+        void write_combined_image_to_set(descriptor_set_handle set, std::initializer_list<texture_handle> textures, std::initializer_list<sampler_handle> samplers, u32 binding);
+        void write_combined_image_to_set(descriptor_set_handle set, std::initializer_list<combined_texture_handle> textures, u32 binding);
 
     public:
         command_buffer_gl create_command_buffer();

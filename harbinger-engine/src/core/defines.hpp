@@ -1,4 +1,5 @@
 #pragma once
+#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -29,6 +30,8 @@
     inline EnumType operator&(EnumType lhs, EnumType rhs) { return static_cast<EnumType>(static_cast<u64>(lhs) & static_cast<u64>(rhs)); }; \
     inline bool operator==(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) == rhs; }; \
     inline bool operator!=(EnumType lhs, u64 rhs) { return static_cast<u64>(lhs) != rhs; };
+
+#define HAR_ENGINE_INTERNAL_URI "$engine"
 
 namespace har
 {

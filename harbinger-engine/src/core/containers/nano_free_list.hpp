@@ -4,6 +4,7 @@
 
 #include "core/assert/assert.hpp"
 #include "core/defines.hpp"
+#include "core/logging/logger.hpp"
 
 namespace har
 {
@@ -30,20 +31,18 @@ namespace har
 
             mBuffer = reinterpret_cast<node*>(backingBuffer);
             mCapacity = elementCount;
-            mSize = 0;
-            mFree = 0;
-
-            for (u32 i = 0; i < mCapacity; ++i)
-                mBuffer[i].nextFree = i + 1;
-
-            mBuffer[elementCount - 1].nextFree = invalid_handle;
+            
+            clear();
         }
 
         constexpr handle_t insert(const T& value)
         {
             if (mSize >= mCapacity || mFree == invalid_handle)
+            {
+                HAR_LOG_ERROR("Attempted to insert data into a full free list.");    
                 return invalid_small_handle;
-
+            }
+                
             handle_t freeIndex = mFree;
             mFree = mBuffer[freeIndex].nextFree;
 
@@ -76,16 +75,27 @@ namespace har
             --mSize;
         }
 
+        constexpr void clear()
+        {
+            for (u32 i = 0; i < mCapacity; ++i)
+                mBuffer[i].nextFree = i + 1;
+
+            mBuffer[mCapacity - 1].nextFree = invalid_handle;
+
+            mSize = 0;
+            mFree = 0;
+        }
+
     public:
         constexpr T& operator[](handle_t index)
         {
-            HAR_ASS(index < mSize && index >= 0);
+            HAR_ASS(index >= 0);
             return mBuffer[index].value;
         }
 
         constexpr const T& operator[](handle_t index) const
         {
-            HAR_ASS(index < mSize && index >= 0);
+            HAR_ASS(index >= 0);
             return mBuffer[index].value;
         }
 

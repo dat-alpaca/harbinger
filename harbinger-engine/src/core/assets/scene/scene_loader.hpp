@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 
 #include "core/defines.hpp"
+#include "core/scene/scene.hpp"
 #include "core/utils/file.hpp"
 #include "core/assets/asset_error.hpp"
 #include "core/scene/scene_holder.hpp"
@@ -11,7 +12,7 @@
 
 namespace har
 {
-    inline std::expected<scene_unloaded_asset_data, asset_load_error> asset_scene_load(const std::filesystem::path& filepath, scene_holder& sceneHolder, scene_asset* asset)
+    inline std::expected<scene_handle, asset_load_error> asset_scene_load(const std::filesystem::path& filepath, scene_holder& sceneHolder, scene_asset* asset)
     {
         nlohmann::json sceneObject = read_json(filepath);
 
@@ -23,9 +24,13 @@ namespace har
         if (!scene)
             return std::unexpected { asset_load_error::failed_to_load };
 
-        scene_unloaded_asset_data output;
-        deserialize_scene(sceneObject, *scene, output);
-        
-        return output;
+        deserialize_scene_registry(sceneObject, *scene);
+        return asset->handle;
+    }
+
+    inline std::expected<scene_unloaded_asset_data, asset_load_error> asset_scene_assets_load(const std::filesystem::path& filepath)
+    {
+        nlohmann::json sceneObject = read_json(filepath);
+        return deserialize_scene_assets(sceneObject);
     }
 }

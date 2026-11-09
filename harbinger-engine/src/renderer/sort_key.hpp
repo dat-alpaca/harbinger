@@ -1,7 +1,6 @@
 #pragma once
+#include "core/assets/mesh/mesh_asset.hpp"
 #include "core/defines.hpp"
-#include "renderer/material.hpp"
-#include "renderer/mesh.hpp"
 #include "rhi/common/objects.hpp"
 
 namespace har
@@ -13,13 +12,12 @@ namespace har
         {
             return 
                 (static_cast<u64>(pipeline)     << 48) |
-                (static_cast<u64>(meshHandle)   << 32) |
-                (static_cast<u64>(meshHandle)   << 16);
+                (static_cast<u64>(mesh)         << 32) |
+                (static_cast<u64>(0)            << 16);
         }
 
     public:
-        graphics_pipeline_handle pipeline;  // u16
-        mesh_handle meshHandle;
-        material_instance_handle materialInstanceHandle; 
+        graphics_pipeline_handle pipeline = invalid_small_handle;  // u16
+        mesh_handle mesh = invalid_small_handle; // u16
     };
 }

@@ -1,13 +1,15 @@
 #pragma once
+#include <cstring>
 #include <glm/glm.hpp>
 
 #include "core/assets/asset.hpp"
 #include "core/utils/transform.hpp"
 #include "renderer/material.hpp"
-#include "renderer/mesh.hpp"
 
 #include "core/defines.hpp"
 #include "core/containers/containers.hpp"
+
+#include "scene_concepts.hpp"
 
 #define REGISTER_COMPONENT(componentName) 													\
 public:																						\
@@ -15,6 +17,8 @@ public:																						\
 
 #define FIELD_SET_INTERNALLY
 #define FIELD_SET_BY_USER
+
+#include "renderer_component.hpp"
 
 namespace har
 {
@@ -25,10 +29,10 @@ namespace har
     public:
         name_component() = default;
         name_component(const name_component&) = default;
-        name_component(const har_string& other) : name(other) { }
+        name_component(const char* name) { this->name = strdup(name); }
 
     public:
-        FIELD_SET_BY_USER har_string name;
+        FIELD_SET_BY_USER const char* name;
     };
 
     struct transform_component
@@ -47,21 +51,5 @@ namespace har
     struct script_component
     {
         FIELD_SET_INTERNALLY asset_handle handle;  
-    };
-
-    struct mesh_component
-    {
-        REGISTER_COMPONENT(mesh_component)
-
-    public:
-        FIELD_SET_INTERNALLY mesh_handle meshHandle = invalid_small_handle;
-    };
-
-    struct material_instance_component
-    {
-        REGISTER_COMPONENT(mesh_component)
-
-    public:
-        FIELD_SET_INTERNALLY material_instance_handle materialHandle = invalid_small_handle;
     };
 }

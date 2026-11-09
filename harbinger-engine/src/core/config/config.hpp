@@ -7,6 +7,7 @@
 #include "core/script/script_subsystem.hpp"
 #include "core/worker/worker_pool.hpp"
 #include "platform/window_settings.hpp"
+#include "renderer/renderer.hpp"
 #include "rhi/common/rhi_arguments.hpp"
 
 namespace har
@@ -17,15 +18,16 @@ namespace har
         u32 get_required_static_memory();
         u32 get_required_dynamic_memory();
         u32 get_required_transient_memory();
-        u32 get_required_safe_memory();
 
     public:        
         nano_string assetBankFilepath;
         u32 maxScriptCount = 1;
         u8 apiMajor = 4;
         u8 apiMinor = 6;
+        u16 glslVersion = 460;
 
         platform::window_settings windowSettings;
+        harbinger_renderer_desc rendererDesc;
         scene_holder_desc sceneHolderDesc;
         worker_pool_desc workerPoolDesc;
         event_queue_desc eventQueueDesc;

@@ -1,6 +1,7 @@
 #include <glad.h>
 
 #include "core/defines.hpp"
+#include "core/config/config.hpp"
 #include "core/assert/assert.hpp"
 #include "platform/middleware.hpp"
 

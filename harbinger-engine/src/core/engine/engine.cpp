@@ -23,7 +23,6 @@ namespace har
         u32 staticMemoryAmount      = config.get_required_static_memory();
         u32 dynamicMemoryAmount     = config.get_required_dynamic_memory();
         u32 transientMemoryAmount   = config.get_required_transient_memory();
-        u32 safeMemoryAmount        = config.get_required_safe_memory();
 
         // Memory:
         {
@@ -32,7 +31,6 @@ namespace har
                 .staticMemorySizeBytes = staticMemoryAmount,
                 .dynamicMemorySizeBytes = dynamicMemoryAmount,
                 .transientMemorySizeBytes = transientMemoryAmount,
-                .safeMemorySizeBytes = safeMemoryAmount
             });
             auto& memoryPartitions = context.memoryPartitions;
 
@@ -54,15 +52,6 @@ namespace har
         // Scene Holder:
         context.sceneHolder.initialize(eventQueue.get(), config.sceneHolderDesc);
 
-        // Script:
-        {
-            context.scriptSubsystem.initialize(
-            {
-                .sceneHolder = &context.sceneHolder,
-                .assetHub = &context.assetHub,
-            });
-        }
-
         // Windowing:
         {
             context.windowing.initialize(context.eventQueue.get(),
@@ -74,6 +63,9 @@ namespace har
 
         // RHI:
         context.rhi.initialize(&context.config, &context.windowing.window, config.rhiArguments);
+
+        // GLSL:
+        glsl_compiler::initialize();
 
         // Asset Bank:
         {
@@ -96,22 +88,63 @@ namespace har
             });
         }
 
+        // Script Subsystem:
+        {
+            context.scriptSubsystem.initialize(
+            {
+                .sceneHolder = &context.sceneHolder,
+                .gpuUploader = &context.gpuUploader,
+                .eventQueue = context.eventQueue.get(),
+                .assetHub = &context.assetHub,
+            });
+        }
+
+        // Asset Linker:
+        {
+            context.assetLinker.initialize(
+            {
+                .assetHub = &context.assetHub,
+                .sceneHolder = &context.sceneHolder,
+                .eventQueue = context.eventQueue.get(),
+            });
+            eventQueue->register_peeper({.callback = [&](event& event) { context.assetLinker.on_event(event); }});
+        }
+
+        // Renderer:
+        context.renderer.initialize(&context.rhi, &context.assetLinker, context.eventQueue.get(), config.rendererDesc);
+
         /* Systems */
         {
             // Script:
             context.scriptSystem.initialize(&context.assetHub);
             eventQueue->register_peeper({.callback = [&](event& event) { context.scriptSystem.on_event(event); }});
+        
+            // Material Instance Proxy:
+            context.materialInstanceProxy.initialize(&context.assetHub, &context.renderer, context.eventQueue.get());
+            eventQueue->register_peeper({.callback = [&](event& event) { context.materialInstanceProxy.on_event(event); }});
+
+            // Renderer:
+            context.rendererSystem.initialize
+            ({
+                .renderer = &context.renderer,
+                .assetHub = &context.assetHub,
+                .eventQueue = context.eventQueue.get(), 
+                .sceneHolder = &context.sceneHolder,
+                .materialProxy = &context.materialInstanceProxy
+            });
+            eventQueue->register_peeper({.callback = [&](event& event) { context.rendererSystem.on_event(event); }});
         }
 
         /* Stats */
         HAR_LOG_INFO("Static memory: {}B", staticMemoryAmount);
         HAR_LOG_INFO("Dynamic memory: {}MB", dynamicMemoryAmount / 1e6);
         HAR_LOG_INFO("Transient memory: {}B", transientMemoryAmount);
-        HAR_LOG_INFO("Safe memory: {}B", safeMemoryAmount);
     }
 
     void harbinger_engine_shutdown(context_t& context)
     {
+        glsl_compiler::shutdown();
+
         context.workerPool.shutdown();
     }
 

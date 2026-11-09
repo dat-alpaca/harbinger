@@ -1,0 +1,33 @@
+{
+    "name": "quad",
+
+    "vertex_shader": "res/shaders/quad.vert",
+    "fragment_shader": "res/shaders/quad.frag",
+
+    "vertex_input": {},
+    "rasterizer": {
+        "front_face": "ccw",
+        "cull_mode": "back",
+        "polygon_mode": "fill",
+        "enable_depth_clamp": false,
+        "enable_discard": false,
+        "enable_depth_bias": false
+    },
+
+    "color_blending": {
+        "enable_blending": true,
+        "attachments": [
+            { "inherit": "alpha_blending_default" }
+        ]
+    },
+
+    "multisampling": {
+        "sample_count": 1,
+        "enable_sampling": true
+    },
+
+    "input_assembly": {
+        "topology": "triangles",
+        "primitive_restart_enable": false
+    }    
+}

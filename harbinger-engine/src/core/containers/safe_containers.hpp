@@ -17,7 +17,6 @@ namespace har::thread_safe
         safe_transient_vector(u32 capacity)
             : mCapacity(capacity)
         {
-            mBuffer.reserve(capacity);
         }
 
     public:
@@ -58,6 +57,18 @@ namespace har::thread_safe
             return true;
         }
 
+        bool pop_front(T& output)
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            if (mBuffer.empty())
+                return false;
+        
+            output = mBuffer.front();
+            mBuffer.pop_front();
+
+            return true;
+        }
+
         void clear()
         {
             std::lock_guard<std::mutex> lock(mMutex);
@@ -83,7 +94,7 @@ namespace har::thread_safe
         }
 
     private:
-        har_transient_vector<tag, T> mBuffer;
+        har_transient_deque<tag, T> mBuffer;
         mutable std::mutex mMutex;
         u32 mCapacity;
     };

@@ -1,6 +1,6 @@
 .vscode
 .cache
 deploy/
-res/
 subprojects/*
 !subprojects/*.wrap
+scripts/run_local.sh

@@ -15,24 +15,28 @@ namespace glm
     /* vec3 */
     void to_json(nlohmann::json& jsonObject, const glm::vec3& descriptor);
     void from_json(const nlohmann::json& jsonObject, glm::vec3& descriptor);
+
+    /* vec4 */
+    void to_json(nlohmann::json& jsonObject, const glm::vec4& descriptor);
+    void from_json(const nlohmann::json& jsonObject, glm::vec4& descriptor);
 }
 
 namespace har
 {
-    NLOHMANN_JSON_SERIALIZE_ENUM(format, 
+    NLOHMANN_JSON_SERIALIZE_ENUM(format_t, 
     {
-        { format::invalid, "invalid" },
-        { format::r_ui8, "r_ui8" },
-        { format::r_snorm8, "r_snorm8" },
-        { format::rg_snorm8, "rg_snorm8" },
-        { format::rgb_ui8, "rgb_ui8" },
-        { format::rgb_snorm8, "rgb_snorm8" },
-        { format::rgba_ui8, "rgba_ui8" },
-        { format::rgba_snorm8, "rgba_snorm8" },
-        { format::d16, "d16" },
-        { format::d32, "d32" },
-        { format::d24_s8, "d24_s8" },
-        { format::rgb_f32, "rgb_f32" },
+        { format_t::invalid, "invalid" },
+        { format_t::r_ui8, "r_ui8" },
+        { format_t::r_snorm8, "r_snorm8" },
+        { format_t::rg_snorm8, "rg_snorm8" },
+        { format_t::rgb_ui8, "rgb_ui8" },
+        { format_t::rgb_snorm8, "rgb_snorm8" },
+        { format_t::rgba_ui8, "rgba_ui8" },
+        { format_t::rgba_snorm8, "rgba_snorm8" },
+        { format_t::d16, "d16" },
+        { format_t::d32, "d32" },
+        { format_t::d24_s8, "d24_s8" },
+        { format_t::rgb_f32, "rgb_f32" },
     });
 
     NLOHMANN_JSON_SERIALIZE_ENUM(data_type, 

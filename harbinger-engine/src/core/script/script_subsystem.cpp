@@ -14,6 +14,8 @@
 
 #include "core/assert/assert.hpp"
 #include "core/assets/asset.hpp"
+#include "core/assets/asset_type.hpp"
+#include "core/assets/scene/scene_loader.hpp"
 #include "core/bridges/gpu_uploader.hpp"
 #include "core/defines.hpp"
 #include "core/event/concrete/asset_events.hpp"
@@ -25,6 +27,8 @@
 #include "core/memory/memory_tag.hpp"
 #include "core/scene/scene.hpp"
 #include "core/script/texture_script_options.hpp"
+#include "sol/error.hpp"
+#include "sol/protected_function_result.hpp"
 
 static void* lua_allocator(void* user, void* address, size_t oldSize, size_t newSize)
 {
@@ -65,7 +69,7 @@ namespace har
     void script_subsystem::initialize(script_subsystem_context&& context)
     {
         rContext = std::move(context);
-        HAR_ASS(rContext.sceneHolder && rContext.assetHub);
+        HAR_ASS(rContext.sceneHolder && rContext.assetHub && rContext.gpuUploader && rContext.eventQueue);
 
         mState = lua_newstate(lua_allocator, &rContext);
         HAR_ASS(mState);
@@ -91,18 +95,30 @@ namespace har
 
     void script_subsystem::invoke_startup_script(const std::filesystem::path& filepath, file_type type)
     {
-        open_script(filepath, type);
-
-        try 
         {
-            (*mView)["startup"]();
-        } catch(const sol::error& error) {
-            HAR_LOG_ERROR("[Script Engine] Startup script failed: {}", error.what());
+            sol::environment environment(*mView, sol::create, mView->globals());
+
+            try 
+            {
+                mView->script_file(filepath, environment, get_load_mode(type));
+
+                sol::protected_function startup = environment["startup"];
+                if (!startup.valid())
+                    return;
+
+                auto result = startup();
+                if(!result.valid())
+                {
+                    sol::error error = result;
+                    HAR_LOG_ERROR("[Script Engine] Startup script failed: {}", error.what());
+                }
+            } catch(const sol::error& error) {
+                HAR_LOG_ERROR("[Script Engine] Startup script failed: {}", error.what());
+            }
         }
 
-        (*mView)["startup"] = sol::nil;
-
-        mView->script("collectgarbage('collect')");
+        mView->collect_garbage();
+        mView->collect_garbage();
     }
     
     void script_subsystem::initialize_engine()
@@ -128,16 +144,18 @@ namespace har
             {
                 if (!options.valid())
                 {
-                    HAR_LOG_ERROR("[Script Engine] invalid option arguments passed to load_scene.");
+                    HAR_LOG_ERROR("[Script Engine] invalid option arguments passed to load_texture.");
                     return invalid_small_handle;
                 }
 
                 asset_handle handle = rContext.assetHub->load_asset(asset_type::texture, filepath, {}, false);
 
-                // TODO: if (options["upload_immediate"].get_or(true))
-                {
-                    
-                }
+                if (options["upload_immediate"].get_or(true))
+                    rContext.gpuUploader->upload_asset_from_hub(asset_type::texture, handle);
+
+                // TODO: free memory after load option
+
+                return handle;
             };
 
             assetsTable["unload_texture"] = sol::overload
@@ -158,9 +176,35 @@ namespace har
                 {
                     if (setAsCurrent)
                         rContext.sceneHolder->set_current_scene(handle);
-                });
+                }, true);
                 
                 return handle;
+            };
+            assetsTable["load_scene_assets"] = [&](scene_handle handle) -> void
+            {
+                // TODO: ask whether to upload to gpu immediately (also at .lua.d)
+                //if (options["upload_immediate"].get_or(true))
+                //    rContext.gpuUploader->upload_asset_from_hub(asset_type::texture, handle);
+
+                auto& filepath = rContext.assetHub->get_asset(handle)->metadata.filepath;
+
+                auto result = asset_scene_assets_load(filepath);
+                if (!result.has_value())
+                {
+                    HAR_LOG_ERROR("Failed to load scene at: {}", filepath.string());
+                    return;
+                }
+
+                for (const auto& entry : result->entries)
+                {
+                    // TODO: in-place, but use thread here
+                    asset_handle handle = rContext.assetHub->load_asset(entry.type, entry.filepath, {}, true, entry.assedUUID);
+
+                    if (is_gpu_uploadable(entry.type))
+                        rContext.gpuUploader->upload_asset_from_hub(entry.type, handle);
+                }
+
+                send_scene_assets_loaded_event(*rContext.eventQueue);
             };
 
             engineTable["assets"] = assetsTable;

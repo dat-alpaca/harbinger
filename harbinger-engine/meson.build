@@ -26,6 +26,7 @@ rhi = {
             'src/rhi/opengl/command_buffer_gl.cpp',
             'src/rhi/opengl/resources.cpp',
             'src/rhi/opengl/rhi_arguments.cpp',
+            'src/rhi/opengl/shader_compat.cpp',
         ),
         'args': ['-DHAR_GL']
     }
@@ -71,14 +72,20 @@ sources = files(
 
     'src/core/bridges/gpu_uploader.cpp',
 
+    'src/core/event/event_queue.cpp',
+
     'src/core/scene/scene.cpp',
     'src/core/scene/entity.cpp',
 
     'src/core/scene/scene_holder.cpp',
+    'src/core/scene/systems/renderer_system.cpp',
+    'src/core/scene/systems/asset_linker.cpp',
 
     'src/core/worker/worker_pool.cpp',
 
     'src/core/utils/json_serializable.cpp',
+
+    'src/rhi/glsl_compiler.cpp',
 )
 
 # Platform-specific:

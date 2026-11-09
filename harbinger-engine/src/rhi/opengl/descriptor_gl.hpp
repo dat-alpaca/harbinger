@@ -7,9 +7,9 @@ namespace har
 {
     struct descriptor_item_gl
     {
-        small_handle_t handle;
-        small_handle_t extraHandle;
+        small_handle_t* handles;
         u16 binding;
+        u16 amount;
         descriptor_set_type type;
     };
 

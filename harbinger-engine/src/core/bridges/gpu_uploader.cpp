@@ -9,9 +9,11 @@
 #include "core/assets/texture/texture_bank_options.hpp"
 
 #include "core/defines.hpp"
+#include "core/event/concrete/asset_events.hpp"
 #include "core/logging/logger.hpp"
 #include "core/utils/file.hpp"
 #include "rhi/common/objects.hpp"
+#include "rhi/glsl_compiler.hpp"
 #include <filesystem>
 
 namespace har
@@ -27,6 +29,12 @@ namespace har
         {
             auto* textureAsset = static_cast<texture_asset*>(asset);
             const auto& options = *static_cast<texture_asset_bank_options*>(option);
+
+            if (!option)
+            {
+                HAR_LOG_ERROR("Bank option for texture {} not found. Add it to the asset bank file.", asset->metadata.filepath.string());
+                return invalid_small_handle;
+            }
 
             texture_handle texture = rContext.rhi->create_texture(options.gpuOptions);
             sampler_handle sampler = rContext.rhi->create_sampler(options.samplerOptions);
@@ -60,29 +68,32 @@ namespace har
                 .multisampling  = psoAsset->multisampling,
                 .inputAssembly  = psoAsset->inputAssembly
             });
+            if (pipeline == invalid_small_handle)
+            {
+                HAR_LOG_ERROR("Failed to create graphics pipeline");
+                return pipeline;
+            }
 
             return pipeline;
         });
     }
         
-    void gpu_uploader::upload_asset_from_hub(asset_type type, const std::filesystem::path& filepath)
+    void gpu_uploader::upload_asset_from_hub(asset_type type, asset_handle handle)
     {
-        auto* assetData = static_cast<asset*>(rContext.assetHub->get_asset(filepath));
-        auto* bankOptions = static_cast<asset_bank_option*>(rContext.assetHub->get_asset_bank()[filepath].get());
+        auto* assetData = static_cast<asset*>(rContext.assetHub->get_asset(handle));
+        auto* bankOption = rContext.assetHub->get_asset_bank()[assetData->metadata.filepath].get();
 
         if (!is_gpu_uploadable(type))
         {
-            HAR_LOG_ERROR("Attempted to upload a non-gpu uploadable asset: {} [{}]", filepath.string(), get_name_from_asset(type));
+            HAR_LOG_ERROR("Attempted to upload a non-gpu uploadable asset: {} [{}]", handle, get_name_from_asset(type));
             return;
         }
 
-        if (!std::filesystem::exists(filepath))
-        {
-            HAR_LOG_ERROR("Failed to upload asset at: {}", filepath.string());
+        if (!mUploadCalls.contains(type))
             return;
-        }
 
-        mUploadCalls[type](assetData, bankOptions, filepath);
+        handle_t gpuHandle = mUploadCalls[type](assetData, bankOption, assetData->metadata.filepath);
+        send_asset_uploaded_event(*rContext.eventQueue, { .assetHandle = handle, .gpuHandle = gpuHandle, .type = type });
     }
 
     shader_handle gpu_uploader::create_shader(shader_type type, const std::filesystem::path& shaderFilepath)
@@ -90,19 +101,23 @@ namespace har
         auto& config = *rContext.config;
         auto* rhi = rContext.rhi;
 
-        auto vertexText = read_file_contents(shaderFilepath);
-        auto vertexResult = mCompiler.compile_shader(type, vertexText, config);
+        auto text = read_file_contents(shaderFilepath);
+        
+        // TODO: accept offline pre-compiled shaders
+        glsl_compiler compiler;
+        auto resultSPV = compiler.compile_shader(type, text, config);
 
-        if (!vertexResult.has_value())
+        if (!resultSPV.has_value())
         {
-            HAR_LOG_ERROR("[GPU Uploader] Failed to load and compile vertex shader: {} | Code: {}", 
+            HAR_LOG_ERROR("[GPU Uploader] Failed to load and compile {} shader: {} | Code: {}", 
+                get_shader_type_name(type),
                 shaderFilepath.string(), 
-                get_compiler_error_string(vertexResult.error())
+                get_compiler_error_string(resultSPV.error())
             );
             return invalid_small_handle;
         }
 
-        return rhi->create_shader(type, vertexResult.value());
+        return rhi->create_shader(type, resultSPV.value());
     }
 
     void gpu_uploader::register_gpu_upload_function(asset_type type, gpu_upload_function&& function)

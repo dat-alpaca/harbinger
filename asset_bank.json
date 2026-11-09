@@ -1,19 +1,47 @@
 {
-    "res/textures/cat.jpg": {
+    "res/textures/board.png": {
         "type": "texture",
         "options": {
             "compression": "dxt5",
             "dataFormat": "dxt5_rgba",
             "dataType": "unsigned_byte",
             "gpuOptions": {
-                "width": 289,
-                "height": 295,
-                "layerWidth": 289,
-                "layerHeight": 295,
+                "width": 16,
+                "height": 16,
+                "layerWidth": 16,
+                "layerHeight": 16,
                 "depth": 1,
                 "dimension": "texture_2d",
                 "arraySize": 1,
                 "internalFormat": "dxt5_rgba",
+                "levels": 1,
+                "isRenderTarget": false
+            },
+            "samplerOptions": {
+                "wrapS": "repeat",
+                "wrapT": "repeat",
+                "wrapR": "repeat",
+                "magFilter": "nearest",
+                "minFilter": "nearest",
+                "enableMipFiltering": true
+            }
+        }
+    },
+    "res/textures/face.png": {
+        "type": "texture",
+        "options": {
+            "compression": "none",
+            "dataFormat": "rgba_ui8",
+            "dataType": "unsigned_byte",
+            "gpuOptions": {
+                "width": 32,
+                "height": 32,
+                "layerWidth": 32,
+                "layerHeight": 32,
+                "depth": 1,
+                "dimension": "texture_2d",
+                "arraySize": 1,
+                "internalFormat": "rgba_ui8",
                 "levels": 1,
                 "isRenderTarget": false
             },

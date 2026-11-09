@@ -1,0 +1,159 @@
+{
+    "assets": [
+        { 
+            "filepath": "$engine/triangle", 
+            "uuid": 0,
+            "type": "mesh" 
+        },
+        { 
+            "filepath": "$engine/quad", 
+            "uuid": 1,
+            "type": "mesh" 
+        },
+        { 
+            "filepath": "res/pipelines/point.pso", 
+            "uuid": 100,
+            "type": "pso" 
+        },
+        { 
+            "filepath": "res/pipelines/quad.pso", 
+            "uuid": 101,
+            "type": "pso" 
+        },
+        { 
+            "filepath": "res/material_instances/point_0.json", 
+            "uuid": 1000,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/material_instances/point_1.json", 
+            "uuid": 1001,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/material_instances/quad_0.json", 
+            "uuid": 1002,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/material_instances/texture_0.json", 
+            "uuid": 1003,
+            "type": "material_instance" 
+        },
+        { 
+            "filepath": "res/textures/face.png", 
+            "uuid": 10000,
+            "type": "texture" 
+        }
+    ],
+    "entities": [
+        {
+            "id": 0,
+            "name": "point_left_bottom",
+            "transform": { 
+                "position": { "x": -0.5, "y": -0.5, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x": 1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 100
+            },
+            "material_instance": { "uuid": 1000 }
+        },
+        {
+            "id": 1,
+            "name": "point_right_bottom",
+            "transform": { 
+                "position": { "x": 0.5, "y": -0.5, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x": 1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 100
+            },
+            "material_instance": { "uuid": 1000 }
+        },
+        {
+            "id": 2,
+            "name": "point_up_left",
+            "transform": { 
+                "position": { "x": -0.5, "y": 0.4, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x": 1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 100
+            },
+            "material_instance": { "uuid": 1001 }
+        },
+        {
+            "id": 3,
+            "name": "point_up_right",
+            "transform": { 
+                "position": { "x": 0.5, "y": 0.4, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x": 1.0, "y": 1.0, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 100
+            },
+            "material_instance": { "uuid": 1001 }
+        },
+        {
+            "id": 4,
+            "name": "triangle_center",
+            "transform": { 
+                "position": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },   
+                "scale":    { "x": 0.1, "y": 0.1, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 101
+            },
+            "material_instance": { "uuid": 1002 },
+            "mesh": { "uuid": 0 }
+        },
+        {
+            "id": 5,
+            "name": "quad_center0",
+            "transform": { 
+                "position": { "x": 0.0, "y": 0.7, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 45.0 },   
+                "scale":    { "x": 0.1, "y": 0.1, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 101
+            },
+            "material_instance": { "uuid": 1003 },
+            "mesh": { "uuid": 1 }
+        },
+        {
+            "id": 6,
+            "name": "quad_center1",
+            "transform": { 
+                "position": { "x": 0.0, "y": 0.9, "z": 0.0 },   
+                "rotation": { "x": 0.0, "y": 0.0, "z": 45.0 },   
+                "scale":    { "x": 0.08, "y": 0.08, "z": 1.0 } 
+            },
+
+            "renderable": {
+                "is_immutable": true,
+                "pipeline_uuid": 101
+            },
+            "material_instance": { "uuid": 1003 },
+            "mesh": { "uuid": 1 }
+        }
+    ]
+}

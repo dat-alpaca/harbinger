@@ -1,6 +1,7 @@
 #pragma once
 #include "core/scene/scene.hpp"
 #include "core/assets/asset.hpp"
+#include "core/utils/uuid.hpp"
 
 namespace har
 {
@@ -15,6 +16,7 @@ namespace har
         {
             std::filesystem::path filepath;
             asset_type type = asset_type::unknown;
+            uuid_t assedUUID;
         };
 
         har_vector<memory_tag::scene, entry> entries;
