@@ -6,6 +6,7 @@ cross_platform = {
                 'src/platform/linux/memory.cpp',
                 'src/platform/linux/breakpoint.cpp',
                 'src/platform/glfw/window_glfw.cpp',
+                'src/platform/glfw/input.cpp',
             ),
             'deps': [dependency('x11')],
             'args': ['-DHAR_LINUX']
@@ -52,11 +53,13 @@ harbinger_engine_deps = [
     libsquish_dep,
     glslang_dep,
     sol2_dep,
+    nuklear_dep
 ]
 args = []
 
 sources = files(
     'src/core/implementation.cpp',
+    
     'src/core/assets/asset_hub.cpp',
     'src/core/config/config.cpp',
     'src/core/engine/engine.cpp',
@@ -69,6 +72,8 @@ sources = files(
     'src/core/windowing/windowing.cpp',
 
     'src/renderer/renderer.cpp',
+    
+    'src/core/gui/gui_subsystem.cpp',
 
     'src/core/bridges/gpu_uploader.cpp',
 

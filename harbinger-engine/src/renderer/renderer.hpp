@@ -1,8 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "core/assets/asset.hpp"
-#include "core/assets/asset_hub.hpp"
-#include "core/assets/material_instance/material_instance_asset.hpp"
 #include "core/assets/mesh/mesh_asset.hpp"
 #include "core/containers/nano_free_list.hpp"
 #include "core/defines.hpp"
@@ -12,8 +10,6 @@
 #include "core/memory/memory_tag.hpp"
 #include "core/containers/containers.hpp"
 
-#include "renderer/material.hpp"
-#include "renderer/texture_id.hpp"
 #include "rhi/default_layout.hpp"
 #include "rhi/rhi.hpp"
 #include "rhi/common/objects.hpp"

@@ -20,6 +20,8 @@ namespace har
         renderer,
         assets,
 
+        gui,
+
         amount,
     };
 }

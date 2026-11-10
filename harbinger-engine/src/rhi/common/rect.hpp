@@ -3,11 +3,15 @@
 
 namespace har
 {
-    struct rect
+    template <typename T>
+    struct rect_t
     {
-        i32 x = 0;
-        i32 y = 0;
-        i32 width;
-        i32 height;
+        T x = 0;
+        T y = 0;
+        T width;
+        T height;
     };
+
+    using rect_i32 = rect_t<i32>;
+    using rect_f32 = rect_t<f32>;
 }

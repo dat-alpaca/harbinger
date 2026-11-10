@@ -1,10 +1,11 @@
 #include "window_glfw.hpp"
 #include "GLFW/glfw3.h"
 
+#include "core/input/keys.hpp"
+#include "platform/input.hpp"
 #include "platform/window.hpp"
 
 #include "core/defines.hpp"
-#include "core/engine/engine.hpp"
 #include "core/assert/assert.hpp"
 #include "core/memory/memory_tag.hpp"
 #include "core/event/concrete/window_events.hpp"
@@ -115,5 +116,98 @@ namespace har::platform
     void window_get_dimensions(const window_t& window, i32& width, i32& height)
     {
         glfwGetWindowSize(window.window, &width, &height);
+    }
+    void window_get_framebuffer_dimensions(const window_t& window, i32& width, i32& height)
+    {
+        glfwGetFramebufferSize(window.window, &width, &height);
+    }
+
+    const char* window_get_clipboard_string(const window_t& window)
+    {
+        return glfwGetClipboardString(window.window);
+    }
+
+    void window_set_clipboard_string(const window_t& window, const char* string)
+    {
+        HAR_ASS(string);
+        glfwSetClipboardString(window.window, string);
+    }
+
+    input_action window_get_key(const window_t& window, key_t key)
+    {
+        return get_input_action(glfwGetKey(window.window, get_native_key(key)));
+    }
+    input_action window_get_mouse_button(const window_t& window, mouse_button button)
+    {
+        return get_input_action(glfwGetMouseButton(window.window, get_native_mouse_button(button)));
+    }
+    void window_get_cursor_position(const window_t& window, f64* x, f64* y)
+    {
+        glfwGetCursorPos(window.window, x, y);
+    }
+    void window_set_cursor_position(const window_t& window, f64 x, f64 y)
+    {
+        glfwSetCursorPos(window.window, x, y);
+    }
+
+    f64 window_get_time_seconds(const window_t& window)
+    {
+        return glfwGetTime();
+    }
+
+    void window_show_cursor(const window_t& window)
+    {
+        glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+    void window_hide_cursor(const window_t& window)
+    {
+        glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
+}
+
+namespace har::platform
+{
+    void window_set_mouse_button_callback(window_t& window, mouse_button_clbk&& callback)
+    {
+        window.mouseButtonCallback = std::move(callback);
+
+        glfwSetMouseButtonCallback(window.window, [](GLFWwindow* windowHandle, i32 button, i32 action, i32 mods)
+        {
+            window_glfw* mainWindow = static_cast<window_glfw*>(glfwGetWindowUserPointer(windowHandle));
+            mainWindow->mouseButtonCallback(button, action, mods);
+        });
+    }
+
+    void window_set_scroll_callback(window_t& window, scroll_clbk&& callback)
+    {
+        window.scrollCallback = std::move(callback);
+
+        glfwSetScrollCallback(window.window, [](GLFWwindow* windowHandle, f64 x, f64 y)
+        {
+            window_glfw* mainWindow = static_cast<window_glfw*>(glfwGetWindowUserPointer(windowHandle));
+            mainWindow->scrollCallback(x, y);
+        });
+    }
+
+    void window_set_character_callback(window_t& window, character_clbk&& callback)
+    {
+        window.characterCallback = std::move(callback);
+
+        glfwSetCharCallback(window.window, [](GLFWwindow* windowHandle, u32 codepoint)
+        {
+            window_glfw* mainWindow = static_cast<window_glfw*>(glfwGetWindowUserPointer(windowHandle));
+            mainWindow->characterCallback(codepoint);
+        });
+    }
+
+    void window_set_key_callback(window_t& window, key_clbk&& callback)
+    {
+        window.keyCallback = std::move(callback);
+
+        glfwSetKeyCallback(window.window, [](GLFWwindow* windowHandle, i32 key, i32 scancode, i32 action, i32 mods)
+        {
+            window_glfw* mainWindow = static_cast<window_glfw*>(glfwGetWindowUserPointer(windowHandle));
+            mainWindow->keyCallback(get_key(key), scancode, get_input_action(action), mods);
+        });
     }
 }

@@ -34,11 +34,11 @@ namespace har::rhi
 
         glBindFramebuffer(GL_FRAMEBUFFER, rRHI->render_targets()[handle].renderBufferHandle);
     }
-    void command_buffer_gl::set_viewport(const rect& viewport)
+    void command_buffer_gl::set_viewport(const rect_i32& viewport)
     {
         glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
-    void command_buffer_gl::set_scissor(const rect& scissor)
+    void command_buffer_gl::set_scissor(const rect_i32& scissor)
     {
         glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
     }

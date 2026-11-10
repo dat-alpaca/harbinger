@@ -59,6 +59,7 @@ entt_dep          = dependency('entt', include_type: 'system')
 nlohmann_json_dep = dependency('nlohmann_json')
 glslang_dep       = dependency('glslang')
 sol2_dep          = dependency('sol2')
+nuklear_dep       = dependency('nuklear')
 spirvc_dep        = spirvc_subproject.dependency('spirv-cross-glsl') 
 libsquish_dep     = libsquish_sub.dependency('libsquish_squish')
 
@@ -69,6 +70,10 @@ endif
 
 if get_option('build_testbed')
     subdir('harbinger-testbed')
+endif
+
+if get_option('build_editor')
+    subdir('harbinger-editor')
 endif
 
 install_subdir(

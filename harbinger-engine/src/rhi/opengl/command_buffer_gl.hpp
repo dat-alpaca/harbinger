@@ -25,8 +25,8 @@ namespace har::rhi
     
     public:
         void set_render_target(render_target_handle handle = invalid_small_handle);
-        void set_viewport(const rect& viewport);
-        void set_scissor(const rect& scissor);
+        void set_viewport(const rect_i32& viewport);
+        void set_scissor(const rect_i32& scissor);
         void set_clear_color(const color_t& color, clear_flags flags = clear_flags::color);
 
     public:
